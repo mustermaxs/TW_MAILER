@@ -6,6 +6,7 @@
 + Threads
 + Forks
 + Parallelism & Concurrency
++ Composite Pattern
 
 ## Module
 
