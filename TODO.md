@@ -14,16 +14,22 @@
 #### IItem
 **Methods**:
 + string toString()
-+ 
++ Map toMap()
+
+
+ISender : IITem
+IReceiver : IITem
+ISubject : IITem
+IContent : IITem
 
 #### IMessage : IItem
 **Summary**:
 + beinhaltet alle Komponenten einer Mail
 **Fields**:
-+ string Sender
-+ string Receiver
-+ string Subject
-+ string content (die message selbst)
++ ISender Sender
++ IReceiver Receiver
++ ISubject Subject
++ IContent content (die message selbst)
 
 #### ISubject : IItem
 
