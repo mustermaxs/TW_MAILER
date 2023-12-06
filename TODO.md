@@ -49,7 +49,6 @@ IContent : IITem
     <message (multi-line; no length restrictions)\n>
     .\n
     ```
-
 #### ITokenParser
 **Summary**:
 + erkennt Command (z.B. SEND, LIST, ...) und speichert inhalt in tokens
@@ -60,14 +59,14 @@ IContent : IITem
 + Map<string, string> parse(string)
 **Schema**:
 + `{"Command": "SEND", "Receiver": "Max", "Sender": "Sebi"}`
-   
++ 
 #### Router
 **Summary**
  + Routet Clientrequests an zuständigen Controller weiter
 **Fields**:
 **Methods**:
 + void HandleRequest(string request)
-+ 
+
 
 #### MessageController
 **Summary**
@@ -75,7 +74,7 @@ IContent : IITem
 **Methods**:
 + saveMessage(string messageSender, string, message)
 + getMessages()
-+ 
+
 
 #### IFileHandler
 **Summary**
@@ -84,15 +83,9 @@ IContent : IITem
 + string readFile(string path)
 + writeFile(string path, string content)
 
-####
-
-
 ## Client
 
-### 
-
 ---
-
 
 ## Commands:
 - SEND
@@ -100,8 +93,6 @@ IContent : IITem
 - READ
 - DEL
 - QUIT
-
-
 ## Protocol specs
 ### SEND
 #### Request
@@ -115,16 +106,18 @@ SEND\n
 ```
 + final "." ends command
 
+
 #### Response
 + `OK\n`
 + `ERR\n`
-
 + User folder in `/var/spool/mail/$USER/<receiver>/` für receiver anlegen
     falls er noch nicht existiert
 + Content der Mail in eigenes File unter `/var/spool/mail/$USER/<receiver>/` speichern
 
+
 ### LIST
 + gibt die Subjects aller Nachrichten (nummeriert) aus dem Posteingang eines bestimmten Users aus
+
 
 #### Request
 ```
@@ -173,7 +166,6 @@ or
 ```
 ERR\n 
 ```
-
 ### QUIT
 ```
 QUIT\n
@@ -186,3 +178,101 @@ QUIT\n
 
 ### LOGIN
 ### 
+
+
+ICommandHandler
++ MessageHandler
++ ListHandler
++ ...
+
+
+CommandRouter/CommandMapper
+-> ruft zuständigen ICommandHandler auf und delegiert
+Anfrage an diesen
+
+
+### Request
+- enum COMMAND
+- int socket-Id
+
+### Message : IItem
+- SENDER
+- RECEIVER
+- SUBJECT
+- MESSAGE
+
+### List
+- USERNAME
+
+ReadRequest : IRequest
+- USERNAME
+- MESSAGE_NR
+
+DeleteRequest : IRequest
+- USERNAME
+- MESSAGE_NR
+
+
+_SERVER_
+response = router.handleRequest(socketID, buffer)
+send(response.socketID, response.toString());
+
+return controller.ControllerMethod()
+
+---
+
+_Controller_
+Response::Send(payload)
+
+
+_Response::Send_
+send(payload.socketID, payload.toString())
+
+### IRequest
+**Summary**:
++ Server gibt Router socket-ID, buffer, buffer-size weiter
++ Router erstellt IRequest-Instanz
+**Fields**:
++ string Command (zB "SEND")
++ int socket-ID
++ IItem payload
+
+
+### IItem
+**Methode**
++ public string toString()
+
+### Response
++ IItem payload
+  + IItem payload hat methode toString()
++ socket-ID
+
+---
+
+SERVER:
+Router:
+_REQUEST_
+- erstellt IRequest Instanz
+- ruft zuständige MessageController-Methode auf
+  - gibt Nachrichten weiter an MessageController
+- hat Parser instanz (deserialisiert Request)
+
+_RESPONSE_
+- ?? erhält IResponse Instanz von Controller (oder gleich als string?)
+- 
+
+
+MessageController
+**Methods**:
+- SendMessage(SendRequest)
+- ListMessages(ListRequest)
+- ReadMessage(ReadRequest)
+- DeleteMessages(DeleteRequest)
+
+
+Utils:
+- IParser
+
+
+
+CLIENT:
