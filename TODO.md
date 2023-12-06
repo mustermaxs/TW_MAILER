@@ -204,11 +204,11 @@ Anfrage an diesen
 ### List
 - USERNAME
 
-ReadRequest : IRequest
+Read
 - USERNAME
 - MESSAGE_NR
 
-DeleteRequest : IRequest
+Delete
 - USERNAME
 - MESSAGE_NR
 

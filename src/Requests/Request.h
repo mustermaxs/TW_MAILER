@@ -14,7 +14,9 @@ enum METHOD {SEND, LIST, READ, DEL, QUIT};
         int socketID;
         Message message;
 
-    Request(METHOD, int, Message);
+        Request(METHOD, int, Message);
+
+    Message getMessage();
 
 };
 

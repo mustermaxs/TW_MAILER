@@ -18,7 +18,7 @@ class List : IItem
         List(std::string username);
         std::string GetUserName() const;
         std::vector<Message> GetMessages();
-        std::string ToString() const override;
+        std::string toString() const override;
         
 };
 
