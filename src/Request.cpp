@@ -14,6 +14,4 @@ Request::Request(METHOD method, int socketID, Message message)
 Message Request::getMessage()
 {
     return this->message;
-}
-
-
+};

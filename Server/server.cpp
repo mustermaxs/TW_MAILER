@@ -7,8 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "src/headers/Router.h"
-#include "src/headers/Request.h"
+
 
 #define BUF 1024
 #define PORT 6543
@@ -92,6 +91,7 @@ int main() {
             perror("Send failed");
             continue;
         }
+            int i = 0;
 
         do {
             size = recv(new_socket, buffer, BUF - 1, 0);
@@ -108,11 +108,17 @@ int main() {
             buffer[size] = '\0';
             std::cout << "Message received: " << buffer << "\n";
 
-            // Request clientRequest(buffer);
+
+            // 1. METHOD
+            std::cout << i << std::endl;
+            i++;
+
+
+
 
             // Router router;
             // router.routeRequest(clientRequest);
-
+            
 
 
             if (send(new_socket, "OK", 3, 0) == -1) {
