@@ -1,8 +1,8 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "../MessageHandler/MessageHandler.h"
-#include "Requests/Request.h"
+#include "MessageHandler.h"
+#include "Request.h"
 
 class MessageHandler;
 

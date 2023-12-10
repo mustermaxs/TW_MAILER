@@ -274,5 +274,25 @@ Utils:
 - IParser
 
 
+---
 
-CLIENT:
+// READ:
+message = 
+"<Username>\n
+<Message-Number>\n"
+
+// SEND:
+message =
+"<Receiver>\n
+<Subject (max. 80 chars)>\n
+<message (multi-line; no length restrictions)\n>
+.\n"
+
+// LIST:
+message = null;
+
+//DEL:
+message = null
+
+//QUIT:
+message = null

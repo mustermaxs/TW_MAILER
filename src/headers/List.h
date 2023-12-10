@@ -14,10 +14,10 @@ class List : IItem
         std::string username;
         std::vector<Message> messages;
     public:
-        List() {};
+        List();
         List(std::string username);
-        std::string GetUserName() const;
-        std::vector<Message> GetMessages();
+        std::string getUserName() const;
+        std::vector<Message> getMessages();
         std::string toString() const override;
         
 };

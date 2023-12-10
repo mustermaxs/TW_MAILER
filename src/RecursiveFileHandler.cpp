@@ -1,12 +1,12 @@
-#include "../FileHandler/RecursiveFileHandler.h"
+#include "./headers/RecursiveFileHandler.h"
 
-SearchResult RecursiveFileHandler::searchFileInDir(const std::string fileName, const fs::path &dirPath) const
+SearchResult RecursiveFileHandler::searchFileInDir(const std::string fileName, const std::string dirPath) const
 {
     SearchResult searchRes;
     searchRes.fileExists = false;
+    fs::path dir = fs::path(dirPath);
 
-    //loops through current directory and directories below
-    for (auto const &dir_entry : std::filesystem::directory_iterator(dirPath))
+    for (auto const &dir_entry : std::filesystem::directory_iterator(dir))
     {
         if (dir_entry.is_regular_file())
         {

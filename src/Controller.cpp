@@ -1,5 +1,5 @@
-#include "Controller.h"
-#include "Message.h"
+#include "./headers/Controller.h"
+#include "./headers/Message.h"
 
 Controller::Controller() {
 
@@ -19,7 +19,9 @@ void Controller::ReceiveMessage(Request req) {
     } else {
         resBody = "OK\n";
     }
-
+    
+    std::cout << resBody << std::endl;
+    
     // sendResponse(req.socketId, resBody);
 
 }

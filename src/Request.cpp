@@ -1,8 +1,8 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "Request.h"
-#include "../IItems/Message.h"
+#include "./headers/Request.h"
+#include "./headers/Message.h"
 
 Request::Request(METHOD method, int socketID, Message message)
 {
@@ -15,4 +15,5 @@ Message Request::getMessage()
 {
     return this->message;
 }
+
 

@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -g
 
 TARGET = myfind
-SRCS = main.cpp FileHandler/RecursiveFileHandler.cpp FileHandler/IFileHandler.cpp
+SRCS = main.cpp src/RecursiveFileHandler.cpp src/IFileHandler.cpp src/Message.cpp src/Request.cpp src/MessageHandler.cpp src/List.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(TARGET)

@@ -7,7 +7,7 @@
 class IItem
 {
     public:
-        ~IItem() {};
+        virtual ~IItem() {};
         virtual std::string toString() const = 0;
 };
 

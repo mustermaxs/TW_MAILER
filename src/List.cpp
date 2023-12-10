@@ -1,4 +1,4 @@
-#include "../header/IItems/List.h"
+#include "./headers/List.h"
 
 List::List()
 {
@@ -7,15 +7,15 @@ List::List()
 
 List::List(std::string username) { this->username = username; }
 
-std::string List::GetUserName() const { return this->username; };
+std::string List::getUserName() const { return this->username; };
 
-std::string List::ToString() const
+std::string List::toString() const
 {
     std::string res = "";
 
     for (Message message : messages)
     {
-        res += message.GetSubject() + "\n";
+        res += message.getSubject() + "\n";
     }
 
     return res;

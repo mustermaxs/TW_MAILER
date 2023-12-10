@@ -59,7 +59,8 @@
             "iomanip": "cpp",
             "sstream": "cpp",
             "filesystem": "cpp",
-            "fstream": "cpp"
+            "fstream": "cpp",
+            "map": "cpp"
         }
     }
 }
