@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <assert.h>
+#include <cstdlib>
 
 #include "./src/headers/IFileHandler.h"
 #include "./src/headers/RecursiveFileHandler.h"
@@ -13,13 +14,43 @@
 
 namespace fs = std::filesystem;
 
+template <typename T>
+void customAssert(bool check, const std::string &failMessage, const std::string &testName)
+{
+    if (!check)
+    {
+        Color::Modifier red(Color::FG_RED);
+        Color::Modifier resetColor(Color::FG_DEFAULT);
+
+        std::cerr << red << "[TEST FAILED]: " << testName << ":" << failMessage << resetColor << std::endl;
+        std::abort();
+    }
+};
+
 class Test
 {
 public:
-    std::string testFileContent = "eiweck nervt";
+    std::string testFileContent = "eiweck nervt\nso sehr";
     std::string testFilePath = "testfile.txt";
     IFileHandler *fileHandler = new RecursiveFileHandler();
+    MessageHandler *msgHandler;
+    Message msg;
 
+    Test()
+    {
+        /* SETUP Message instance */
+        Message msg;
+        std::string sender = "max";
+        std::string receiver = "eiweck";
+        std::string subject = "Don't forget";
+        std::string content = "I'm an idiot!";
+
+        msg.setSender(sender)->setReceiver(receiver)->setSubject(subject)->setContent(content);
+        this->msg = msg;
+
+        /* SETUP MessageHandler */
+        this->msgHandler = new MessageHandler(fileHandler);
+    }
     ~Test()
     {
     }
@@ -35,7 +66,6 @@ public:
     {
         std::vector<std::string> fileNames = fileHandler->getFileNamesInDir("./arschlochDirectory");
 
-        // work of fart
         for (const auto &entry : fileNames)
         {
             bool found = false;
@@ -46,7 +76,7 @@ public:
                 found = found || expected == entry;
             }
 
-            assert(found && "should find 1, 2, 3");
+            customAssert<std::string>(found == true, "should find 1, 2, 3", __FUNCTION__);
         }
 
         logTest(__FUNCTION__);
@@ -54,62 +84,110 @@ public:
 
     void FileHandler_ReadsContentFromFile()
     {
-        fileHandler->writeToFile(testFilePath, testFileContent);
-        fs::path p = fs::path(testFilePath);
-        std::vector<std::string> plines = fileHandler->readFile(p);
-        std::string firstLine = plines[0];
+        std::vector<std::string> vTestFileContent = {
+            "eiweck nervt",
+            "so sehr"
+        };
+        
+        std::vector<std::string> plines = fileHandler->readFileLines(testFilePath);
 
-        assert(firstLine == testFileContent);
+        for (int i = 0; i < plines.size(); i++)
+        {
+            customAssert<std::string>(plines[i] == vTestFileContent[i], "Expected: "+vTestFileContent[i]+"\nProvided: "+plines[i], __FUNCTION__);
+        }
+
         logTest(__FUNCTION__);
     };
 
     void FileHandler_FindsExistingDir()
     {
-        assert(fileHandler->dirExists("arschlochDirectory"));
-        assert(fileHandler->dirExists(".vscode") == true);
+        customAssert<std::string>(fileHandler->dirExists("arschlochDirectory") == true, "directory should exist", __FUNCTION__);
+        customAssert<std::string>((fileHandler->dirExists(".vscode") == true), "directory should exist", __FUNCTION__);
         logTest(__FUNCTION__);
     };
 
     void FileHandler_CreatesDirIfNotExists()
     {
-        assert(fileHandler->createDirectoryIfNotExists("./arschlochDirectory"));
+        customAssert<std::string>(fileHandler->dirExists("arschlochDirectory") == true, "directory should exist", __FUNCTION__);
         logTest(__FUNCTION__);
     };
 
-    void MessageHandler_CreatesMessage()
+    void MessageHandler_CreatesMessage(Message msg)
     {
-        Message msg;
-        msg.setSender("sender")->setReceiver("receiver")->setSubject("subject")->setContent("content");
-
         MessageHandler msgHandler(fileHandler);
-        std::string username = "max";
+        std::string username = msg.getReceiver();
+        msgHandler.saveMessage(username, msg);
 
-        msgHandler.createMessage(username, msg);
+        std::string expectedPath = "./messages/" + msg.getReceiver();
 
-        std::string expectedPath = "./messages/max/";
+        customAssert<std::string>(fileHandler->dirExists(expectedPath) == true, " directory doesn't exist.", __FUNCTION__);
 
-        assert(fileHandler->dirExists("./messages/max") && "messages/max/ directory doesn't exist.");
+        customAssert<std::string>(fileHandler->searchFileInDir("1", expectedPath).fileExists == true, "message file should exist", __FUNCTION__);
 
-        assert(fileHandler->searchFileInDir("1", expectedPath).fileExists && "message file should exist");
         logTest(__FUNCTION__);
     }
 
     void FileHandler_DeleteFile()
     {
         Message msg;
-        msg.setSender("sender")->setReceiver("receiver")->setSubject("subject")->setContent("content");
+        msg.setSender("test")->setReceiver("test")->setSubject("test")->setContent("test");
 
         MessageHandler msgHandler(fileHandler);
         std::string username = "test";
 
-        msgHandler.createMessage(username, msg);
+        msgHandler.saveMessage(username, msg);
 
         fileHandler->deleteFile("./messages/test/1");
 
-        assert(!(fileHandler->searchFileInDir("1", "./messages/test/").fileExists) && "Failed to delete message");
+        customAssert<std::string>(fileHandler->searchFileInDir("1", "./messages/test/").fileExists == false, "Failed to delete message", __FUNCTION__);
 
         logTest(__FUNCTION__);
-    }
+    };
+
+    void MessageClass_SerializesMessage(Message msg)
+    {
+        std::string expectedContent =
+            "SENDER:" + msg.getSender() + "\n" +
+            "RECEIVER:" + msg.getReceiver() + "\n" +
+            "SUBJECT:" + msg.getSubject() + "\n" +
+            "MESSAGE:" + msg.getContent() + "\n";
+
+        std::string serizaliedMsg = msg.toString();
+
+        customAssert<std::string>(expectedContent == serizaliedMsg, "Failed to serialize message.", __FUNCTION__);
+        logTest(__FUNCTION__);
+    };
+
+    void MessageClass_DeserializesMessage(Message msg)
+    {
+        std::vector<std::string> expectedContent =
+            {"SENDER:max",
+             "RECEIVER:eiweck",
+             "SUBJECT:Don't forget",
+             "MESSAGE:I'm an idiot!"};
+
+        Message deserializedMsg = Message::fromString(expectedContent);
+
+        customAssert<std::string>(deserializedMsg.getSender() == msg.getSender(), "Failed to deserialize message sender.", __FUNCTION__);
+        customAssert<std::string>(deserializedMsg.getReceiver() == msg.getReceiver(), "Failed to deserialize message receiver.", __FUNCTION__);
+        customAssert<std::string>(deserializedMsg.getSubject() == msg.getSubject(), "Failed to deserialize message subject.", __FUNCTION__);
+        customAssert<std::string>(deserializedMsg.getContent() == msg.getContent(), "Failed to deserialize message content.", __FUNCTION__);
+
+        logTest(__FUNCTION__);
+    };
+
+    void MessageHandler_GetsMessageByUserAndId(const std::string username, const int id)
+    {
+        MessageHandler msgHandler(fileHandler);
+        Message msg = msgHandler.getMessage(username, id);
+
+        customAssert<std::string>(msg.getSender() == "max", "Failed to get message sender by user and id", __FUNCTION__);
+        customAssert<std::string>(msg.getReceiver() == "eiweck", "Failed to get message receiver by user and id", __FUNCTION__);
+        customAssert<std::string>(msg.getSubject() == "Don't forget", "Failed to get message subject by user and id", __FUNCTION__);
+        customAssert<std::string>(msg.getContent() == "I'm an idiot!", "Failed to get message content by user and id", __FUNCTION__);
+
+        logTest(__FUNCTION__);
+    };
 };
 
 int main()
@@ -120,8 +198,11 @@ int main()
     test.FileHandler_ReadsContentFromFile();
     test.FileHandler_FindsExistingDir();
     test.FileHandler_CreatesDirIfNotExists();
-    test.MessageHandler_CreatesMessage();
+    test.MessageHandler_CreatesMessage(test.msg);
     test.FileHandler_DeleteFile();
+    test.MessageClass_SerializesMessage(test.msg);
+    test.MessageClass_DeserializesMessage(test.msg);
+    test.MessageHandler_GetsMessageByUserAndId("eiweck", 1);
 
     return 0;
 }

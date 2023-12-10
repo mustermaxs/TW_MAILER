@@ -22,7 +22,7 @@ bool IFileHandler::comparePaths(const std::string leftPath, const std::string ri
     return lcLeftPath == lcRightPath;
 };
 
-std::vector<std::string> IFileHandler::readFile(const std::string filePath)
+std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 {
     std::string line;
     std::vector<std::string> lines;

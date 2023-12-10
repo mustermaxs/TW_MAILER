@@ -10,7 +10,7 @@ void Controller::ReceiveMessage(Request req) {
     Message requestMessage = req.getMessage();
     std::string username = requestMessage.getReceiver();
 
-    bool messageCreated = messageHandler.createMessage(username, requestMessage);
+    bool messageCreated = messageHandler.saveMessage(username, requestMessage);
 
     std::string resBody = "";
 

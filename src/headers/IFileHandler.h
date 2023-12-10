@@ -26,7 +26,7 @@ public:
     // virtual std::vector<SearchResult> GetAllFilesInDirIfExists(const fs::path &dirPath) const = 0;
     virtual SearchResult searchFileInDir(const std::string fileName, const std::string dirPath) const = 0;
     bool comparePaths(const std::string leftPath, const std::string rightPath) const;
-    std::vector<std::string> readFile(const std::string filePath);
+    std::vector<std::string> readFileLines(const std::string filePath);
     bool dirExists(const std::string dirName);
     bool dirExists(fs::path& dirName);
     std::string pathObjToString(fs::path& path);

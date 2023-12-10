@@ -5,8 +5,12 @@
 #include <algorithm>
 #include <vector>
 #include <filesystem>
+#include <string>
 #include "Message.h"
 #include "IFileHandler.h"
+#include "Message.h"
+#include "IFileHandler.h"
+#include <exception>
 
 namespace fs = std::filesystem;
 
@@ -21,9 +25,9 @@ class MessageHandler
 public:
     MessageHandler(IFileHandler* handler) : fileHandler(handler) {}
     ~MessageHandler();
-    bool createMessage(const std::string& username, Message message);
+    bool saveMessage(const std::string& username, Message message);
     std::vector<Message> getMessagesByUsername(const std::string& username);
-    std::string getMessage(const std::string& username, int messageNumber);
+    Message getMessage(const std::string& username, int messageNumber);
     bool deleteMessage(const std::string& username, int messageID);
 
 };
