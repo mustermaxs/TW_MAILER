@@ -262,7 +262,7 @@ public:
     {
         bool continueReadline = true;
         Parser *parser = new Parser();
-        parser->setMode("READ");
+        // parser->setMode("READ");
 
         parser->parse("READ", continueReadline);
         parser->parse("eiweck", continueReadline);
@@ -279,7 +279,7 @@ public:
     {
         bool continueReadline = true;
         Parser *parser = new Parser();
-        parser->setMode("LIST");
+        // parser->setMode("LIST");
 
         parser->parse("LIST", continueReadline);
         parser->parse("eiweck", continueReadline);
@@ -295,13 +295,13 @@ public:
     {
         bool continueReadline = true;
         Parser *parser = new Parser();
-        parser->setMode("DELETE");
+        // parser->setMode("DEL");
 
-        parser->parse("DELETE", continueReadline);
+        parser->parse("DEL", continueReadline);
         parser->parse("eiweck", continueReadline);
         parser->parse("1", continueReadline);
 
-        customAssert<std::string>(parser->getString() == "DELETE\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
+        customAssert<std::string>(parser->getString() == "DEL\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
         logTest(__FUNCTION__);
     };
 
@@ -312,7 +312,7 @@ public:
     {
         bool continueReadline = true;
         Parser *parser = new Parser();
-        parser->setMode("SEND");
+        // parser->setMode("SEND");
 
         parser->parse("SEND", continueReadline);
         parser->parse("markus", continueReadline);

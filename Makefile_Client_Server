@@ -6,7 +6,7 @@ SRV_TARGET = ./bin/twmailer
 CLIENT_TARGET = ./bin/client
 
 SRV_SRCS = Server/server.cpp 
-CLIENT_SRC = Client/client.cpp
+CLIENT_SRC = Client/client.cpp Client/Parser/Parser.cpp
 
 SRV_OBJS = $(SRV_SRCS:.cpp=.o)
 CLIENT_OBJS = $(CLIENT_SRC:.cpp=.o)

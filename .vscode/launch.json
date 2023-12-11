@@ -5,7 +5,7 @@
             "name": "C++ Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${cwd}/myfind",
+            "program": "${cwd}/bin/client",
             "args": ["/home/mustermax/vscode_projects/TW_MAILER/"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

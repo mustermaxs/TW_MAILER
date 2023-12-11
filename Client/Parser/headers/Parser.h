@@ -16,7 +16,7 @@ enum Command
 {
     LIST,
     READ,
-    DELETE,
+    DEL,
     SEND
 };
 
@@ -33,11 +33,15 @@ class Parser
     Parser *parseDeleteCommand(std::string line, bool &continueReadline);
     Parser *parseSendCommand(std::string line, bool &continueReadline);
 
+protected:
+    void reset();
+
 public:
     Parser();
     Parser *parse(const std::string line, bool &continueReadline);
     std::string getString();
     void setMode(std::string mode);
+    // bool isModeSet() const;
 };
 
 #endif

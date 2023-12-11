@@ -32,8 +32,9 @@ Parser::Parser()
         {
             {"LIST", Command::LIST},
             {"READ", Command::READ},
-            {"DELETE", Command::DELETE},
-            {"SEND", Command::SEND}};
+            {"DEL", Command::DEL},
+            {"SEND", Command::SEND}
+        };
 };
 
 /**
@@ -57,6 +58,12 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
         return this;
     }
 
+    if(input == "LIST" || input == "READ" || input == "DEL" || input == "SEND")
+    {
+        this->setMode(input);
+        this->reset();
+    }
+
     switch (this->mode)
     {
     case Command::LIST:
@@ -65,7 +72,7 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
     case Command::READ:
         return this->parseReadCommand(input, continueReadline);
         break;
-    case Command::DELETE:
+    case Command::DEL:
         return this->parseDeleteCommand(input, continueReadline);
         break;
     case Command::SEND:
@@ -80,9 +87,20 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
 };
 
 
+/**
+ * @brief:Resets the parser to its initial state.
+ * Used when the client sends a new command.
+ * e.g. when the client sends a new READ command
+**/
+void Parser::reset()
+{
+    this->messageStrings = "";
+    this->lineNumber = 0;
+};
+
 
 /**
- * Sets the TW Mailer command (READ, LIST, DELETE, SEND)
+ * Sets the TW Mailer command (READ, LIST, DEL, SEND)
  * so that the parser knows which parsing method to call
  * and process the provided strings from the clients console.
  * Gets transformed to an enum.
@@ -99,6 +117,8 @@ void Parser::setMode(std::string mode)
 
 
 
+
+
 /**
  * Returns the complete parsed and concatenated string.
  */
@@ -112,13 +132,7 @@ std::string Parser::getString()
 
 Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
 {
-    if (lineNumber > 2)
-    {
-        continueReadline = false;
-        lineNumber = 0;
-
-        return this;
-    }
+    continueReadline = lineNumber < 2;
 
     if (lineNumber == 2 && !isConvertibleToInt(line))
     {
@@ -137,12 +151,7 @@ Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
 
 Parser *Parser::parseListCommand(std::string line, bool &continueReadline)
 {
-    if (lineNumber > 1)
-    {
-        continueReadline = false;
-
-        return this;
-    }
+    continueReadline = lineNumber < 1;
     this->messageStrings += line + "\n";
     this->lineNumber++;
 
@@ -155,12 +164,8 @@ Parser *Parser::parseListCommand(std::string line, bool &continueReadline)
 
 Parser *Parser::parseDeleteCommand(std::string line, bool &continueReadline)
 {
-    if (lineNumber > 2)
-    {
-        continueReadline = false;
+    continueReadline = lineNumber < 2;
 
-        return this;
-    }
     if (lineNumber == 2 && !isConvertibleToInt(line))
     {
         throw new std::invalid_argument("Should be number");
@@ -190,3 +195,8 @@ Parser *Parser::parseSendCommand(std::string line, bool &continueReadline)
 
     return this;
 };
+
+
+
+
+// bool isModeSet() const { return this->mode }
