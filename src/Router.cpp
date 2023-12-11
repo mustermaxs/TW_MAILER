@@ -14,9 +14,7 @@ void Router::mapRequestToController(int socketId, std::string buffer)
     {
         lines.push_back(line);
     }
-
-    Message message;
-    message.fromFile(lines);
+    Message* message = Message::fromFileLines(lines);
 
     Command command = Utils::mapStringToCommand(commandStr);
 

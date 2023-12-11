@@ -1,14 +1,14 @@
 #include "./headers/Request.h"
 
 
-Request::Request(Command method, int socketID, Message message)
+Request::Request(Command method, int socketID, Message* message)
 {
     this->method = method;
     this->socketId = socketId;
     this->message = message;
 };
 
-Message Request::getMessage()
+Message* Request::getMessage()
 {
     return this->message;
 };

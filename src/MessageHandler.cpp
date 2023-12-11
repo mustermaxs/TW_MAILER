@@ -64,7 +64,7 @@ Message MessageHandler::getMessage(const std::string &username, int messageNumbe
 
     std::vector<std::string> fileContent = this->fileHandler->readFileLines(directoryName + msgId);
 
-    return Message::fromFile(fileContent);
+    return *(Message::fromFileLines(fileContent));
 };
 
 /// @brief Gets all deserialized message objects for a specific user.

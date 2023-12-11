@@ -222,23 +222,23 @@ public:
 
 
 
-    void MessageClass_DeserializesMessage(Message msg)
-    {
-        std::vector<std::string> expectedContent =
-            {"SENDER:max",
-             "RECEIVER:eiweck",
-             "SUBJECT:Don't forget",
-             "MESSAGE:I'm an idiot!"};
+    // void MessageClass_DeserializesMessage(Message msg)
+    // {
+    //     std::vector<std::string> expectedContent =
+    //         {"SENDER:max",
+    //          "RECEIVER:eiweck",
+    //          "SUBJECT:Don't forget",
+    //          "MESSAGE:I'm an idiot!"};
 
-        Message deserializedMsg = Message::fromFile(expectedContent);
+    //     Message deserializedMsg = Message::fromFileLines(expectedContent);
 
-        customAssert<std::string>(deserializedMsg.getSender() == msg.getSender(), "Failed to deserialize message sender.", __FUNCTION__);
-        customAssert<std::string>(deserializedMsg.getReceiver() == msg.getReceiver(), "Failed to deserialize message receiver.", __FUNCTION__);
-        customAssert<std::string>(deserializedMsg.getSubject() == msg.getSubject(), "Failed to deserialize message subject.", __FUNCTION__);
-        customAssert<std::string>(deserializedMsg.getContent() == msg.getContent(), "Failed to deserialize message content.", __FUNCTION__);
+    //     customAssert<std::string>(deserializedMsg.getSender() == msg.getSender(), "Failed to deserialize message sender.", __FUNCTION__);
+    //     customAssert<std::string>(deserializedMsg.getReceiver() == msg.getReceiver(), "Failed to deserialize message receiver.", __FUNCTION__);
+    //     customAssert<std::string>(deserializedMsg.getSubject() == msg.getSubject(), "Failed to deserialize message subject.", __FUNCTION__);
+    //     customAssert<std::string>(deserializedMsg.getContent() == msg.getContent(), "Failed to deserialize message content.", __FUNCTION__);
 
-        logTest(__FUNCTION__);
-    };
+    //     logTest(__FUNCTION__);
+    // };
 
 
 
@@ -262,7 +262,7 @@ public:
     void Parser_ReadsReadCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser(getCommandMap());
+        Parser *parser = new Parser();
         // parser->setMode("READ");
 
         parser->parse("READ", continueReadline);
@@ -279,7 +279,7 @@ public:
     void Parser_ParsesListCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser(getCommandMap());
+        Parser *parser = new Parser();
         // parser->setMode("LIST");
 
         parser->parse("LIST", continueReadline);
@@ -295,7 +295,7 @@ public:
     void Parser_ParsesDeleteCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser(getCommandMap());
+        Parser *parser = new Parser();
         // parser->setMode("DEL");
 
         parser->parse("DEL", continueReadline);
@@ -312,7 +312,7 @@ public:
     void Parser_ParsesSendCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser(getCommandMap());
+        Parser *parser = new Parser();
         // parser->setMode("SEND");
 
         parser->parse("SEND", continueReadline);

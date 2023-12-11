@@ -11,13 +11,13 @@ class Request
 {
 private:
     int socketId;
-    Message message;
+    Message* message;
     Command method;
 
 public:
-    Request(Command, int, Message);
+    Request(Command, int, Message*);
 
-    Message getMessage();
+    Message* getMessage();
     int getSocketId();
     void senResponse(int, std::string);
 };

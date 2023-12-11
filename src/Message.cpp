@@ -52,25 +52,15 @@ std::string Message::toString() const
     return res;
 };
 
-Message Message::fromString(const std::string msgString)
+// Message* Message::fromString(const std::string msgString)
+// {
+        
+// };
+
+// TODO evtl. string übergeben und nicht vector of strings
+Message* Message::fromFileLines(const std::vector<std::string> msgLines)
 {
-    std::vector<std::string> msgLines;
-    std::string delimiter = "\n";
-    std::string line = msgString.substr(0, msgString.find(delimiter));
-
-    while (line.length() > 0)
-    {
-        msgLines.push_back(line);
-        msgString.erase(0, line.length() + delimiter.length());
-        line = msgString.substr(0, msgString.find(delimiter));
-    }
-
-    return Message::fromFile(msgLines);
-};
-
-Message Message::fromFile(const std::vector<std::string> msgLines)
-{
-    Message msg;
+    Message* msg = new Message();
     std::map<std::string, std::string> msgMap = {
         {"SENDER", ""},
         {"RECEIVER", ""},
@@ -84,13 +74,11 @@ Message Message::fromFile(const std::vector<std::string> msgLines)
         std::string key = line.substr(0, line.find(delimiter));
         std::string value = line.substr(line.find(delimiter) + 1, line.length());
 
-        msgMap[key] = value;
+        if (key == "SENDER") msg->setSender(value);
+        if (key == "RECEIVER") msg->setReceiver(value);
+        if (key == "SUBJECT") msg->setSubject(value);
+        if (key == "MESSAGE") msg->setContent(value);
     }
-
-    msg.setSender(msgMap["SENDER"]);
-    msg.setReceiver(msgMap["RECEIVER"]);
-    msg.setSubject(msgMap["SUBJECT"]);
-    msg.setContent(msgMap["MESSAGE"]);
 
     return msg;
 };

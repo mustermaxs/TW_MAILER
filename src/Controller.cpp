@@ -14,10 +14,10 @@ Controller::~Controller()
 
 void Controller::receiveMessage(Request req) {
 
-    Message requestMessage = req.getMessage();
-    std::string username = requestMessage.getReceiver();
+    Message* requestMessage = req.getMessage();
+    std::string username = requestMessage->getReceiver();
 
-    bool messageCreated = messageHandler->saveMessage(username, requestMessage);
+    bool messageCreated = messageHandler->saveMessage(username, *requestMessage);
 
     std::string resBody = "";
 
@@ -36,8 +36,8 @@ void Controller::receiveMessage(Request req) {
 
 void Controller::listMessages(Request req) {
 
-    Message requestMessage = req.getMessage();
-    std::string username = requestMessage.getReceiver();
+    Message* requestMessage = req.getMessage();
+    std::string username = requestMessage->getSender();
 
     std::vector<Message> messages = messageHandler->getMessagesByUsername(username);
 
@@ -64,8 +64,8 @@ void Controller::listMessages(Request req) {
 
 void Controller::readMessage(Request req) {
 
-    Message requestMessage = req.getMessage();
-    std::string username = requestMessage.getReceiver();
+    Message* requestMessage = req.getMessage();
+    std::string username = requestMessage->getReceiver();
     int messageNumber;
     
     std::string resBody =  "";
