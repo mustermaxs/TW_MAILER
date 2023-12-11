@@ -11,6 +11,7 @@
 #include "./src/headers/Message.h"
 #include "./src/headers/Color.h"
 #include "./src/headers/MessageHandler.h"
+#include "./Client/Parser/headers/Parser.h"
 
 namespace fs = std::filesystem;
 
@@ -86,14 +87,13 @@ public:
     {
         std::vector<std::string> vTestFileContent = {
             "eiweck nervt",
-            "so sehr"
-        };
-        
+            "so sehr"};
+
         std::vector<std::string> plines = fileHandler->readFileLines(testFilePath);
 
         for (int i = 0; i < plines.size(); i++)
         {
-            customAssert<std::string>(plines[i] == vTestFileContent[i], "Expected: "+vTestFileContent[i]+"\nProvided: "+plines[i], __FUNCTION__);
+            customAssert<std::string>(plines[i] == vTestFileContent[i], "Expected: " + vTestFileContent[i] + "\nProvided: " + plines[i], __FUNCTION__);
         }
 
         logTest(__FUNCTION__);
@@ -188,6 +188,46 @@ public:
 
         logTest(__FUNCTION__);
     };
+
+    void Parser_ReadsReadCommand()
+    {
+        bool continueReadline = true;
+        Parser *parser = new Parser();
+        parser->setMode("READ");
+
+        parser->parse("READ", continueReadline);
+        parser->parse("eiweck", continueReadline);
+        parser->parse("1", continueReadline);
+
+        customAssert<std::string>(parser->getString() == "READ\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
+        logTest(__FUNCTION__);
+    }
+
+    void Parser_ParsesListCommand()
+    {
+        bool continueReadline = true;
+        Parser *parser = new Parser();
+        parser->setMode("LIST");
+
+        parser->parse("LIST", continueReadline);
+        parser->parse("eiweck", continueReadline);
+
+        customAssert<std::string>(parser->getString() == "LIST\neiweck\n", "Failed to parse string.", __FUNCTION__);
+        logTest(__FUNCTION__);
+    }
+    void Parser_ParsesDeleteCommand()
+    {
+        bool continueReadline = true;
+        Parser *parser = new Parser();
+        parser->setMode("DELETE");
+
+        parser->parse("DELETE", continueReadline);
+        parser->parse("eiweck", continueReadline);
+        parser->parse("1", continueReadline);
+
+        customAssert<std::string>(parser->getString() == "LIST\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
+        logTest(__FUNCTION__);
+    }
 };
 
 int main()
@@ -203,6 +243,9 @@ int main()
     test.MessageClass_SerializesMessage(test.msg);
     test.MessageClass_DeserializesMessage(test.msg);
     test.MessageHandler_GetsMessageByUserAndId("eiweck", 1);
+    test.Parser_ReadsReadCommand();
+    test.Parser_ParsesListCommand();
+    test.Parser_ParsesDeleteCommand();
 
     return 0;
 }

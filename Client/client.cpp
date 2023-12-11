@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include "CommandParser.h"
 
 #define BUF 1024
 #define PORT 6543
@@ -58,11 +59,14 @@ int main(int argc, char **argv) {
         std::string input;
         while (true) {
             std::cout << ">> ";
+            
+
             std::getline(std::cin, input);
 
             if (input == "quit") {
                 break;
             }
+
 
             // SEND DATA
             if (send(create_socket, input.c_str(), input.length(), 0) == -1) {

@@ -30,7 +30,7 @@ bool MessageHandler::saveMessage(const std::string& username, Message message)
     std::string newFileName = directoryName + std::to_string(highestID + 1);
 
 
-    fileHandler->writeToFile(newFileName, message.toString());
+    return fileHandler->writeToFile(newFileName, message.toString());
 
 }
 
