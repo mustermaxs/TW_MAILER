@@ -9,7 +9,6 @@ bool IFileHandler::comparePaths(const std::string leftPath, const std::string ri
         return leftPath == rightPath;
     }
 
-    // initialize lower case strings
     std::string lcLeftPath(leftPath.size(), '\0');
     std::string lcRightPath(rightPath.size(), '\0');
 
@@ -22,6 +21,9 @@ bool IFileHandler::comparePaths(const std::string leftPath, const std::string ri
     return lcLeftPath == lcRightPath;
 };
 
+
+// reads file content into vector of strings for
+// easier string handling
 std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 {
     std::string line;
@@ -44,15 +46,24 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
     return lines;
 };
 
+
+
+
 std::string IFileHandler::pathObjToString(fs::path &path)
 {
     return path.u8string();
 };
 
+
+
+
 bool IFileHandler::dirExists(fs::path &path)
 {
     return fs::is_directory(path);
 };
+
+
+
 
 bool IFileHandler::dirExists(const std::string path)
 {
@@ -60,6 +71,9 @@ bool IFileHandler::dirExists(const std::string path)
 
     return fs::is_directory(p);
 };
+
+
+
 
 bool IFileHandler::createDirectoryIfNotExists(std::string dirName)
 {
@@ -83,6 +97,9 @@ bool IFileHandler::createDirectoryIfNotExists(std::string dirName)
     }
 };
 
+
+
+
 bool IFileHandler::writeToFile(const std::string fileName, const std::string &content)
 {
     try
@@ -103,6 +120,10 @@ bool IFileHandler::writeToFile(const std::string fileName, const std::string &co
     }
 };
 
+
+
+// returns file names stored under provided directory path
+// in vector of strings
 std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirName)
 {
     std::vector<std::string> fileNames;
@@ -114,6 +135,9 @@ std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirNa
 
     return fileNames;
 };
+
+
+
 
 bool IFileHandler::deleteFile(const std::string pathName)
 {

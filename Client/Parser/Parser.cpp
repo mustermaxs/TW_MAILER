@@ -1,5 +1,13 @@
 #include "./headers/Parser.h"
 
+
+/**
+ * Helper function to check if provided string is
+ * convertible to integer.
+ * e.g. to get the index for the delete-command.
+ * @returns true if string is convertible to int, otherwise
+ * throws an invalid-argument exception.
+ */
 bool isConvertibleToInt(const std::string &str)
 {
     try
@@ -29,8 +37,16 @@ Parser::Parser()
 };
 
 /**
- * @class Parser
- * @brief Parses user input and performs corresponding actions.
+ * Used to parse client input
+ * delegates parsing to designated parsing method
+ * depending on the set TW Mailer command
+ * 
+ * @param input the most recently string that was
+ * acquired from the clients console
+ * 
+ * @param continueReadline is a reference used to signal
+ * the executing while-loop in the clients main method when
+ * its supposed to stop reading input from the command line
  */
 Parser *Parser::parse(const std::string input, bool &continueReadline)
 {
@@ -63,6 +79,14 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
     return this;
 };
 
+
+
+/**
+ * Sets the TW Mailer command (READ, LIST, DELETE, SEND)
+ * so that the parser knows which parsing method to call
+ * and process the provided strings from the clients console.
+ * Gets transformed to an enum.
+ */
 void Parser::setMode(std::string mode)
 {
     if (this->commandMap.find(mode) == this->commandMap.end())
@@ -73,16 +97,19 @@ void Parser::setMode(std::string mode)
     this->mode = this->commandMap[mode];
 };
 
+
+
+/**
+ * Returns the complete parsed and concatenated string.
+ */
 std::string Parser::getString()
 {
     return this->messageStrings;
 };
 
-/*
-READ\n
-<Username>\n
-<Message-Number>\n
-*/
+
+
+
 Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
 {
     if (lineNumber > 2)
@@ -104,10 +131,10 @@ Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
     return this;
 };
 
-/*
-LIST\n
-<Username>\n
-*/
+
+
+
+
 Parser *Parser::parseListCommand(std::string line, bool &continueReadline)
 {
     if (lineNumber > 1)
@@ -122,11 +149,10 @@ Parser *Parser::parseListCommand(std::string line, bool &continueReadline)
     return this;
 };
 
-/*
-DEL\n
-<Username>\n
-<Message-Number>\n
-*/
+
+
+
+
 Parser *Parser::parseDeleteCommand(std::string line, bool &continueReadline)
 {
     if (lineNumber > 2)
@@ -146,14 +172,10 @@ Parser *Parser::parseDeleteCommand(std::string line, bool &continueReadline)
     return this;
 };
 
-/*
-SEND\n
-<Sender>\n
-<Receiver>\n
-<Subject (max. 80 chars)>\n
-<message (multi-line; no length restrictions)\n>
-.\n
-*/
+
+
+
+
 Parser *Parser::parseSendCommand(std::string line, bool &continueReadline)
 {
     if (line == ".")

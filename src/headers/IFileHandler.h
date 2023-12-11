@@ -23,7 +23,6 @@ class IFileHandler
 public:
     bool ignoreCase = false;
     virtual ~IFileHandler();
-    // virtual std::vector<SearchResult> GetAllFilesInDirIfExists(const fs::path &dirPath) const = 0;
     virtual SearchResult searchFileInDir(const std::string fileName, const std::string dirPath) const = 0;
     bool comparePaths(const std::string leftPath, const std::string rightPath) const;
     std::vector<std::string> readFileLines(const std::string filePath);

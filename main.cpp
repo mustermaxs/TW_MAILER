@@ -15,6 +15,11 @@
 
 namespace fs = std::filesystem;
 
+
+
+/**
+ * Custom assert function.
+ */
 template <typename T>
 void customAssert(bool check, const std::string &failMessage, const std::string &testName)
 {
@@ -32,6 +37,13 @@ void customAssert(bool check, const std::string &failMessage, const std::string 
     }
 };
 
+
+
+/**
+ * 
+ * Custom unit-test suite.
+ * 
+ */
 class Test
 {
 public:
@@ -43,7 +55,9 @@ public:
 
     Test()
     {
-        /* SETUP Message instance */
+        /*
+         *SETUP Message instance
+         */
         Message msg;
         std::string sender = "max";
         std::string receiver = "eiweck";
@@ -53,13 +67,26 @@ public:
         msg.setSender(sender)->setReceiver(receiver)->setSubject(subject)->setContent(content);
         this->msg = msg;
 
-        /* SETUP MessageHandler */
+
+
+        /*
+         * SETUP MessageHandler
+         */
         this->msgHandler = new MessageHandler(fileHandler);
-    }
+    };
+
+
+
     ~Test()
     {
     }
 
+
+
+    /**
+     * Used to log name of the executed test
+     * and if it passed successfully or failed.
+     */
     void logTest(std::string testName)
     {
         Color::Modifier green(Color::FG_GREEN);
@@ -69,7 +96,10 @@ public:
         std::string methodName = testName.substr(testName.find("_") + 1, testName.length());
 
         std::cout << green << "[" << className << "]: " << methodName << " ✓" << resetColor << std::endl;
-    }
+    };
+
+
+
 
     void FileHandler_FindsFilesInDir()
     {
@@ -91,6 +121,9 @@ public:
         logTest(__FUNCTION__);
     };
 
+
+
+
     void FileHandler_ReadsContentFromFile()
     {
         std::vector<std::string> vTestFileContent = {
@@ -107,6 +140,9 @@ public:
         logTest(__FUNCTION__);
     };
 
+
+
+
     void FileHandler_FindsExistingDir()
     {
         customAssert<std::string>(fileHandler->dirExists("arschlochDirectory") == true, "directory should exist", __FUNCTION__);
@@ -114,11 +150,17 @@ public:
         logTest(__FUNCTION__);
     };
 
+
+
+
     void FileHandler_CreatesDirIfNotExists()
     {
         customAssert<std::string>(fileHandler->dirExists("arschlochDirectory") == true, "directory should exist", __FUNCTION__);
         logTest(__FUNCTION__);
     };
+
+
+
 
     void FileHandler_DeleteFile()
     {
@@ -137,6 +179,9 @@ public:
         logTest(__FUNCTION__);
     };
 
+
+
+
     void MessageHandler_CreatesMessage(Message msg)
     {
         MessageHandler msgHandler(fileHandler);
@@ -150,7 +195,10 @@ public:
         customAssert<std::string>(fileHandler->searchFileInDir("1", expectedPath).fileExists == true, "message file should exist", __FUNCTION__);
 
         logTest(__FUNCTION__);
-    }
+    };
+
+
+
 
     void MessageClass_SerializesMessage(Message msg)
     {
@@ -165,6 +213,9 @@ public:
         customAssert<std::string>(expectedContent == serizaliedMsg, "Failed to serialize message.", __FUNCTION__);
         logTest(__FUNCTION__);
     };
+
+
+
 
     void MessageClass_DeserializesMessage(Message msg)
     {
@@ -184,6 +235,9 @@ public:
         logTest(__FUNCTION__);
     };
 
+
+
+
     void MessageHandler_GetsMessageByUserAndId(const std::string username, const int id)
     {
         MessageHandler msgHandler(fileHandler);
@@ -197,6 +251,9 @@ public:
         logTest(__FUNCTION__);
     };
 
+
+
+
     void Parser_ReadsReadCommand()
     {
         bool continueReadline = true;
@@ -209,7 +266,10 @@ public:
 
         customAssert<std::string>(parser->getString() == "READ\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
         logTest(__FUNCTION__);
-    }
+    };
+
+
+
 
     void Parser_ParsesListCommand()
     {
@@ -222,7 +282,11 @@ public:
 
         customAssert<std::string>(parser->getString() == "LIST\neiweck\n", "Failed to parse string.", __FUNCTION__);
         logTest(__FUNCTION__);
-    }
+    };
+
+
+
+
     void Parser_ParsesDeleteCommand()
     {
         bool continueReadline = true;
@@ -235,7 +299,11 @@ public:
 
         customAssert<std::string>(parser->getString() == "DELETE\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
         logTest(__FUNCTION__);
-    }
+    };
+
+
+
+
     void Parser_ParsesSendCommand()
     {
         bool continueReadline = true;
@@ -251,7 +319,11 @@ public:
 
         customAssert<std::string>(parser->getString() == "SEND\nmarkus\neiweck\nwtf\neiweck was soll das\neigentlich\n.\n", "Failed to parse string. Actual value: " + parser->getString(), __FUNCTION__);
         logTest(__FUNCTION__);
-    }
+    };
+
+
+
+
 };
 
 int main()

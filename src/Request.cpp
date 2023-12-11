@@ -1,7 +1,7 @@
-#include <iostream>
-#include <stdlib.h>
 #include "./headers/Request.h"
 #include "./headers/Message.h"
+
+
 
 Request::Request(METHOD method, int socketID, Message message)
 {

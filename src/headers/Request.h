@@ -3,8 +3,12 @@
 
 #include <iostream>
 #include <stdlib.h>
+
 #include "Message.h"
 
+
+// valid tw mailer commands
+// as required
 enum METHOD
 {
     SEND,
@@ -16,7 +20,6 @@ enum METHOD
 
 class Request
 {
-
 public:
     METHOD method;
     int socketID;

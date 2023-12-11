@@ -3,16 +3,19 @@
 
 MessageHandler::~MessageHandler() {  };
 
+
+
+
 bool MessageHandler::saveMessage(const std::string& username, Message message)
 {
-    //create directoryname from username
     std::string directoryName = this->msgsRootDir + username + "/";
 
     fileHandler->createDirectoryIfNotExists(directoryName);
 
     std::vector<std::string> fileNames = fileHandler->getFileNamesInDir(directoryName);
     
-    //iterate over filenames and extract highest id
+    // obtains the highest message index (n) in the directory
+    // and assigns the saved message index n+1
     int highestID = 0;
     std::string id;
 
@@ -31,8 +34,10 @@ bool MessageHandler::saveMessage(const std::string& username, Message message)
 
 
     return fileHandler->writeToFile(newFileName, message.toString());
-
 }
+
+
+
 
 Message MessageHandler::getMessage(const std::string& username, int messageNumber)
 {
@@ -52,6 +57,9 @@ Message MessageHandler::getMessage(const std::string& username, int messageNumbe
     return Message::fromString(fileContent);
 }
 
+
+
+
 std::vector<Message> MessageHandler::getMessagesByUsername(const std::string& username)
 {
     std::vector<Message> messages;
@@ -68,6 +76,8 @@ std::vector<Message> MessageHandler::getMessagesByUsername(const std::string& us
 
     return messages;
 }
+
+
 
 
 bool MessageHandler::deleteMessage(const std::string& username, int messageID)
