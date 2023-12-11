@@ -70,12 +70,12 @@ int main(int argc, char **argv)
     {
 
         std::string input;
+        bool continueReadline = true;
 
-        while (true)
+        while (true && continueReadline)
         {
             input = "";
             Parser *parser = new Parser();
-            bool continueReadline = true;
 
             while (continueReadline)
             {
@@ -86,35 +86,36 @@ int main(int argc, char **argv)
                 parser->parse(input, continueReadline);
             }
 
+            continueReadline = true;
             input = parser->getString();
-            std::cout << input;
-        }
 
-        return 0; // TEMPORARY
-        // SEND DATA
-        if (send(create_socket, input.c_str(), input.length(), 0) == -1)
-        {
-            throw std::runtime_error("Send error");
-        }
+            if (input == "quit") break;
 
-        // RECEIVE FEEDBACK
-        size = recv(create_socket, buffer, BUF - 1, 0);
-        if (size == -1)
-        {
-            throw std::runtime_error("Receive error");
-        }
-        else if (size == 0)
-        {
-            std::cout << "Server closed remote socket\n";
-            // break;
-        }
-        else
-        {
-            buffer[size] = '\0';
-            std::cout << "<< " << buffer << "\n";
-            if (std::string(buffer) != "OK")
+            // SEND DATA
+            if (send(create_socket, input.c_str(), input.length(), 0) == -1)
             {
-                throw std::runtime_error("Server error occurred, abort");
+                throw std::runtime_error("Send error");
+            }
+
+            // RECEIVE FEEDBACK
+            size = recv(create_socket, buffer, BUF - 1, 0);
+            if (size == -1)
+            {
+                throw std::runtime_error("Receive error");
+            }
+            else if (size == 0)
+            {
+                std::cout << "Server closed remote socket\n";
+                // break;
+            }
+            else
+            {
+                buffer[size] = '\0';
+                std::cout << "<< " << buffer << "\n";
+                if (std::string(buffer) != "OK")
+                {
+                    throw std::runtime_error("Server error occurred, abort");
+                }
             }
         }
     }

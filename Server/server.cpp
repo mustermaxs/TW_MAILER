@@ -7,7 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-
+#include "../src/headers/Router.h"
 
 #define BUF 1024
 #define PORT 6543
@@ -104,23 +104,16 @@ int main() {
                 break;
             }
 
+            // init Request
+            Router router;
+            router.mapRequestToController(new_socket, buffer);
+            
+
+
+
             buffer[size] = '\0';
-            std::cout << "Message received: " << buffer << "\n";
+            std::cout << "Message received: " << "\n" << buffer << "\n";
 
-
-            // 1. METHOD
-            
-            // if buffer == SEND || LIST || READ || DEL 
-                // create new Request
-
-            // if 
-        
-
-
-
-            // Router router;
-            // router.routeRequest(clientRequest);
-            
 
 
             if (send(new_socket, "OK", 3, 0) == -1) {

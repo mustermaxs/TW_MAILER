@@ -3,7 +3,7 @@
 
 
 
-Request::Request(METHOD method, int socketID, Message message)
+Request::Request(COMMAND method, int socketID, Message message)
 {
     this->method = method;
     this->socketID = socketID;

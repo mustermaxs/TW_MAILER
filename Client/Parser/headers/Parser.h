@@ -9,18 +9,11 @@
 #include <vector>
 #include <unistd.h>
 #include <cstdlib>
-
 #include <map>
 
-enum Command
-{
-    LIST,
-    READ,
-    DEL,
-    SEND
-};
+#include "../../../src/headers/Commands.h"
+#include "../../../src/headers/Utils.h"
 
-bool isConvertibleToInt(const std::string &str);
 
 class Parser
 {
@@ -34,10 +27,10 @@ class Parser
     Parser *parseSendCommand(std::string line, bool &continueReadline);
 
 protected:
-    void reset();
 
 public:
-    Parser();
+    Parser(std::map<std::string, Command> commandMap);
+    void reset();
     Parser *parse(const std::string line, bool &continueReadline);
     std::string getString();
     void setMode(std::string mode);

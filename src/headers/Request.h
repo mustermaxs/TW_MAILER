@@ -9,7 +9,7 @@
 
 // valid tw mailer commands
 // as required
-enum METHOD
+enum COMMAND
 {
     SEND,
     LIST,
@@ -21,11 +21,11 @@ enum METHOD
 class Request
 {
 public:
-    METHOD method;
+    COMMAND method;
     int socketID;
     Message message;
 
-    Request(METHOD, int, Message);
+    Request(COMMAND, int, Message);
 
     Message getMessage();
 };

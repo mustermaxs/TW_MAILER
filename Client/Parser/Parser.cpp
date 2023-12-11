@@ -1,41 +1,13 @@
 #include "./headers/Parser.h"
 
 
-/**
- * Helper function to check if provided string is
- * convertible to integer.
- * e.g. to get the index for the delete-command.
- * @returns true if string is convertible to int, otherwise
- * throws an invalid-argument exception.
- */
-bool isConvertibleToInt(const std::string &str)
+Parser::Parser(std::map<std::string, Command> commandMap)
 {
-    try
-    {
-        size_t pos;
-        std::stoi(str, &pos);
-        return pos == str.length();
-    }
-    catch (const std::invalid_argument &)
-    {
-        return false;
-    }
-    catch (const std::out_of_range &)
-    {
-        return false;
-    }
+    this->commandMap = commandMap;
 };
 
-Parser::Parser()
-{
-    this->commandMap =
-        {
-            {"LIST", Command::LIST},
-            {"READ", Command::READ},
-            {"DEL", Command::DEL},
-            {"SEND", Command::SEND}
-        };
-};
+
+
 
 /**
  * Used to parse client input
@@ -54,7 +26,8 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
     if (input == "quit")
     {
         continueReadline = false;
-
+        this->messageStrings += input;
+        
         return this;
     }
 
@@ -87,6 +60,8 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
 };
 
 
+
+
 /**
  * @brief:Resets the parser to its initial state.
  * Used when the client sends a new command.
@@ -99,6 +74,8 @@ void Parser::reset()
 };
 
 
+
+
 /**
  * Sets the TW Mailer command (READ, LIST, DEL, SEND)
  * so that the parser knows which parsing method to call
@@ -107,14 +84,8 @@ void Parser::reset()
  */
 void Parser::setMode(std::string mode)
 {
-    if (this->commandMap.find(mode) == this->commandMap.end())
-    {
-        throw new std::invalid_argument("Command mode unknown");
-    }
-
-    this->mode = this->commandMap[mode];
+    this->mode = Utils::mapStringToCommand(mode);
 };
-
 
 
 
@@ -134,7 +105,7 @@ Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
 {
     continueReadline = lineNumber < 2;
 
-    if (lineNumber == 2 && !isConvertibleToInt(line))
+    if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
     {
         throw new std::invalid_argument("Should be number");
     }
@@ -166,7 +137,7 @@ Parser *Parser::parseDeleteCommand(std::string line, bool &continueReadline)
 {
     continueReadline = lineNumber < 2;
 
-    if (lineNumber == 2 && !isConvertibleToInt(line))
+    if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
     {
         throw new std::invalid_argument("Should be number");
     }
@@ -195,8 +166,3 @@ Parser *Parser::parseSendCommand(std::string line, bool &continueReadline)
 
     return this;
 };
-
-
-
-
-// bool isModeSet() const { return this->mode }

@@ -6,12 +6,13 @@
 #include <assert.h>
 #include <cstdlib>
 
-#include "./src/headers/IFileHandler.h"
-#include "./src/headers/RecursiveFileHandler.h"
-#include "./src/headers/Message.h"
-#include "./src/headers/Color.h"
-#include "./src/headers/MessageHandler.h"
-#include "./Client/Parser/headers/Parser.h"
+#include "src/headers/IFileHandler.h"
+#include "src/headers/RecursiveFileHandler.h"
+#include "src/headers/Message.h"
+#include "src/headers/Color.h"
+#include "src/headers/MessageHandler.h"
+#include "Client/Parser/headers/Parser.h"
+#include "src/headers/Utils.h"
 
 namespace fs = std::filesystem;
 
@@ -261,7 +262,7 @@ public:
     void Parser_ReadsReadCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser();
+        Parser *parser = new Parser(getCommandMap());
         // parser->setMode("READ");
 
         parser->parse("READ", continueReadline);
@@ -278,7 +279,7 @@ public:
     void Parser_ParsesListCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser();
+        Parser *parser = new Parser(getCommandMap());
         // parser->setMode("LIST");
 
         parser->parse("LIST", continueReadline);
@@ -294,7 +295,7 @@ public:
     void Parser_ParsesDeleteCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser();
+        Parser *parser = new Parser(getCommandMap());
         // parser->setMode("DEL");
 
         parser->parse("DEL", continueReadline);
@@ -311,7 +312,7 @@ public:
     void Parser_ParsesSendCommand()
     {
         bool continueReadline = true;
-        Parser *parser = new Parser();
+        Parser *parser = new Parser(getCommandMap());
         // parser->setMode("SEND");
 
         parser->parse("SEND", continueReadline);

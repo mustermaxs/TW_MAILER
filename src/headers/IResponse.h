@@ -3,7 +3,7 @@
 
 #include <string>
 #include <iostream>
-#include "./headers/IItem.h"
+#include "IItem.h"
 
 class IResponse
 {
