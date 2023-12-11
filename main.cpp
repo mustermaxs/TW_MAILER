@@ -230,7 +230,7 @@ public:
              "SUBJECT:Don't forget",
              "MESSAGE:I'm an idiot!"};
 
-        Message deserializedMsg = Message::fromString(expectedContent);
+        Message deserializedMsg = Message::fromFile(expectedContent);
 
         customAssert<std::string>(deserializedMsg.getSender() == msg.getSender(), "Failed to deserialize message sender.", __FUNCTION__);
         customAssert<std::string>(deserializedMsg.getReceiver() == msg.getReceiver(), "Failed to deserialize message receiver.", __FUNCTION__);

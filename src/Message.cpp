@@ -52,7 +52,23 @@ std::string Message::toString() const
     return res;
 };
 
-Message Message::fromString(const std::vector<std::string> msgLines)
+Message Message::fromString(const std::string msgString)
+{
+    std::vector<std::string> msgLines;
+    std::string delimiter = "\n";
+    std::string line = msgString.substr(0, msgString.find(delimiter));
+
+    while (line.length() > 0)
+    {
+        msgLines.push_back(line);
+        msgString.erase(0, line.length() + delimiter.length());
+        line = msgString.substr(0, msgString.find(delimiter));
+    }
+
+    return Message::fromFile(msgLines);
+};
+
+Message Message::fromFile(const std::vector<std::string> msgLines)
 {
     Message msg;
     std::map<std::string, std::string> msgMap = {

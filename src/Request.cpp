@@ -1,6 +1,4 @@
 #include "./headers/Request.h"
-#include "./headers/Message.h"
-
 
 
 Request::Request(Command method, int socketID, Message message)

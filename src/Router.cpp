@@ -1,4 +1,4 @@
-#include "Router.h"
+#include "headers/Router.h"
 
 
 void Router::mapRequestToController(int socketId, std::string buffer)
@@ -8,13 +8,15 @@ void Router::mapRequestToController(int socketId, std::string buffer)
     std::vector<std::string> lines;
     std::string line;
     std::istringstream iss(buffer);
+
+    
     while (std::getline(iss, line))
     {
         lines.push_back(line);
     }
 
     Message message;
-    message.fromString(lines);
+    message.fromFile(lines);
 
     Command command = Utils::mapStringToCommand(commandStr);
 

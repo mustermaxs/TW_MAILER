@@ -15,10 +15,6 @@ private:
     Command method;
 
 public:
-    Command method;
-    int socketId;
-    Message message;
-
     Request(Command, int, Message);
 
     Message getMessage();

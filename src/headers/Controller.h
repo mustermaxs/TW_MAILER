@@ -17,20 +17,18 @@
 #include "MessageHandler.h"
 #include "Request.h"
 #include "Message.h"
-#include "Message.h"
+#include "RecursiveFileHandler.h"
 
-
-class MessageHandler;
 
 class Controller
 {
 private:
-    MessageHandler messageHandler;
+    MessageHandler* messageHandler;
     void sendResponse(int, std::string);
 
 public:
     Controller();
-
+    ~Controller();
     void receiveMessage(Request);
     void listMessages(Request);
     void readMessage(Request);

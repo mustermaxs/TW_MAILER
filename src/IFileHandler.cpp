@@ -2,10 +2,6 @@
 
 IFileHandler::~IFileHandler(){};
 
-
-
-
-
 /// @brief Checks if two paths are the same.
 /// @param leftPath first path
 /// @param rightPath second path

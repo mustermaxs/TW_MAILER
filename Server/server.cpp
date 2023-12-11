@@ -105,8 +105,9 @@ int main() {
             }
 
             // init Request
-            Router router;
-            router.mapRequestToController(new_socket, buffer);
+            std::string bufferStr = std::string(buffer);
+            Router router = Router();
+            router.mapRequestToController(new_socket, bufferStr);
             
 
 

@@ -17,7 +17,6 @@
 
 class Parser
 {
-    std::map<std::string, Command> commandMap;
     std::string messageStrings;
     int lineNumber = 0;
     Command mode;
@@ -29,7 +28,7 @@ class Parser
 protected:
 
 public:
-    Parser(std::map<std::string, Command> commandMap);
+    Parser() {};
     void reset();
     Parser *parse(const std::string line, bool &continueReadline);
     std::string getString();

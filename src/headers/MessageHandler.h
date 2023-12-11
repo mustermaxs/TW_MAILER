@@ -6,11 +6,10 @@
 #include <vector>
 #include <filesystem>
 #include <string>
-#include "Message.h"
-#include "IFileHandler.h"
-#include "Message.h"
-#include "IFileHandler.h"
 #include <exception>
+
+#include "Message.h"
+#include "RecursiveFileHandler.h"
 
 namespace fs = std::filesystem;
 
@@ -23,7 +22,7 @@ class MessageHandler
     std::string msgsRootDir = "./messages/";
 
 public:
-    MessageHandler(IFileHandler* handler) : fileHandler(handler) {}
+    MessageHandler(IFileHandler* handler);
     ~MessageHandler();
     bool saveMessage(const std::string& username, Message message);
     std::vector<Message> getMessagesByUsername(const std::string& username);

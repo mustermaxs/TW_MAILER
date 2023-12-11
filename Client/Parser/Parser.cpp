@@ -1,14 +1,6 @@
 #include "./headers/Parser.h"
 
 
-Parser::Parser(std::map<std::string, Command> commandMap)
-{
-    this->commandMap = commandMap;
-};
-
-
-
-
 /**
  * Used to parse client input
  * delegates parsing to designated parsing method
