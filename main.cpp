@@ -23,7 +23,11 @@ void customAssert(bool check, const std::string &failMessage, const std::string 
         Color::Modifier red(Color::FG_RED);
         Color::Modifier resetColor(Color::FG_DEFAULT);
 
-        std::cerr << red << "[TEST FAILED]: " << testName << ":" << failMessage << resetColor << std::endl;
+        std::string className = testName.substr(0, testName.find("_"));
+        std::string methodName = testName.substr(testName.find("_") + 1, testName.length());
+
+        std::cout << red << "[" << className << "]: " << methodName << " X:" << failMessage << resetColor << std::endl;
+
         std::abort();
     }
 };
@@ -60,7 +64,11 @@ public:
     {
         Color::Modifier green(Color::FG_GREEN);
         Color::Modifier resetColor(Color::FG_DEFAULT);
-        std::cout << green << testName << " ✓" << resetColor << std::endl;
+
+        std::string className = testName.substr(0, testName.find("_"));
+        std::string methodName = testName.substr(testName.find("_") + 1, testName.length());
+
+        std::cout << green << "[" << className << "]: " << methodName << " ✓" << resetColor << std::endl;
     }
 
     void FileHandler_FindsFilesInDir()
@@ -112,21 +120,6 @@ public:
         logTest(__FUNCTION__);
     };
 
-    void MessageHandler_CreatesMessage(Message msg)
-    {
-        MessageHandler msgHandler(fileHandler);
-        std::string username = msg.getReceiver();
-        msgHandler.saveMessage(username, msg);
-
-        std::string expectedPath = "./messages/" + msg.getReceiver();
-
-        customAssert<std::string>(fileHandler->dirExists(expectedPath) == true, " directory doesn't exist.", __FUNCTION__);
-
-        customAssert<std::string>(fileHandler->searchFileInDir("1", expectedPath).fileExists == true, "message file should exist", __FUNCTION__);
-
-        logTest(__FUNCTION__);
-    }
-
     void FileHandler_DeleteFile()
     {
         Message msg;
@@ -143,6 +136,21 @@ public:
 
         logTest(__FUNCTION__);
     };
+
+    void MessageHandler_CreatesMessage(Message msg)
+    {
+        MessageHandler msgHandler(fileHandler);
+        std::string username = msg.getReceiver();
+        msgHandler.saveMessage(username, msg);
+
+        std::string expectedPath = "./messages/" + msg.getReceiver();
+
+        customAssert<std::string>(fileHandler->dirExists(expectedPath) == true, " directory doesn't exist.", __FUNCTION__);
+
+        customAssert<std::string>(fileHandler->searchFileInDir("1", expectedPath).fileExists == true, "message file should exist", __FUNCTION__);
+
+        logTest(__FUNCTION__);
+    }
 
     void MessageClass_SerializesMessage(Message msg)
     {
@@ -225,7 +233,23 @@ public:
         parser->parse("eiweck", continueReadline);
         parser->parse("1", continueReadline);
 
-        customAssert<std::string>(parser->getString() == "LIST\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
+        customAssert<std::string>(parser->getString() == "DELETE\neiweck\n1\n", "Failed to parse string.", __FUNCTION__);
+        logTest(__FUNCTION__);
+    }
+    void Parser_ParsesSendCommand()
+    {
+        bool continueReadline = true;
+        Parser *parser = new Parser();
+        parser->setMode("SEND");
+
+        parser->parse("SEND", continueReadline);
+        parser->parse("markus", continueReadline);
+        parser->parse("eiweck", continueReadline);
+        parser->parse("wtf", continueReadline);
+        parser->parse("eiweck was soll das\neigentlich", continueReadline);
+        parser->parse(".", continueReadline);
+
+        customAssert<std::string>(parser->getString() == "SEND\nmarkus\neiweck\nwtf\neiweck was soll das\neigentlich\n.\n", "Failed to parse string. Actual value: " + parser->getString(), __FUNCTION__);
         logTest(__FUNCTION__);
     }
 };
@@ -239,13 +263,14 @@ int main()
     test.FileHandler_FindsExistingDir();
     test.FileHandler_CreatesDirIfNotExists();
     test.MessageHandler_CreatesMessage(test.msg);
-    test.FileHandler_DeleteFile();
     test.MessageClass_SerializesMessage(test.msg);
     test.MessageClass_DeserializesMessage(test.msg);
     test.MessageHandler_GetsMessageByUserAndId("eiweck", 1);
+    test.FileHandler_DeleteFile();
     test.Parser_ReadsReadCommand();
     test.Parser_ParsesListCommand();
     test.Parser_ParsesDeleteCommand();
+    test.Parser_ParsesSendCommand();
 
     return 0;
 }

@@ -24,7 +24,7 @@ Parser::Parser()
         {
             {"LIST", Command::LIST},
             {"READ", Command::READ},
-            {"DEL", Command::DELETE},
+            {"DELETE", Command::DELETE},
             {"SEND", Command::SEND}};
 };
 
@@ -51,6 +51,9 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
         break;
     case Command::DELETE:
         return this->parseDeleteCommand(input, continueReadline);
+        break;
+    case Command::SEND:
+        return this->parseSendCommand(input, continueReadline);
         break;
     default:
         throw new std::invalid_argument("Parsing mode needs to be set in advance.");
@@ -156,8 +159,11 @@ Parser *Parser::parseSendCommand(std::string line, bool &continueReadline)
     if (line == ".")
     {
         continueReadline = false;
+        this->messageStrings += line + "\n";
+
         return this;
     }
+
     this->messageStrings += line + "\n";
 
     return this;
