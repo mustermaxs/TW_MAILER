@@ -1,5 +1,12 @@
 #include "./headers/RecursiveFileHandler.h"
 
+
+
+/// @brief Searches for a file with provided name in a specific directory recursively.
+/// @param fileName file name
+/// @param dirPath directory path where 
+/// @return Search result object, contains flag that indicates if file was found and
+/// filesystem-path object.
 SearchResult RecursiveFileHandler::searchFileInDir(const std::string fileName, const std::string dirPath) const
 {
     SearchResult searchRes;

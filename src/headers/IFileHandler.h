@@ -10,7 +10,9 @@
 
 namespace fs = std::filesystem;
 
-
+/// @brief Contains flag that indicates if
+/// file was found and filesystem path object leading
+/// to the found path.
 struct SearchResult
 {
     bool fileExists;

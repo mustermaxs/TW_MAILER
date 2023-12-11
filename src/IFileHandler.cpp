@@ -2,6 +2,14 @@
 
 IFileHandler::~IFileHandler(){};
 
+
+
+
+
+/// @brief Checks if two paths are the same.
+/// @param leftPath first path
+/// @param rightPath second path
+/// @return True if both paths are the same.
 bool IFileHandler::comparePaths(const std::string leftPath, const std::string rightPath) const
 {
     if (!ignoreCase)
@@ -22,8 +30,12 @@ bool IFileHandler::comparePaths(const std::string leftPath, const std::string ri
 };
 
 
-// reads file content into vector of strings for
-// easier string handling
+
+
+/// @brief reads file content into vector of strings for
+/// @param filePath File path to read contents from
+/// @return Vector of strings where each string element
+/// represents a single line of the file content.
 std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 {
     std::string line;
@@ -49,6 +61,9 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 
 
 
+/// @brief Converts filesystem path object to string
+/// @param path filesystem::path object
+/// @return String
 std::string IFileHandler::pathObjToString(fs::path &path)
 {
     return path.u8string();
@@ -57,6 +72,9 @@ std::string IFileHandler::pathObjToString(fs::path &path)
 
 
 
+/// @brief Checks if provided directory exists.
+/// @param path Directory path as filesyste::path object
+/// @return True if the provided directory path exists.
 bool IFileHandler::dirExists(fs::path &path)
 {
     return fs::is_directory(path);
@@ -65,6 +83,9 @@ bool IFileHandler::dirExists(fs::path &path)
 
 
 
+/// @brief Checks if provided directory exists.
+/// @param path Directory path as string.
+/// @return True if the provided directory path exists.
 bool IFileHandler::dirExists(const std::string path)
 {
     fs::path p = fs::path(path);
@@ -75,6 +96,9 @@ bool IFileHandler::dirExists(const std::string path)
 
 
 
+/// @brief Creates a directory if it doesn't exist already.
+/// @param dirName String - path to object
+/// @return True if directory exists.
 bool IFileHandler::createDirectoryIfNotExists(std::string dirName)
 {
     // ? wo root directory deklarieren
@@ -100,6 +124,10 @@ bool IFileHandler::createDirectoryIfNotExists(std::string dirName)
 
 
 
+/// @brief Write string to file.
+/// @param fileName String - path to file.
+/// @param content String - file content.
+/// @return True if attempt to write to file succeded.
 bool IFileHandler::writeToFile(const std::string fileName, const std::string &content)
 {
     try
@@ -122,8 +150,10 @@ bool IFileHandler::writeToFile(const std::string fileName, const std::string &co
 
 
 
-// returns file names stored under provided directory path
-// in vector of strings
+
+/// @brief Returns file names stored under provided directory path.
+/// @param dirName String - Directory path.
+/// @return Vector of strings representing the file names.
 std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirName)
 {
     std::vector<std::string> fileNames;
@@ -139,6 +169,9 @@ std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirNa
 
 
 
+/// @brief Deletes file if it exists.
+/// @param pathName String - file path.
+/// @return True if the file was deleted successfully.
 bool IFileHandler::deleteFile(const std::string pathName)
 {
     try
