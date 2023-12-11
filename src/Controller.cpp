@@ -39,9 +39,9 @@ void Controller::listMessages(Request req) {
     Message* requestMessage = req.getMessage();
     std::string username = requestMessage->getSender();
 
-    std::vector<Message> messages = messageHandler->getMessagesByUsername(username);
+    std::vector<Message*>* messages = messageHandler->getMessagesByUsername(username);
 
-    int messagesCount = messages.size();
+    int messagesCount = messages->size();
 
     std::string resBody = "";
 
@@ -49,9 +49,9 @@ void Controller::listMessages(Request req) {
 
     if (messagesCount) {
         
-        for(const Message& message : messages)
+        for(const Message* message : *messages)
         {
-            resBody += message.getSubject();
+            resBody += message->getSubject();
         }
         
     }
