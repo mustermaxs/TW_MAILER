@@ -3,14 +3,19 @@
 
 
 
-Request::Request(COMMAND method, int socketID, Message message)
+Request::Request(Command method, int socketID, Message message)
 {
     this->method = method;
-    this->socketID = socketID;
+    this->socketId = socketId;
     this->message = message;
 };
 
 Message Request::getMessage()
 {
     return this->message;
+};
+
+int Request::getSocketId()
+{
+    return this->socketId;
 };

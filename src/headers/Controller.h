@@ -16,6 +16,9 @@
 
 #include "MessageHandler.h"
 #include "Request.h"
+#include "Message.h"
+#include "Message.h"
+
 
 class MessageHandler;
 
@@ -23,15 +26,16 @@ class Controller
 {
 private:
     MessageHandler messageHandler;
+    void sendResponse(int, std::string);
 
 public:
     Controller();
 
-    void ReceiveMessage(Request req);
-    void ListMessages(Request req);
-    void ReadMessage(Request req);
-    void DeleteMessages(Request req);
-    void Quit();
+    void receiveMessage(Request);
+    void listMessages(Request);
+    void readMessage(Request);
+    void deleteMessage(Request);
+    void quit();
 };
 
 #endif

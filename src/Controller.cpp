@@ -1,11 +1,10 @@
 #include "./headers/Controller.h"
-#include "./headers/Message.h"
 
 Controller::Controller() {
 
 }
 
-void Controller::ReceiveMessage(Request req) {
+void Controller::receiveMessage(Request req) {
 
     Message requestMessage = req.getMessage();
     std::string username = requestMessage.getReceiver();
@@ -19,14 +18,29 @@ void Controller::ReceiveMessage(Request req) {
     } else {
         resBody = "OK\n";
     }
+
+    
     
     std::cout << resBody << std::endl;
     
-    // sendResponse(req.socketId, resBody);
+    this->sendResponse(req.getSocketId(), resBody);
 
 }
 
-void Controller::ListMessages(Request req) {
+void Controller::sendResponse(int socketId, std::string resBody)
+{
+    
+    //get resBody size
+    int resBodySize = resBody.length();
+
+    if(send(socketId, resBody.c_str(), resBodySize, 0) == -1) {
+        perror("Send answer failed");
+        throw std::runtime_error("Send answer failed");
+    }
+
+}
+
+void Controller::listMessages(Request req) {
 
     Message requestMessage = req.getMessage();
     std::string username = requestMessage.getReceiver();
@@ -51,7 +65,7 @@ void Controller::ListMessages(Request req) {
     // sendResponse(req.socketId, resBody);
 }
 
-void Controller::ReadMessage(Request req) {
+void Controller::readMessage(Request req) {
 
     Message requestMessage = req.getMessage();
     std::string username = requestMessage.getReceiver();
@@ -63,10 +77,10 @@ void Controller::ReadMessage(Request req) {
  // sendResponse(req.socketId, resBody);
 }
 
-void Controller::DeleteMessages(Request req) {
+void Controller::deleteMessage(Request req) {
 
 }
 
-void Controller::Quit() {
+void Controller::quit() {
 
 }

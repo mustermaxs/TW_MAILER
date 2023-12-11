@@ -4,15 +4,16 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "Request.h"
+
 #include "Controller.h"
+#include "Request.h"
+#include "Utils.h"
 
 class Router
 {
-    Request request;
 
 public:
-    Router();
+    Router() {};
     ~Router();
     void init();
     void mapRequestToController(int socketId, std::string content);

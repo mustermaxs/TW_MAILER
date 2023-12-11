@@ -5,29 +5,25 @@
 #include <stdlib.h>
 
 #include "Message.h"
-
-
-// valid tw mailer commands
-// as required
-enum COMMAND
-{
-    SEND,
-    LIST,
-    READ,
-    DEL,
-    QUIT
-};
+#include "Commands.h"
 
 class Request
 {
+private:
+    int socketId;
+    Message message;
+    Command method;
+
 public:
-    COMMAND method;
-    int socketID;
+    Command method;
+    int socketId;
     Message message;
 
-    Request(COMMAND, int, Message);
+    Request(Command, int, Message);
 
     Message getMessage();
+    int getSocketId();
+    void senResponse(int, std::string);
 };
 
 #endif
