@@ -66,6 +66,7 @@ Message* Message::fromFileLines(const std::vector<std::string> msgLines)
         {"RECEIVER", ""},
         {"SUBJECT", ""},
         {"MESSAGE", ""}};
+        
 
     for (const auto &line : msgLines)
     {
