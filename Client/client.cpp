@@ -1,134 +1,139 @@
 #include <iostream>
-#include <cstring>
-#include <cstdlib>
 #include <string>
+#include <stdexcept>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <cstring>
 #include "./Parser/headers/Parser.h"
 
 #define BUF 1024
 #define PORT 6543
 
-int main(int argc, char **argv)
+class SocketClient
 {
-    int create_socket;
-    char buffer[BUF];
-    struct sockaddr_in address;
-    int size;
+public:
+    SocketClient(const char *serverAddress = "127.0.0.1") : serverAddress_(serverAddress) {}
 
-    // CREATE A SOCKET
-    if ((create_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    void connectToServer()
     {
-        perror("Socket error");
-        return EXIT_FAILURE;
+        createSocket();
+        initAddress();
+        createConnection();
     }
 
-    // INIT ADDRESS
-    memset(&address, 0, sizeof(address)); // init storage with 0
-    address.sin_family = AF_INET;         // IPv4
-    address.sin_port = htons(PORT);
-
-    if (argc < 2)
+    void sendData(const std::string &data)
     {
-        inet_aton("127.0.0.1", &address.sin_addr);
-    }
-    else
-    {
-        inet_aton(argv[1], &address.sin_addr);
+        if (send(socket_, data.c_str(), data.length(), 0) == -1)
+        {
+            throw std::runtime_error("Send error");
+        }
     }
 
-    // CREATE A CONNECTION
-    if (connect(create_socket, (struct sockaddr *)&address, sizeof(address)) == -1)
+    std::string receiveData()
     {
-        perror("Connect error - no server available");
-        return EXIT_FAILURE;
+        char buffer[BUF];
+        int size = recv(socket_, buffer, BUF - 1, 0);
+        if (size == -1)
+        {
+            throw std::runtime_error("Receive error");
+        }
+        else if (size == 0)
+        {
+            return "Server closed remote socket";
+        }
+        else
+        {
+            buffer[size] = '\0';
+            return buffer;
+        }
     }
 
-    std::cout << "Connection with server (" << inet_ntoa(address.sin_addr) << ") established\n";
-
-    // RECEIVE DATA
-    size = recv(create_socket, buffer, BUF - 1, 0);
-    if (size == -1)
+    void closeConnection()
     {
-        perror("recv error");
-        return EXIT_FAILURE;
-    }
-    else if (size == 0)
-    {
-        std::cout << "Server closed remote socket\n";
-    }
-    else
-    {
-        buffer[size] = '\0';
-        std::cout << buffer;
+        if (shutdown(socket_, SHUT_RDWR) == -1)
+        {
+            perror("shutdown socket");
+        }
+        if (close(socket_) == -1)
+        {
+            perror("close socket");
+        }
     }
 
+private:
+    int socket_;
+    struct sockaddr_in address_;
+    const char *serverAddress_;
+
+    void createSocket()
+    {
+        if ((socket_ = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        {
+            perror("Socket error");
+            throw std::runtime_error("Socket creation error");
+        }
+    }
+
+    void initAddress()
+    {
+        memset(&address_, 0, sizeof(address_));
+        address_.sin_family = AF_INET;
+        address_.sin_port = htons(PORT);
+        inet_aton(serverAddress_, &address_.sin_addr);
+    }
+
+    void createConnection()
+    {
+        if (connect(socket_, (struct sockaddr *)&address_, sizeof(address_)) == -1)
+        {
+            perror("Connect error - no server available");
+            throw std::runtime_error("Connection error");
+        }
+
+        std::cout << "Connection with server (" << inet_ntoa(address_.sin_addr) << ") established\n";
+    }
+};
+
+int main()
+{
     try
     {
+        SocketClient socketClient;
+        socketClient.connectToServer();
 
+        std::string response = socketClient.receiveData();
+        std::cout << response << "\n";
+
+        Parser parser;
         std::string input;
 
         while (true)
         {
             input = "";
-            Parser *parser = new Parser();
-
-            while (parser->continueReadline)
+            while (parser.continueReadline)
             {
                 std::getline(std::cin, input);
-
-                parser->parse(input);
+                parser.parse(input);
             }
 
-            input = parser->getString();
+            input = parser.getString();
+            parser.reset();
 
-            if (input == "quit") break;
+            if (input == "quit")
+                break;
 
-            // SEND DATA
-            if (send(create_socket, input.c_str(), input.length(), 0) == -1)
-            {
-                throw std::runtime_error("Send error");
-            }
+            socketClient.sendData(input);
 
-            // RECEIVE FEEDBACK
-            size = recv(create_socket, buffer, BUF - 1, 0);
-            if (size == -1)
-            {
-                throw std::runtime_error("Receive error");
-            }
-            else if (size == 0)
-            {
-                std::cout << "Server closed remote socket\n";
-                // break;
-            }
-            else
-            {
-                buffer[size] = '\0';
-                // std::cout << "<< " << buffer << "\n";
-                std::cout << buffer << "\n";
-
-            }
+            std::string response = socketClient.receiveData();
+            std::cout << response << "\n";
         }
     }
     catch (const std::exception &e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
-    }
-
-    // CLOSES THE DESCRIPTOR
-    if (create_socket != -1)
-    {
-        if (shutdown(create_socket, SHUT_RDWR) == -1)
-        {
-            perror("shutdown create_socket");
-        }
-        if (close(create_socket) == -1)
-        {
-            perror("close create_socket");
-        }
     }
 
     return EXIT_SUCCESS;
