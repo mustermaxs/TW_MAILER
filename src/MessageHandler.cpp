@@ -75,15 +75,12 @@ std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &
     std::vector<Message*>* messages = new std::vector<Message*>();
     std::string directoryName = this->msgsRootDir + username + "/";
 
-        std::cout << "TESTTESTTESTTESTTESTTESTTEST" << std::endl;
     std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
 
     for (auto &fileName : fileNames)
     {
         std::vector<std::string> fileLines = this->fileHandler->readFileLines(directoryName + fileName);
-        std::cout << fileLines[0] << std::endl;
         Message* msg = Message::fromLines(fileLines);
-        std::cout << msg->getContent() << std::endl;
         messages->push_back(msg);
     }
 

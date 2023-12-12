@@ -158,7 +158,8 @@ Parser *Parser::parseSendCommand(std::string line, bool &continueReadline)
                  ? headers[lineNumber - 1] + ":"
                  : "";
 
-    this->messageStrings += line + "\n";
+    this->messageStrings = this->messageStrings + header + line + "\n";
+    this->lineNumber++;
 
     return this;
 };

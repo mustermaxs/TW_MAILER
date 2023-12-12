@@ -80,8 +80,6 @@ int main(int argc, char **argv)
 
             while (continueReadline)
             {
-                // std::cout << ">> ";
-
                 std::getline(std::cin, input);
 
                 parser->parse(input, continueReadline);

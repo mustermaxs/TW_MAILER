@@ -1,5 +1,6 @@
 {
     "version": "0.2.0",
+    "console": "externalTerminal",
     "configurations": [
         {
             "name": "C++ Debug",

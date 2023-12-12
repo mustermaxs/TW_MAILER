@@ -29,8 +29,6 @@ void Controller::receiveMessage(Request req)
         resBody = "OK\n";
     }
 
-    std::cout << resBody << std::endl;
-
     // return resBody;
     sendResponse(req.getSocketId(), resBody);
 };
