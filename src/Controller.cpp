@@ -47,7 +47,9 @@ void Controller::listMessages(Request req)
 
     std::string resBody = "";
 
-    resBody += messagesCount + "\n";
+    std::string messagesCountStr = std::to_string(messagesCount);
+
+    resBody += messagesCountStr + "\n";
 
     if (messagesCount)
     {
@@ -62,14 +64,20 @@ void Controller::listMessages(Request req)
 
 void Controller::readMessage(Request req)
 {
-
-    Message *requestMessage = req.getMessage();
-    std::string username = requestMessage->getReceiver();
-    int messageNumber;
-
     std::string resBody = "";
+    Message *requestMessage = req.getMessage();
+    
+    std::string username = requestMessage->getSender();
+    int messageNumber = requestMessage->getMessageNumber();
 
-    // sendResponse(req.socketId, resBody);
+    Message message = messageHandler->getMessage(username, messageNumber);
+    
+    resBody += message.getSender() + "\n";
+    resBody += message.getReceiver() + "\n";
+    resBody += message.getSubject() + "\n";
+    resBody += message.getContent() + "\n";
+
+    sendResponse(req.getSocketId(), resBody);
 };
 
 void Controller::deleteMessage(Request req){
@@ -80,20 +88,19 @@ void Controller::quit(){
 
 };
 
-void Controller::sendResponse(int *socketId, std::string resBody)
+void Controller::sendResponse(int socketId, std::string resBody)
 {
-    int resBodySize = resBody.length();
     try
     {
     // BUG exception.what() => Send answer failed: Socket operation on non-socket
-        if (send(*(socketId), resBody.c_str(), resBodySize, 0) == -1)
+        if (send(socketId, resBody.c_str(), resBody.size(), 0) == -1)
         {
-            perror("Send answer failed");
-            throw std::runtime_error("Send answer failed");
+            // perror("Send answer failed");
+            // throw std::runtime_error("Send answer failed");
         }
     }
     catch (const std::exception &ex)
     {
-        std::cout << "Exception: " << ex.what() << std::endl;
+        // std::cout << "Exception: " << ex.what() << std::endl;
     }
 };

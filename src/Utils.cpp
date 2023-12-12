@@ -11,7 +11,7 @@ enum Command Utils::mapStringToCommand(const std::string commandStr)
         }
 
     
-    return Command::LIST;
+    return commandMap[commandStr];
 };
 
 

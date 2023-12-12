@@ -109,7 +109,7 @@ int main() {
             // init Request
             std::string bufferStr(buffer);
             Router router = Router();
-            router.mapRequestToController(&new_socket, bufferStr);
+            router.mapRequestToController(new_socket, bufferStr);
             
 
 
@@ -119,10 +119,10 @@ int main() {
 
 
 
-            if (send(new_socket, "OK", 3, 0) == -1) {
-                perror("Send answer failed");
-                break;
-            }
+            // if (send(new_socket, "OK", 3, 0) == -1) {
+            //     perror("Send answer failed");
+            //     break;
+            // }
         } while (strcmp(buffer, "quit") != 0 && !abortRequested);
 
         // Close client socket

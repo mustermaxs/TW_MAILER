@@ -63,6 +63,7 @@ Message* Message::fromFileLines(const std::vector<std::string> msgLines)
     Message* msg = new Message();
     std::map<std::string, std::string> msgMap = {
         {"SENDER", ""},
+        {"ID", ""},
         {"RECEIVER", ""},
         {"SUBJECT", ""},
         {"MESSAGE", ""}};
@@ -77,6 +78,7 @@ Message* Message::fromFileLines(const std::vector<std::string> msgLines)
 
         if (key == "SENDER") msg->setSender(value);
         if (key == "RECEIVER") msg->setReceiver(value);
+        if (key == "ID") msg->setMessageNumber(std::stoi(value));
         if (key == "SUBJECT") msg->setSubject(value);
         if (key == "MESSAGE") msg->setContent(value);
     }

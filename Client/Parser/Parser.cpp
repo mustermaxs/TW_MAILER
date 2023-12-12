@@ -82,6 +82,9 @@ std::string Parser::getString()
 
 Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
 {
+    std::string header = "";
+    std::vector<std::string> headers = {"SENDER", "ID"};
+
     continueReadline = lineNumber < 2;
 
     if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
@@ -89,7 +92,11 @@ Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
         throw new std::invalid_argument("Should be number");
     }
 
-    this->messageStrings += line + "\n";
+    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
+                 ? headers[lineNumber - 1] + ":"
+                 : "";
+
+    this->messageStrings = this->messageStrings + header + line + "\n";
     this->lineNumber++;
 
     return this;
@@ -99,11 +106,10 @@ Parser *Parser::parseListCommand(std::string line, bool &continueReadline)
 {
     std::string header = "";
     std::vector<std::string> headers = {"SENDER"};
-    
 
     continueReadline = lineNumber < 1;
-    
-    header = (lineNumber > 0 && lineNumber < headers.size()+1)
+
+    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
                  ? headers[lineNumber - 1] + ":"
                  : "";
 

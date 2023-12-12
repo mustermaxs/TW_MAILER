@@ -72,21 +72,21 @@ int main(int argc, char **argv)
         std::string input;
         bool continueReadline = true;
 
-        while (true && continueReadline)
+        while (true)
         {
+            continueReadline = true;
             input = "";
             Parser *parser = new Parser();
 
             while (continueReadline)
             {
-                std::cout << ">> ";
+                // std::cout << ">> ";
 
                 std::getline(std::cin, input);
 
                 parser->parse(input, continueReadline);
             }
 
-            continueReadline = true;
             input = parser->getString();
 
             if (input == "quit") break;
@@ -111,7 +111,8 @@ int main(int argc, char **argv)
             else
             {
                 buffer[size] = '\0';
-                std::cout << "<< " << buffer << "\n";
+                // std::cout << "<< " << buffer << "\n";
+                std::cout << buffer << "\n";
 
             }
         }

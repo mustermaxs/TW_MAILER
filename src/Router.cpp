@@ -1,7 +1,7 @@
 #include "headers/Router.h"
 
 
-void Router::mapRequestToController(int* socketId, std::string buffer)
+void Router::mapRequestToController(int socketId, std::string buffer)
 {
     std::string commandStr = buffer.substr(0, buffer.find("\n"));
 
@@ -31,9 +31,9 @@ void Router::mapRequestToController(int* socketId, std::string buffer)
     case Command::LIST:
         controller.listMessages(request);
         break;
-    // case Command::READ:
-    //     controller.readMessage(request);
-    //     break;
+    case Command::READ:
+        controller.readMessage(request);
+        break;
     // case Command::DEL:
     //     controller.deleteMessage(request);
     //     break;
