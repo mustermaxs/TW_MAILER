@@ -63,8 +63,11 @@ Message MessageHandler::getMessage(const std::string &username, int messageNumbe
     }
 
     std::vector<std::string> fileContent = this->fileHandler->readFileLines(directoryName + msgId);
+    
+    Message* msg = Message::fromLines(fileContent);
+    msg->setMessageNumber(messageNumber);
 
-    return *(Message::fromLines(fileContent));
+    return *msg; // return pointer, not by value, so that call method can free allocation
 };
 
 /// @brief Gets all deserialized message objects for a specific user.
@@ -81,6 +84,7 @@ std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &
     {
         std::vector<std::string> fileLines = this->fileHandler->readFileLines(directoryName + fileName);
         Message* msg = Message::fromLines(fileLines);
+        msg->setMessageNumber(std::stoi(fileName));
         messages->push_back(msg);
     }
 

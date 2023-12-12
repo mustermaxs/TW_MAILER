@@ -55,8 +55,6 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 };
 
 
-
-
 /// @brief Converts filesystem path object to string
 /// @param path filesystem::path object
 /// @return String
