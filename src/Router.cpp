@@ -1,6 +1,11 @@
 #include "headers/Router.h"
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
+/// @brief Executes the correct controlelr method to handle the client request.
+/// @param socketId int - to send response.
+/// @param buffer string - content of the request.
 void Router::mapRequestToController(int socketId, std::string buffer)
 {
     std::string commandStr = buffer.substr(0, buffer.find("\n"));

@@ -1,6 +1,11 @@
 #include "headers/Utils.h"
 
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Maps client input to command enum.
+/// @return enum Command.
 enum Command Utils::mapStringToCommand(const std::string commandStr)
 {
     std::map<std::string, Command> commandMap = getCommandMap();
@@ -15,8 +20,11 @@ enum Command Utils::mapStringToCommand(const std::string commandStr)
 };
 
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 /**
- * Helper function to check if provided string is
+ * @brief Helper function to check if provided string is
  * convertible to integer.
  * e.g. to get the index for the delete-command.
  * @returns true if string is convertible to int, otherwise
