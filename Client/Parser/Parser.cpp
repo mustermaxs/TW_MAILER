@@ -122,7 +122,7 @@ Parser *Parser::parseListCommand(std::string line, bool &continueReadline)
 Parser *Parser::parseDeleteCommand(std::string line, bool &continueReadline)
 {
     std::string header = "";
-    std::vector<std::string> headers = {"SENDER"};
+    std::vector<std::string> headers = {"SENDER", "ID"};
 
     continueReadline = lineNumber < 2;
 
@@ -131,8 +131,8 @@ Parser *Parser::parseDeleteCommand(std::string line, bool &continueReadline)
         throw new std::invalid_argument("Should be number");
     }
 
-    header = (lineNumber > 0 && lineNumber < headers.size())
-                 ? headers[lineNumber - 1] + ": "
+    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
+                 ? headers[lineNumber - 1] + ":"
                  : "";
 
     this->messageStrings = this->messageStrings + header + line + "\n";
@@ -154,8 +154,8 @@ Parser *Parser::parseSendCommand(std::string line, bool &continueReadline)
         return this;
     }
 
-    header = (lineNumber > 0 && lineNumber < headers.size())
-                 ? headers[lineNumber - 1] + ": "
+    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
+                 ? headers[lineNumber - 1] + ":"
                  : "";
 
     this->messageStrings += line + "\n";

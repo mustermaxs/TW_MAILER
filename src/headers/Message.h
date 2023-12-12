@@ -34,7 +34,7 @@ class Message : IItem
         Message* setSubject(std::string);
         Message* setContent(std::string);
         Message* setMessageNumber(int);
-        static Message* fromFileLines(const std::vector<std::string> msgLines);
+        static Message* fromLines(const std::vector<std::string> msgLines);
         // static Message* fromString(const std::string msgString);
 };
 

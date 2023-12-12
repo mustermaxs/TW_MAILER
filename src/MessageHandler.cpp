@@ -64,7 +64,7 @@ Message MessageHandler::getMessage(const std::string &username, int messageNumbe
 
     std::vector<std::string> fileContent = this->fileHandler->readFileLines(directoryName + msgId);
 
-    return *(Message::fromFileLines(fileContent));
+    return *(Message::fromLines(fileContent));
 };
 
 /// @brief Gets all deserialized message objects for a specific user.
@@ -82,7 +82,7 @@ std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &
     {
         std::vector<std::string> fileLines = this->fileHandler->readFileLines(directoryName + fileName);
         std::cout << fileLines[0] << std::endl;
-        Message* msg = Message::fromFileLines(fileLines);
+        Message* msg = Message::fromLines(fileLines);
         std::cout << msg->getContent() << std::endl;
         messages->push_back(msg);
     }
@@ -96,5 +96,15 @@ std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &
 /// @return Returns true if attempt to delete message  succeded.
 bool MessageHandler::deleteMessage(const std::string &username, int messageID)
 {
-    return false;
+    std::string directoryName = this->msgsRootDir + username + "/";
+    std::string msgId = std::to_string(messageID);
+
+    SearchResult res = this->fileHandler->searchFileInDir(msgId, directoryName);
+
+    if (!res.fileExists)
+    {
+        return false;
+    }
+
+    return this->fileHandler->deleteFile(directoryName + msgId);
 };

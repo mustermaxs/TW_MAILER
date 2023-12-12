@@ -81,7 +81,25 @@ void Controller::readMessage(Request req)
 };
 
 void Controller::deleteMessage(Request req){
-
+    
+        Message *requestMessage = req.getMessage();
+        std::string username = requestMessage->getSender();
+        int messageNumber = requestMessage->getMessageNumber();
+    
+        bool messageDeleted = messageHandler->deleteMessage(username, messageNumber);
+    
+        std::string resBody = "";
+    
+        if (!messageDeleted)
+        {
+            resBody = "ERR\n";
+        }
+        else
+        {
+            resBody = "OK\n";
+        }
+    
+        sendResponse(req.getSocketId(), resBody);
 };
 
 void Controller::quit(){

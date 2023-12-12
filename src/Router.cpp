@@ -15,7 +15,7 @@ void Router::mapRequestToController(int socketId, std::string buffer)
         lines.push_back(line);
     }
 
-    Message*message = Message::fromFileLines(lines);
+    Message*message = Message::fromLines(lines);
 
     Command command = Utils::mapStringToCommand(commandStr);
 
@@ -34,9 +34,9 @@ void Router::mapRequestToController(int socketId, std::string buffer)
     case Command::READ:
         controller.readMessage(request);
         break;
-    // case Command::DEL:
-    //     controller.deleteMessage(request);
-    //     break;
+    case Command::DEL:
+        controller.deleteMessage(request);
+        break;
 
 
     default:

@@ -58,7 +58,7 @@ std::string Message::toString() const
 // };
 
 // TODO evtl. string übergeben und nicht vector of strings
-Message* Message::fromFileLines(const std::vector<std::string> msgLines)
+Message* Message::fromLines(const std::vector<std::string> msgLines)
 {
     Message* msg = new Message();
     std::map<std::string, std::string> msgMap = {
