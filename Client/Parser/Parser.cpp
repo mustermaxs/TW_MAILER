@@ -151,7 +151,7 @@ Parser *Parser::parseReadCommand(std::string line)
         return this;
     }
 
-    this->processCommand(line, headers);
+    this->buildCommandString(line, headers);
 
     return this;
 };
@@ -165,7 +165,7 @@ Parser *Parser::parseListCommand(std::string line)
 
     this->continueReadline = lineNumber < 1;
 
-    this->processCommand(line, headers);
+    this->buildCommandString(line, headers);
 
     return this;
 };
@@ -187,7 +187,7 @@ Parser *Parser::parseDeleteCommand(std::string line)
         return this;
     }
 
-    this->processCommand(line, headers);
+    this->buildCommandString(line, headers);
 
     return this;
 };
@@ -203,12 +203,12 @@ Parser *Parser::parseSendCommand(std::string line)
     if (line == ".")
     {
         this->continueReadline = false;
-        this->processCommand(line, headers);
+        this->buildCommandString(line, headers);
 
         return this;
     }
 
-    this->processCommand(line, headers);
+    this->buildCommandString(line, headers);
 
     return this;
 };
@@ -220,7 +220,7 @@ Parser *Parser::parseSendCommand(std::string line)
 /// so that parsing the mssage becomes easier.
 /// @param line String - the line to process.
 /// @param headers vector<strimgs> - the expected headers (message structure elements).
-void Parser::processCommand(std::string &line, const std::vector<std::string> &headers)
+void Parser::buildCommandString(std::string &line, const std::vector<std::string> &headers)
 {
     std::string header = "";
     int headerCount = headers.size();
