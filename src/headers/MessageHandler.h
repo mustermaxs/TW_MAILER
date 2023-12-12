@@ -19,7 +19,8 @@ namespace fs = std::filesystem;
 class MessageHandler
 {
     IFileHandler* fileHandler;
-    std::string msgsRootDir = "./messages/";
+    // TODO msgsRootDir /var/spool/<usermessageDir>
+    std::string msgsRootDir = "/home/mustermax/vscode_projects/TW_MAILER/messages/";
 
 public:
     MessageHandler(IFileHandler* handler);

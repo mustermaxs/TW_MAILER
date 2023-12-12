@@ -112,10 +112,7 @@ int main(int argc, char **argv)
             {
                 buffer[size] = '\0';
                 std::cout << "<< " << buffer << "\n";
-                if (std::string(buffer) != "OK")
-                {
-                    throw std::runtime_error("Server error occurred, abort");
-                }
+
             }
         }
     }

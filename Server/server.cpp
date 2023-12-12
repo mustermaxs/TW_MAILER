@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <string>
 #include "../src/headers/Router.h"
 
 #define BUF 1024
@@ -104,10 +105,11 @@ int main() {
                 break;
             }
 
+
             // init Request
-            std::string bufferStr = std::string(buffer);
+            std::string bufferStr(buffer);
             Router router = Router();
-            router.mapRequestToController(new_socket, bufferStr);
+            router.mapRequestToController(&new_socket, bufferStr);
             
 
 

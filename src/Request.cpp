@@ -1,7 +1,7 @@
 #include "./headers/Request.h"
 
 
-Request::Request(Command method, int socketID, Message* message)
+Request::Request(Command method, int *socketId, Message* message)
 {
     this->method = method;
     this->socketId = socketId;
@@ -13,7 +13,7 @@ Message* Request::getMessage()
     return this->message;
 };
 
-int Request::getSocketId()
+int* Request::getSocketId()
 {
     return this->socketId;
 };

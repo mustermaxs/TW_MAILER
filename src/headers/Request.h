@@ -10,15 +10,15 @@
 class Request
 {
 private:
-    int socketId;
+    int* socketId;
     Message* message;
     Command method;
 
 public:
-    Request(Command, int, Message*);
+    Request(Command, int*, Message*);
 
     Message* getMessage();
-    int getSocketId();
+    int* getSocketId();
     void senResponse(int, std::string);
 };
 

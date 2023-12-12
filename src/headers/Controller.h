@@ -24,7 +24,7 @@ class Controller
 {
 private:
     MessageHandler* messageHandler;
-    void sendResponse(int, std::string);
+    void sendResponse(int*, std::string);
 
 public:
     Controller();

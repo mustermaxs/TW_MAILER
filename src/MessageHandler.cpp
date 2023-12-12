@@ -72,15 +72,19 @@ Message MessageHandler::getMessage(const std::string &username, int messageNumbe
 /// @return vector of deserialized message objects
 std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &username)
 {
-    std::vector<Message*>* messages;
+    std::vector<Message*>* messages = new std::vector<Message*>();
     std::string directoryName = this->msgsRootDir + username + "/";
 
+        std::cout << "TESTTESTTESTTESTTESTTESTTEST" << std::endl;
     std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
 
     for (auto &fileName : fileNames)
     {
         std::vector<std::string> fileLines = this->fileHandler->readFileLines(directoryName + fileName);
-        messages->push_back(Message::fromFileLines(fileLines));
+        std::cout << fileLines[0] << std::endl;
+        Message* msg = Message::fromFileLines(fileLines);
+        std::cout << msg->getContent() << std::endl;
+        messages->push_back(msg);
     }
 
     return messages;

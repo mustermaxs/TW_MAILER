@@ -1,7 +1,7 @@
 #include "headers/Router.h"
 
 
-void Router::mapRequestToController(int socketId, std::string buffer)
+void Router::mapRequestToController(int* socketId, std::string buffer)
 {
     std::string commandStr = buffer.substr(0, buffer.find("\n"));
 
@@ -14,7 +14,8 @@ void Router::mapRequestToController(int socketId, std::string buffer)
     {
         lines.push_back(line);
     }
-    Message* message = Message::fromFileLines(lines);
+
+    Message*message = Message::fromFileLines(lines);
 
     Command command = Utils::mapStringToCommand(commandStr);
 

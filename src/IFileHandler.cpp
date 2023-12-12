@@ -39,7 +39,7 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
     fs::path path = fs::path(filePath);
 
     std::ifstream fileStream;
-    fileStream.open(path);
+    fileStream.open(filePath);
 
     if (fileStream.is_open())
     {
@@ -153,6 +153,7 @@ bool IFileHandler::writeToFile(const std::string fileName, const std::string &co
 std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirName)
 {
     std::vector<std::string> fileNames;
+    fs::path dirPathObj = fs::path(dirName);
 
     for (const auto &entry : fs::directory_iterator(dirName))
     {

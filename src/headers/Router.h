@@ -16,7 +16,7 @@ class Router
 public:
     Router() {};
     void init();
-    void mapRequestToController(int socketId, std::string content);
+    void mapRequestToController(int* , std::string );
 };
 
 #endif
