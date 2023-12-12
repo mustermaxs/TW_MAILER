@@ -1,15 +1,27 @@
 #include "./headers/Controller.h"
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 Controller::Controller()
 {
     this->messageHandler = new MessageHandler(new RecursiveFileHandler());
 };
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 
 Controller::~Controller()
 {
     delete messageHandler;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief On SEND commmand. Handles messages sent by the client.
+/// @param req Request.
 void Controller::receiveMessage(Request req)
 {
     try
@@ -42,26 +54,26 @@ void Controller::receiveMessage(Request req)
     }
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief On LIST command. Handles request to list all messages for a specific user.
+/// @param req Request.
 void Controller::listMessages(Request req)
 {
     try
     {
         Message *requestMessage = req.getMessage();
         std::string username = requestMessage->getSender();
-
         std::vector<Message *> *messages = messageHandler->getMessagesByUsername(username);
-
         int messagesCount = messages->size();
 
         std::string resBody = "";
-
         std::string messagesCountStr = std::to_string(messagesCount);
-
         resBody += messagesCountStr + "\n";
 
         if (messagesCount)
         {
-
             for (const Message *message : *messages)
             {
                 resBody += "ID: " + std::to_string(message->getMessageNumber()) + " | Subject: " + message->getSubject() + "\n";
@@ -84,6 +96,11 @@ void Controller::listMessages(Request req)
     }
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief On READ command. Handles client request to read a specific message.
+/// @param req Request.
 void Controller::readMessage(Request req)
 {
     try
@@ -118,6 +135,11 @@ void Controller::readMessage(Request req)
     }
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief On DELETE command. Handles clients request to delete a specific message.
+/// @param req Request.
 void Controller::deleteMessage(Request req)
 {
 
@@ -153,8 +175,13 @@ void Controller::deleteMessage(Request req)
     }
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 
+/// @brief Used to send response to client.
+/// @param socketId int - socket ID.
+/// @param resBody string - the response body.
 void Controller::sendResponse(int socketId, std::string resBody)
 {
     try
