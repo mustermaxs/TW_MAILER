@@ -1,0 +1,9 @@
+.vscode/launch.json
+
+messages/**
+
+bin/client
+bin/twmailer
+Client/Parser/Parser.o
+Client/client.o
+Server/server.o

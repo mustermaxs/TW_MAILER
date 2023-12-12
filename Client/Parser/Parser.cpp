@@ -1,13 +1,11 @@
 #include "./headers/Parser.h"
 
-
 Parser::Parser()
 {
+    this->mode = NOT_SET;
     this->continueReadline = true;
     this->lineNumber = 0;
 };
-
-
 
 /**
  * Used to parse client input
@@ -31,6 +29,16 @@ Parser *Parser::parse(const std::string input)
     {
         this->setMode(input);
         this->reset();
+    }
+
+    if (this->mode == NOT_SET)
+    {
+        Color::Modifier red(Color::FG_RED);
+        Color::Modifier resetColor(Color::FG_DEFAULT);
+        //TODO print usage
+        std::cout << red << "Invalid command.\n" << std::endl;
+        
+        return this;
     }
 
     switch (this->mode)
@@ -90,7 +98,7 @@ Parser *Parser::parseReadCommand(std::string line)
 {
     try
     {
-        
+
         std::string header = "";
         std::vector<std::string> headers = {"SENDER", "ID"};
 
@@ -98,35 +106,30 @@ Parser *Parser::parseReadCommand(std::string line)
 
         if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
         {
-            // throw new std::invalid_argument("Should be number");
-
             Color::Modifier red(Color::FG_RED);
             Color::Modifier resetColor(Color::FG_DEFAULT);
 
             std::cout << red << "Invalid argument provided. Expects a number" << std::endl;
             std::cout << red << "Please enter a valid number" << resetColor << std::endl;
-            
+
             this->reset();
             return this;
         }
 
         header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                    ? headers[lineNumber - 1] + ":"
-                    : "";
+                     ? headers[lineNumber - 1] + ":"
+                     : "";
 
         this->messageStrings = this->messageStrings + header + line + "\n";
         this->lineNumber++;
 
         return this;
-
     }
     catch (std::invalid_argument &e)
     {
         std::cout << e.what() << std::endl;
-        
     };
 }
-
 
 Parser *Parser::parseListCommand(std::string line)
 {
@@ -137,14 +140,13 @@ Parser *Parser::parseListCommand(std::string line)
     this->continueReadline = lineNumber < 1;
 
     header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                ? headers[lineNumber - 1] + ":"
-                : "";
+                 ? headers[lineNumber - 1] + ":"
+                 : "";
 
     this->messageStrings = this->messageStrings + header + line + "\n";
     this->lineNumber++;
 
     return this;
-
 };
 
 Parser *Parser::parseDeleteCommand(std::string line)
@@ -164,7 +166,7 @@ Parser *Parser::parseDeleteCommand(std::string line)
 
             std::cout << red << "Invalid argument provided. Expects a number" << std::endl;
             std::cout << red << "Please enter a valid number" << resetColor << std::endl;
-            
+
             this->reset();
             return this;
         }
