@@ -49,7 +49,7 @@ bool MessageHandler::saveMessage(const std::string &username, Message message)
 /// @param username name of sender
 /// @param messageNumber index of message
 /// @return Deserialized message object
-Message MessageHandler::getMessage(const std::string &username, int messageNumber)
+Message* MessageHandler::getMessage(const std::string &username, int messageNumber)
 {
     std::string directoryName = this->msgsRootDir + username + "/";
     std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
@@ -67,7 +67,7 @@ Message MessageHandler::getMessage(const std::string &username, int messageNumbe
     Message* msg = Message::fromLines(fileContent);
     msg->setMessageNumber(messageNumber);
 
-    return *msg; // return pointer, not by value, so that call method can free allocation
+    return msg; // return pointer, not by value, so that call method can free allocation
 };
 
 /// @brief Gets all deserialized message objects for a specific user.

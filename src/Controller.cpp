@@ -29,7 +29,6 @@ void Controller::receiveMessage(Request req)
         resBody = "OK\n";
     }
 
-    // return resBody;
     sendResponse(req.getSocketId(), resBody);
 };
 
@@ -57,6 +56,13 @@ void Controller::listMessages(Request req)
             resBody += "ID: " + std::to_string(message->getMessageNumber()) + " | Subject: " + message->getSubject() + "\n";
         }
     }
+
+    for (auto& msg : *messages)
+    {
+        delete msg;
+    }
+    delete messages;
+
     sendResponse(req.getSocketId(), resBody);
 };
 
@@ -68,12 +74,14 @@ void Controller::readMessage(Request req)
     std::string username = requestMessage->getSender();
     int messageNumber = requestMessage->getMessageNumber();
 
-    Message message = messageHandler->getMessage(username, messageNumber);
+    Message* message = messageHandler->getMessage(username, messageNumber);
 
-    resBody += "Sender:\n" + message.getSender() + "\n";
-    resBody += "Receiver:\n" + message.getReceiver() + "\n";
-    resBody += "Subject:\n" + message.getSubject() + "\n";
-    resBody += "Content:\n" + message.getContent() + "\n";
+    resBody += "Sender:\n" + message->getSender() + "\n";
+    resBody += "Receiver:\n" + message->getReceiver() + "\n";
+    resBody += "Subject:\n" + message->getSubject() + "\n";
+    resBody += "Content:\n" + message->getContent() + "\n";
+
+    delete message;
 
     sendResponse(req.getSocketId(), resBody);
 };
@@ -97,6 +105,8 @@ void Controller::deleteMessage(Request req)
     {
         resBody = "OK\n";
     }
+
+    delete requestMessage;
 
     sendResponse(req.getSocketId(), resBody);
 };

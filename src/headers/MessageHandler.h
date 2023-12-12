@@ -27,7 +27,7 @@ public:
     ~MessageHandler();
     bool saveMessage(const std::string& username, Message message);
     std::vector<Message*>* getMessagesByUsername(const std::string& username);
-    Message getMessage(const std::string& username, int messageNumber);
+    Message* getMessage(const std::string& username, int messageNumber);
     bool deleteMessage(const std::string& username, int messageID);
 
 };
