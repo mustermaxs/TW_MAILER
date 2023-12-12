@@ -3,6 +3,9 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Parses the clients input. Collects every passed input line and
+/// tries to concatenate them to a structured message that can be deserialized
+// by the server to a message object.
 Parser::Parser()
 {
     this->mode = NOT_SET;
@@ -30,7 +33,7 @@ Parser *Parser::parse(const std::string input)
 
         return this;
     }
-    
+
     if (input == "LIST" || input == "READ" || input == "DEL" || input == "SEND")
     {
         this->setMode(input);
@@ -46,10 +49,18 @@ Parser *Parser::parse(const std::string input)
     }
 
     return this->callDesignatedParser(input);
-
 };
 
-Parser* Parser::callDesignatedParser(std::string input)
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Calls one of the specialiced parser methods to
+/// parse the client input. Collects every passed input line and
+/// tries to concatenate them to a structured message that can be deserialized
+// by the server to a message object.
+/// @param input String - single input line
+/// @return Parser pointer.
+Parser *Parser::callDesignatedParser(std::string input)
 {
     switch (this->mode)
     {
@@ -104,7 +115,9 @@ void Parser::setMode(std::string mode)
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Returns the complete parsed and concatenated string.
+ * @brief Returns the complete parsed and concatenated string.
+ * @return string - the concatenated parsed string with structure elements.
+ * (e.g. SENDER, RECEIVER, SUBJJECT, CONTENT)
  */
 std::string Parser::getString()
 {
@@ -199,6 +212,9 @@ Parser *Parser::parseSendCommand(std::string line)
 
     return this;
 };
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Adds headers (message structure elements) to message elements that make up a basic structure
 /// so that parsing the mssage becomes easier.

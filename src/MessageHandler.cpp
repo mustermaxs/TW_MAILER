@@ -1,16 +1,24 @@
 #include "./headers/MessageHandler.h"
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 MessageHandler::MessageHandler(IFileHandler* fileHandler)
 {
     this->fileHandler = fileHandler;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 
 MessageHandler::~MessageHandler()
 {
     delete this->fileHandler;
 };
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Saves serialized message object to user specific directory.
 /// @param username name of receiver as defined in message header.
@@ -45,6 +53,9 @@ bool MessageHandler::saveMessage(const std::string &username, Message message)
     return this->fileHandler->writeToFile(newFileName, message.toString());
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 /// @brief Gets deserialized message object from specific user and message id.
 /// @param username name of sender
 /// @param messageNumber index of message
@@ -72,6 +83,9 @@ Message* MessageHandler::getMessage(const std::string &username, int messageNumb
     return msg; // return pointer, not by value, so that call method can free allocation
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 /// @brief Gets all deserialized message objects for a specific user.
 /// @param username message recipient.
 /// @return vector of deserialized message objects
@@ -92,6 +106,9 @@ std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &
 
     return messages;
 };
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Deletes message by username and message id.
 /// @param username name of receiver.

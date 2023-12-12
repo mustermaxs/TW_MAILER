@@ -1,6 +1,12 @@
 #include "./headers/IFileHandler.h"
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 IFileHandler::~IFileHandler(){};
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Checks if two paths are the same.
 /// @param leftPath first path
@@ -25,8 +31,8 @@ bool IFileHandler::comparePaths(const std::string leftPath, const std::string ri
     return lcLeftPath == lcRightPath;
 };
 
-
-
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief reads file content into vector of strings for
 /// @param filePath File path to read contents from
@@ -54,6 +60,8 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
     return lines;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Converts filesystem path object to string
 /// @param path filesystem::path object
@@ -63,8 +71,8 @@ std::string IFileHandler::pathObjToString(fs::path &path)
     return path.u8string();
 };
 
-
-
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Checks if provided directory exists.
 /// @param path Directory path as filesyste::path object
@@ -74,8 +82,8 @@ bool IFileHandler::dirExists(fs::path &path)
     return fs::is_directory(path);
 };
 
-
-
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Checks if provided directory exists.
 /// @param path Directory path as string.
@@ -87,8 +95,8 @@ bool IFileHandler::dirExists(const std::string path)
     return fs::is_directory(p);
 };
 
-
-
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Creates a directory if it doesn't exist already.
 /// @param dirName String - path to object
@@ -115,8 +123,8 @@ bool IFileHandler::createDirectoryIfNotExists(std::string dirName)
     }
 };
 
-
-
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Write string to file.
 /// @param fileName String - path to file.
@@ -142,8 +150,8 @@ bool IFileHandler::writeToFile(const std::string fileName, const std::string &co
     }
 };
 
-
-
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Returns file names stored under provided directory path.
 /// @param dirName String - Directory path.
@@ -161,8 +169,8 @@ std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirNa
     return fileNames;
 };
 
-
-
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /// @brief Deletes file if it exists.
 /// @param pathName String - file path.
@@ -178,7 +186,7 @@ bool IFileHandler::deleteFile(const std::string pathName)
     catch (...)
     {
         std::cout << "Failed to delete file" << pathName << std::endl;
-        
+
         return false;
     }
 };

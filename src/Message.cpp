@@ -1,5 +1,8 @@
 #include "./headers/Message.h"
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 Message::Message()
 {
     this->sender = "";
@@ -9,6 +12,9 @@ Message::Message()
     this->messageNumber = 0;
 }
 
+//////////////////////////////////////////////////////////////////////
+// multiple getters/setters                                         //
+//////////////////////////////////////////////////////////////////////
 std::string Message::getSender() const { return this->sender; };
 std::string Message::getReceiver() const { return this->receiver; };
 std::string Message::getSubject() const { return this->subject; };
@@ -41,7 +47,12 @@ Message *Message::setMessageNumber(int messageNumber)
     return this;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
+/// @brief Serializes message object. Prepends sturcture elements
+/// so that parsing is easier.
+/// @return String - serialized message object.
 std::string Message::toString() const
 {
     std::string res =
@@ -58,7 +69,12 @@ std::string Message::toString() const
         
 // };
 
-// TODO evtl. string übergeben und nicht vector of strings
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Deserizalizes message object from string.
+/// @param msgLines Vector of strings.
+/// @return Pointer to message object.
 Message* Message::fromLines(const std::vector<std::string> msgLines)
 {
     Message* msg = new Message();
@@ -74,7 +90,6 @@ Message* Message::fromLines(const std::vector<std::string> msgLines)
 
     for (const auto &line : msgLines)
     {
-        // split by first :
         std::string delimiter = ":";
         std::string key = line.substr(0, line.find(delimiter));
         std::string value = line.substr(line.find(delimiter) + 1, line.length());
