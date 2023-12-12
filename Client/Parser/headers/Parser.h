@@ -19,17 +19,18 @@ class Parser
     std::string messageStrings;
     int lineNumber = 0;
     Command mode;
-    Parser *parseListCommand(std::string line, bool &continueReadline);
-    Parser *parseReadCommand(std::string line, bool &continueReadline);
-    Parser *parseDeleteCommand(std::string line, bool &continueReadline);
-    Parser *parseSendCommand(std::string line, bool &continueReadline);
+    Parser *parseListCommand(std::string line);
+    Parser *parseReadCommand(std::string line);
+    Parser *parseDeleteCommand(std::string line);
+    Parser *parseSendCommand(std::string line);
 
 protected:
 
 public:
-    Parser() {};
+    bool continueReadline = true;
+    Parser();
     void reset();
-    Parser *parse(const std::string line, bool &continueReadline);
+    Parser *parse(const std::string line);
     std::string getString();
     void setMode(std::string mode);
     // bool isModeSet() const;

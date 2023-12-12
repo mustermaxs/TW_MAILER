@@ -59,6 +59,8 @@ Message* MessageHandler::getMessage(const std::string &username, int messageNumb
 
     if (!res.fileExists)
     {
+        return NULL;
+        
         throw new std::invalid_argument("Message doesn't exist");
     }
 

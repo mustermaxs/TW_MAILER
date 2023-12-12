@@ -1,5 +1,14 @@
 #include "./headers/Parser.h"
 
+
+Parser::Parser()
+{
+    this->continueReadline = true;
+    this->lineNumber = 0;
+};
+
+
+
 /**
  * Used to parse client input
  * delegates parsing to designated parsing method
@@ -7,16 +16,12 @@
  *
  * @param input the most recently string that was
  * acquired from the clients console
- *
- * @param continueReadline is a reference used to signal
- * the executing while-loop in the clients main method when
- * its supposed to stop reading input from the command line
  */
-Parser *Parser::parse(const std::string input, bool &continueReadline)
+Parser *Parser::parse(const std::string input)
 {
     if (input == "quit")
     {
-        continueReadline = false;
+        this->continueReadline = false;
         this->messageStrings += input;
 
         return this;
@@ -31,16 +36,16 @@ Parser *Parser::parse(const std::string input, bool &continueReadline)
     switch (this->mode)
     {
     case Command::LIST:
-        return this->parseListCommand(input, continueReadline);
+        return this->parseListCommand(input);
         break;
     case Command::READ:
-        return this->parseReadCommand(input, continueReadline);
+        return this->parseReadCommand(input);
         break;
     case Command::DEL:
-        return this->parseDeleteCommand(input, continueReadline);
+        return this->parseDeleteCommand(input);
         break;
     case Command::SEND:
-        return this->parseSendCommand(input, continueReadline);
+        return this->parseSendCommand(input);
         break;
     default:
         throw new std::invalid_argument("Parsing mode needs to be set in advance.");
@@ -59,6 +64,7 @@ void Parser::reset()
 {
     this->messageStrings = "";
     this->lineNumber = 0;
+    this->continueReadline = true;
 };
 
 /**
@@ -80,75 +86,112 @@ std::string Parser::getString()
     return this->messageStrings;
 };
 
-Parser *Parser::parseReadCommand(std::string line, bool &continueReadline)
+Parser *Parser::parseReadCommand(std::string line)
 {
-    std::string header = "";
-    std::vector<std::string> headers = {"SENDER", "ID"};
-
-    continueReadline = lineNumber < 2;
-
-    if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
+    try
     {
-        throw new std::invalid_argument("Should be number");
+        
+        std::string header = "";
+        std::vector<std::string> headers = {"SENDER", "ID"};
+
+        this->continueReadline = lineNumber < 2;
+
+        if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
+        {
+            // throw new std::invalid_argument("Should be number");
+
+            Color::Modifier red(Color::FG_RED);
+            Color::Modifier resetColor(Color::FG_DEFAULT);
+
+            std::cout << red << "Invalid argument provided. Expects a number" << std::endl;
+            std::cout << red << "Please enter a valid number" << resetColor << std::endl;
+            
+            this->reset();
+            return this;
+        }
+
+        header = (lineNumber > 0 && lineNumber < headers.size() + 1)
+                    ? headers[lineNumber - 1] + ":"
+                    : "";
+
+        this->messageStrings = this->messageStrings + header + line + "\n";
+        this->lineNumber++;
+
+        return this;
+
     }
+    catch (std::invalid_argument &e)
+    {
+        std::cout << e.what() << std::endl;
+        
+    };
+}
 
-    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                 ? headers[lineNumber - 1] + ":"
-                 : "";
 
-    this->messageStrings = this->messageStrings + header + line + "\n";
-    this->lineNumber++;
-
-    return this;
-};
-
-Parser *Parser::parseListCommand(std::string line, bool &continueReadline)
+Parser *Parser::parseListCommand(std::string line)
 {
+
     std::string header = "";
     std::vector<std::string> headers = {"SENDER"};
 
-    continueReadline = lineNumber < 1;
+    this->continueReadline = lineNumber < 1;
 
     header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                 ? headers[lineNumber - 1] + ":"
-                 : "";
+                ? headers[lineNumber - 1] + ":"
+                : "";
 
     this->messageStrings = this->messageStrings + header + line + "\n";
     this->lineNumber++;
 
     return this;
+
 };
 
-Parser *Parser::parseDeleteCommand(std::string line, bool &continueReadline)
+Parser *Parser::parseDeleteCommand(std::string line)
 {
-    std::string header = "";
-    std::vector<std::string> headers = {"SENDER", "ID"};
-
-    continueReadline = lineNumber < 2;
-
-    if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
+    try
     {
-        throw new std::invalid_argument("Should be number");
+
+        std::string header = "";
+        std::vector<std::string> headers = {"SENDER", "ID"};
+
+        this->continueReadline = lineNumber < 2;
+
+        if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
+        {
+            Color::Modifier red(Color::FG_RED);
+            Color::Modifier resetColor(Color::FG_DEFAULT);
+
+            std::cout << red << "Invalid argument provided. Expects a number" << std::endl;
+            std::cout << red << "Please enter a valid number" << resetColor << std::endl;
+            
+            this->reset();
+            return this;
+        }
+
+        header = (lineNumber > 0 && lineNumber < headers.size() + 1)
+                     ? headers[lineNumber - 1] + ":"
+                     : "";
+
+        this->messageStrings = this->messageStrings + header + line + "\n";
+        this->lineNumber++;
+
+        return this;
     }
-
-    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                 ? headers[lineNumber - 1] + ":"
-                 : "";
-
-    this->messageStrings = this->messageStrings + header + line + "\n";
-    this->lineNumber++;
-
-    return this;
+    catch (std::invalid_argument &e)
+    {
+        std::cout << e.what() << std::endl;
+    }
 };
 
-Parser *Parser::parseSendCommand(std::string line, bool &continueReadline)
+Parser *Parser::parseSendCommand(std::string line)
 {
     std::string header = "";
     std::vector<std::string> headers = {"SENDER", "RECEIVER", "SUBJECT", "MESSAGE"};
 
     if (line == ".")
     {
-        continueReadline = false;
+        this->continueReadline = false;
         this->messageStrings += line + "\n";
 
         return this;

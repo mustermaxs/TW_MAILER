@@ -41,6 +41,7 @@ Message *Message::setMessageNumber(int messageNumber)
     return this;
 };
 
+
 std::string Message::toString() const
 {
     std::string res =
@@ -68,6 +69,8 @@ Message* Message::fromLines(const std::vector<std::string> msgLines)
         {"SUBJECT", ""},
         {"MESSAGE", ""}};
         
+    bool readingMsgBody = false;
+    std::string msgBody = "";
 
     for (const auto &line : msgLines)
     {
@@ -80,7 +83,25 @@ Message* Message::fromLines(const std::vector<std::string> msgLines)
         if (key == "RECEIVER") msg->setReceiver(value);
         if (key == "ID") msg->setMessageNumber(std::stoi(value));
         if (key == "SUBJECT") msg->setSubject(value);
-        if (key == "MESSAGE") msg->setContent(value);
+        if (key == "MESSAGE")
+        { 
+            readingMsgBody = true;
+            msgBody += value + "\n";
+
+            continue;
+        }
+
+        if (readingMsgBody)
+        {
+            msgBody = msgBody + line + "\n";
+
+            if (line == ".")
+            {
+                msg->setContent(msgBody);
+                readingMsgBody = false;
+
+            }
+        }
     }
 
     return msg;

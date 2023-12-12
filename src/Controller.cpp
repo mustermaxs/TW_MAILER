@@ -12,108 +12,148 @@ Controller::~Controller()
 
 void Controller::receiveMessage(Request req)
 {
-
-    Message *requestMessage = req.getMessage();
-    std::string username = requestMessage->getReceiver();
-
-    bool messageCreated = messageHandler->saveMessage(username, *requestMessage);
-
-    std::string resBody = "";
-
-    if (!messageCreated)
+    try
     {
-        resBody = "ERR\n";
-    }
-    else
-    {
-        resBody = "OK\n";
-    }
+        Message *requestMessage = req.getMessage();
+        std::string username = requestMessage->getReceiver();
 
-    sendResponse(req.getSocketId(), resBody);
+        bool messageCreated = messageHandler->saveMessage(username, *requestMessage);
+
+        std::string resBody = "";
+
+        if (!messageCreated)
+        {
+            resBody = "ERR\n";
+        }
+        else
+        {
+            resBody = "OK\n";
+        }
+
+        sendResponse(req.getSocketId(), resBody);
+
+
+    }
+    catch (std::exception &ex)
+    {
+        std::cerr << "Error in receiveMessage: " << ex.what() << std::endl;
+
+        sendResponse(req.getSocketId(), "ERR\n");
+    }
 };
 
 void Controller::listMessages(Request req)
 {
-
-    Message *requestMessage = req.getMessage();
-    std::string username = requestMessage->getSender();
-
-    std::vector<Message *> *messages = messageHandler->getMessagesByUsername(username);
-
-    int messagesCount = messages->size();
-
-    std::string resBody = "";
-
-    std::string messagesCountStr = std::to_string(messagesCount);
-
-    resBody += messagesCountStr + "\n";
-
-    if (messagesCount)
+    try
     {
+        Message *requestMessage = req.getMessage();
+        std::string username = requestMessage->getSender();
 
-        for (const Message *message : *messages)
+        std::vector<Message *> *messages = messageHandler->getMessagesByUsername(username);
+
+        int messagesCount = messages->size();
+
+        std::string resBody = "";
+
+        std::string messagesCountStr = std::to_string(messagesCount);
+
+        resBody += messagesCountStr + "\n";
+
+        if (messagesCount)
         {
-            resBody += "ID: " + std::to_string(message->getMessageNumber()) + " | Subject: " + message->getSubject() + "\n";
+
+            for (const Message *message : *messages)
+            {
+                resBody += "ID: " + std::to_string(message->getMessageNumber()) + " | Subject: " + message->getSubject() + "\n";
+            }
         }
-    }
 
-    for (auto& msg : *messages)
+        for (auto &msg : *messages)
+        {
+            delete msg;
+        }
+        delete messages;
+
+        sendResponse(req.getSocketId(), resBody);
+    }
+    catch (const std::runtime_error &ex)
     {
-        delete msg;
-    }
-    delete messages;
+        std::cerr << "Error in listMessages: " << ex.what() << std::endl;
 
-    sendResponse(req.getSocketId(), resBody);
+        sendResponse(req.getSocketId(), "ERR\n");
+    }
 };
 
 void Controller::readMessage(Request req)
 {
-    std::string resBody = "";
-    Message *requestMessage = req.getMessage();
+    try
+    {
+        std::string resBody = "";
+        Message *requestMessage = req.getMessage();
 
-    std::string username = requestMessage->getSender();
-    int messageNumber = requestMessage->getMessageNumber();
+        std::string username = requestMessage->getSender();
+        int messageNumber = requestMessage->getMessageNumber();
 
-    Message* message = messageHandler->getMessage(username, messageNumber);
+        Message *message = messageHandler->getMessage(username, messageNumber);
 
-    resBody += "Sender:\n" + message->getSender() + "\n";
-    resBody += "Receiver:\n" + message->getReceiver() + "\n";
-    resBody += "Subject:\n" + message->getSubject() + "\n";
-    resBody += "Content:\n" + message->getContent() + "\n";
+        if (message == NULL)
+        {
+            throw std::runtime_error("Message not found");
+        }
 
-    delete message;
+        resBody += "Sender:" + message->getSender() + "\n";
+        resBody += "Receiver:" + message->getReceiver() + "\n";
+        resBody += "Subject:" + message->getSubject() + "\n";
+        resBody += "Content:" + message->getContent() + "\n";
 
-    sendResponse(req.getSocketId(), resBody);
+        delete message;
+
+        sendResponse(req.getSocketId(), resBody);
+    }
+    catch (const std::runtime_error& ex)
+    {
+        std::cerr << "Error in readMessage: " << ex.what() << std::endl;
+
+        sendResponse(req.getSocketId(), "ERR\n");
+    }
 };
 
 void Controller::deleteMessage(Request req)
 {
 
-    Message *requestMessage = req.getMessage();
-    std::string username = requestMessage->getSender();
-    int messageNumber = requestMessage->getMessageNumber();
+    try {
 
-    bool messageDeleted = messageHandler->deleteMessage(username, messageNumber);
+        Message *requestMessage = req.getMessage();
+        std::string username = requestMessage->getSender();
+        int messageNumber = requestMessage->getMessageNumber();
 
-    std::string resBody = "";
+        bool messageDeleted = messageHandler->deleteMessage(username, messageNumber);
 
-    if (!messageDeleted)
-    {
-        resBody = "ERR\n";
+        std::string resBody = "";
+
+        if (!messageDeleted)
+        {
+            resBody = "ERR\n";
+            throw std::runtime_error("Message not found");
+        }
+        else
+        {
+            resBody = "OK\n";
+        }
+
+        delete requestMessage;
+
+        sendResponse(req.getSocketId(), resBody);
     }
-    else
+    catch (const std::runtime_error& ex)
     {
-        resBody = "OK\n";
+        std::cerr << "Error in deleteMessage: " << ex.what() << std::endl;
+
+        sendResponse(req.getSocketId(), "ERR\n");
     }
-
-    delete requestMessage;
-
-    sendResponse(req.getSocketId(), resBody);
 };
 
-void Controller::quit(){
 
-};
 
 void Controller::sendResponse(int socketId, std::string resBody)
 {
@@ -122,12 +162,12 @@ void Controller::sendResponse(int socketId, std::string resBody)
         // BUG exception.what() => Send answer failed: Socket operation on non-socket
         if (send(socketId, resBody.c_str(), resBody.size(), 0) == -1)
         {
-            // perror("Send answer failed");
-            // throw std::runtime_error("Send answer failed");
+            perror("Send answer failed");
+            throw std::runtime_error("Send answer failed");
         }
     }
     catch (const std::exception &ex)
     {
-        // std::cout << "Exception: " << ex.what() << std::endl;
+        std::cout << "Exception while sending Response: " << ex.what() << std::endl;
     }
 };

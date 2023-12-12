@@ -70,19 +70,17 @@ int main(int argc, char **argv)
     {
 
         std::string input;
-        bool continueReadline = true;
 
         while (true)
         {
-            continueReadline = true;
             input = "";
             Parser *parser = new Parser();
 
-            while (continueReadline)
+            while (parser->continueReadline)
             {
                 std::getline(std::cin, input);
 
-                parser->parse(input, continueReadline);
+                parser->parse(input);
             }
 
             input = parser->getString();
