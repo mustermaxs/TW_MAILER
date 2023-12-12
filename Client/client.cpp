@@ -84,7 +84,8 @@ int main(int argc, char **argv)
             }
 
             input = parser->getString();
-
+            parser->reset();
+            
             if (input == "quit") break;
 
             // SEND DATA
