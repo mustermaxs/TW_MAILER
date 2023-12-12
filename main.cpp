@@ -30,8 +30,8 @@ void customAssert(bool check, const std::string &failMessage, const std::string 
 {
     if (!check)
     {
-        Color::Modifier red(Color::FG_RED);
-        Color::Modifier resetColor(Color::FG_DEFAULT);
+        Color::Mod red(Color::FG_RED);
+        Color::Mod resetColor(Color::FG_DEFAULT);
 
         std::string className = testName.substr(0, testName.find("_"));
         std::string methodName = testName.substr(testName.find("_") + 1, testName.length());
@@ -94,8 +94,8 @@ public:
      */
     void logTest(std::string testName)
     {
-        Color::Modifier green(Color::FG_GREEN);
-        Color::Modifier resetColor(Color::FG_DEFAULT);
+        Color::Mod green(Color::FG_GREEN);
+        Color::Mod resetColor(Color::FG_DEFAULT);
 
         std::string className = testName.substr(0, testName.find("_"));
         std::string methodName = testName.substr(testName.find("_") + 1, testName.length());

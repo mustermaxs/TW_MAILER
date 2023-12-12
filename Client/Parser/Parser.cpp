@@ -1,11 +1,17 @@
 #include "./headers/Parser.h"
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 Parser::Parser()
 {
     this->mode = NOT_SET;
     this->continueReadline = true;
     this->lineNumber = 0;
 };
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /**
  * Used to parse client input
@@ -24,7 +30,7 @@ Parser *Parser::parse(const std::string input)
 
         return this;
     }
-
+    
     if (input == "LIST" || input == "READ" || input == "DEL" || input == "SEND")
     {
         this->setMode(input);
@@ -33,14 +39,18 @@ Parser *Parser::parse(const std::string input)
 
     if (this->mode == NOT_SET)
     {
-        Color::Modifier red(Color::FG_RED);
-        Color::Modifier resetColor(Color::FG_DEFAULT);
-        //TODO print usage
-        std::cout << red << "Invalid command.\n" << std::endl;
-        
+        // TODO print usage
+        std::cout << Color::Mod::getString(Color::FG_RED, "Invalid command.\n") << std::endl;
+
         return this;
     }
 
+    return this->callDesignatedParser(input);
+
+};
+
+Parser* Parser::callDesignatedParser(std::string input)
+{
     switch (this->mode)
     {
     case Command::LIST:
@@ -59,9 +69,10 @@ Parser *Parser::parse(const std::string input)
         throw new std::invalid_argument("Parsing mode needs to be set in advance.");
         break;
     }
-
-    return this;
 };
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 /**
  * @brief:Resets the parser to its initial state.
@@ -75,6 +86,9 @@ void Parser::reset()
     this->continueReadline = true;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 /**
  * Sets the TW Mailer command (READ, LIST, DEL, SEND)
  * so that the parser knows which parsing method to call
@@ -86,6 +100,9 @@ void Parser::setMode(std::string mode)
     this->mode = Utils::mapStringToCommand(mode);
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 /**
  * Returns the complete parsed and concatenated string.
  */
@@ -94,97 +111,76 @@ std::string Parser::getString()
     return this->messageStrings;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+void Parser::printInvalidNumberProvided()
+{
+    std::cout << Color::Mod::getString(Color::FG_RED, "Invalid argument provided. Expects a number.") << std::endl;
+    std::cout << Color::Mod::getString(Color::FG_RED, "Please enter a valid number.") << std::endl;
+};
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 Parser *Parser::parseReadCommand(std::string line)
 {
-    try
+    std::string header = "";
+    std::vector<std::string> headers = {"SENDER", "ID"};
+
+    this->continueReadline = lineNumber < 2;
+
+    if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
     {
-
-        std::string header = "";
-        std::vector<std::string> headers = {"SENDER", "ID"};
-
-        this->continueReadline = lineNumber < 2;
-
-        if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
-        {
-            Color::Modifier red(Color::FG_RED);
-            Color::Modifier resetColor(Color::FG_DEFAULT);
-
-            std::cout << red << "Invalid argument provided. Expects a number" << std::endl;
-            std::cout << red << "Please enter a valid number" << resetColor << std::endl;
-
-            this->reset();
-            return this;
-        }
-
-        header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                     ? headers[lineNumber - 1] + ":"
-                     : "";
-
-        this->messageStrings = this->messageStrings + header + line + "\n";
-        this->lineNumber++;
+        this->printInvalidNumberProvided();
+        this->reset();
 
         return this;
     }
-    catch (std::invalid_argument &e)
-    {
-        std::cout << e.what() << std::endl;
-    };
-}
 
-Parser *Parser::parseListCommand(std::string line)
-{
-
-    std::string header = "";
-    std::vector<std::string> headers = {"SENDER"};
-
-    this->continueReadline = lineNumber < 1;
-
-    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                 ? headers[lineNumber - 1] + ":"
-                 : "";
-
-    this->messageStrings = this->messageStrings + header + line + "\n";
-    this->lineNumber++;
+    this->processCommand(line, headers);
 
     return this;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+Parser *Parser::parseListCommand(std::string line)
+{
+    std::vector<std::string> headers = {"SENDER"};
+
+    this->continueReadline = lineNumber < 1;
+
+    this->processCommand(line, headers);
+
+    return this;
+};
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 Parser *Parser::parseDeleteCommand(std::string line)
 {
-    try
+    std::vector<std::string> headers = {"SENDER", "ID"};
+
+    this->continueReadline = lineNumber < 2;
+
+    if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
     {
-
-        std::string header = "";
-        std::vector<std::string> headers = {"SENDER", "ID"};
-
-        this->continueReadline = lineNumber < 2;
-
-        if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
-        {
-            Color::Modifier red(Color::FG_RED);
-            Color::Modifier resetColor(Color::FG_DEFAULT);
-
-            std::cout << red << "Invalid argument provided. Expects a number" << std::endl;
-            std::cout << red << "Please enter a valid number" << resetColor << std::endl;
-
-            this->reset();
-            return this;
-        }
-
-        header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                     ? headers[lineNumber - 1] + ":"
-                     : "";
-
-        this->messageStrings = this->messageStrings + header + line + "\n";
-        this->lineNumber++;
+        this->printInvalidNumberProvided();
+        this->reset();
 
         return this;
     }
-    catch (std::invalid_argument &e)
-    {
-        std::cout << e.what() << std::endl;
-    }
+
+    this->processCommand(line, headers);
+
+    return this;
 };
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 Parser *Parser::parseSendCommand(std::string line)
 {
@@ -194,17 +190,29 @@ Parser *Parser::parseSendCommand(std::string line)
     if (line == ".")
     {
         this->continueReadline = false;
-        this->messageStrings += line + "\n";
+        this->processCommand(line, headers);
 
         return this;
     }
 
-    header = (lineNumber > 0 && lineNumber < headers.size() + 1)
-                 ? headers[lineNumber - 1] + ":"
-                 : "";
-
-    this->messageStrings = this->messageStrings + header + line + "\n";
-    this->lineNumber++;
+    this->processCommand(line, headers);
 
     return this;
+};
+
+/// @brief Adds headers (message structure elements) to message elements that make up a basic structure
+/// so that parsing the mssage becomes easier.
+/// @param line String - the line to process.
+/// @param headers vector<strimgs> - the expected headers (message structure elements).
+void Parser::processCommand(std::string &line, const std::vector<std::string> &headers)
+{
+    std::string header = "";
+    int headerCount = headers.size();
+
+    header = (this->lineNumber > 0 && this->lineNumber < headers.size() + 1)
+                 ? headers[this->lineNumber - 1] + ":"
+                 : "";
+
+    this->lineNumber++;
+    this->messageStrings = this->messageStrings + header + line + "\n";
 };

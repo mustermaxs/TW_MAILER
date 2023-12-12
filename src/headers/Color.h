@@ -2,7 +2,8 @@
 #define COLOR_H
 
 #include <ostream>
-
+#include <string>
+#include <iostream>
 
 namespace Color
 {
@@ -17,16 +18,20 @@ namespace Color
         BG_BLUE = 44,
         BG_DEFAULT = 49
     };
-    class Modifier
+    class Mod
     {
         Code code;
 
     public:
-        Modifier(Code pCode) : code(pCode) {}
+        Mod(Code pCode) : code(pCode) {}
         friend std::ostream &
-        operator<<(std::ostream &os, const Modifier &mod)
+        operator<<(std::ostream &os, const Mod &mod)
         {
             return os << "\033[" << mod.code << "m";
+        }
+        static std::string getString(Code colorCode, const std::string &input)
+        {
+            return "\033[" + std::to_string(colorCode) + "m" + input + "\033[" + std::to_string(Color::FG_DEFAULT) + "m";
         }
     };
 };

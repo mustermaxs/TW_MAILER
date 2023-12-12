@@ -23,6 +23,9 @@ class Parser
     Parser *parseReadCommand(std::string line);
     Parser *parseDeleteCommand(std::string line);
     Parser *parseSendCommand(std::string line);
+    void printInvalidNumberProvided();
+    void processCommand(std::string &line, const std::vector<std::string> &headers);
+    Parser* callDesignatedParser(std::string input);
 
 protected:
 
