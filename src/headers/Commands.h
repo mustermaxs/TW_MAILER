@@ -10,7 +10,8 @@ enum Command
     LIST,
     READ,
     DEL,
-    SEND
+    SEND,
+    NOT_SET // used as default value until client uses one of the other commands
 };
 
 inline std::map<std::string, Command> &getCommandMap()
