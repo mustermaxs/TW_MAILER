@@ -11,83 +11,163 @@
 #include "../src/headers/ConnectionConfig.h"
 
 #define BUF 4096
-#define DECO_LINE std::cout << "\n---------------------------------"  << std::endl;
+#define IPADDRESS "127.0.0.1"
+#define DECO_LINE std::cout << "\n---------------------------------" << std::endl;
+#define PRINT_USAGE std::cerr << "Usage: ./twmailer-client <ip> <port>\n";
+
+class SocketClient
+{
+private:
+    int socketId;
+    std::string ip;
+    struct sockaddr_in address;
+    int port;
+
+public:
+    SocketClient(std::string, int);
+    bool connectToServer();
+    bool sendData(const std::string data);
+    std::string receiveData();
+    void closeConnection();
+    bool createSocket();
+    int getSocketId() { return this->socketId; };
+};
+
+SocketClient::SocketClient(std::string ip, int port)
+    : ip(ip), port(port), socketId(socketId){};
+
+void SocketClient::closeConnection()
+{
+    if (shutdown(this->socketId, SHUT_RDWR) == -1)
+    {
+        perror("shutdown create_socket");
+    }
+    if (close(this->socketId) == -1)
+    {
+        perror("close create_socket");
+    }
+};
+
+std::string SocketClient::receiveData()
+{
+    try
+    {
+        char buffer[BUF];
+
+        int size = recv(this->socketId, buffer, BUF - 1, 0);
+
+        if (size == -1)
+        {
+            throw new std::runtime_error("Failed to receive message.");
+        }
+        else if (size == 0)
+        {
+            std::cout << "Server closed remote socket\n";
+
+            return "";
+        }
+        else
+        {
+            buffer[size] = '\0';
+
+            return buffer;
+        }
+    }
+    catch (...)
+    {
+        std::cout << "Failed to receive message" << std::endl;
+
+        return "";
+    }
+};
+
+bool SocketClient::createSocket()
+{
+    try
+    {
+        if ((this->socketId = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        {
+            throw new std::runtime_error("Failed to create socket.");
+        }
+
+        return true;
+    }
+    catch (...)
+    {
+        std::cout << "Failed to create socket" << std::endl;
+
+        return false;
+    }
+};
+
+bool SocketClient::connectToServer()
+{
+    try
+    {
+        memset(&this->address, 0, sizeof(this->address));
+        this->address.sin_family = AF_INET;
+        this->address.sin_port = htons(port);
+        inet_aton(IPADDRESS, &address.sin_addr);
+
+        if (connect(socketId, (struct sockaddr *)&address, sizeof(address)) == -1)
+        {
+            throw new std::runtime_error("Failed to connect to server.");
+        }
+
+        std::cout << "Connection with server (" << inet_ntoa(address.sin_addr) << ") established\n";
+
+        return true;
+    }
+    catch (...)
+    {
+        std::cout << "Failed to connect to server" << std::endl;
+
+        return false;
+    }
+};
+
+bool SocketClient::sendData(std::string data)
+{
+    try
+    {
+        char buffer[BUF];
+        int size = 0;
+
+        if (size = send(this->socketId, data.c_str(), data.length(), 0) == -1)
+        {
+            throw std::runtime_error("Send error.");
+
+            return false;
+        }
+
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+};
 
 int main(int argc, char **argv)
 {
-    int create_socket;
-    char buffer[BUF];
-    struct sockaddr_in address;
-    int size;
-
-    // CREATE A SOCKET
-    if ((create_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-    {
-        perror("Socket error");
-        return EXIT_FAILURE;
-    }
-
-    // INIT ADDRESS
-    memset(&address, 0, sizeof(address)); // init storage with 0
-    address.sin_family = AF_INET;         // IPv4
-
-    /***************************************************************************/
-
-    // Check if IP is provided, otherwise use localhost
-    if (argc < 2)
-    {
-        inet_aton("127.0.0.1", &address.sin_addr);
-        ConnectionConfig* config = ConnectionConfig::getInstance();
-        config->setPort(std::stoi(argv[2]));
-        config->setIP(std::string(argv[1]));
-    }
-    else
-    {
-        inet_aton(argv[1], &address.sin_addr);
-    }
-    
-    // Check if both IP and port are provided
     if (argc < 3 || argv[1] == "help")
     {
-        std::cerr << "Usage: ./twmailer-client <ip> <port>\n";
+        PRINT_USAGE;
+
         return EXIT_FAILURE;
     }
 
-    // Convert the port from string to integer
-    int port = atoi(argv[2]);
+    std::string ip = (std::string)argv[1];
+    int port = std::stoi(argv[2]);
+    SocketClient *client = new SocketClient(ip, port);
 
-    // Use the provided port instead of the PORT macro
-    address.sin_port = htons(port);
-
-    // CREATE A CONNECTION
-    if (connect(create_socket, (struct sockaddr *)&address, sizeof(address)) == -1)
-    {
-        perror("Connect error - no server available");
+    if (!client->createSocket() || !client->connectToServer())
         return EXIT_FAILURE;
-    }
 
-    std::cout << "Connection with server (" << inet_ntoa(address.sin_addr) << ") established\n";
-
-    // RECEIVE DATA
-    size = recv(create_socket, buffer, BUF - 1, 0);
-    if (size == -1)
-    {
-        perror("recv error");
-        return EXIT_FAILURE;
-    }
-    else if (size == 0)
-    {
-        std::cout << "Server closed remote socket\n";
-    }
-    else
-    {
-        buffer[size] = '\0';
-        std::cout << buffer;
-    }
+    std::cout << client->receiveData() << std::endl;
 
     try
     {
-
         std::string input;
 
         while (true)
@@ -99,39 +179,20 @@ int main(int argc, char **argv)
             {
                 std::cout << parser->getCurrentHeader();
                 std::getline(std::cin, input);
-
                 parser->parse(input);
             }
 
             input = parser->getString();
             parser->reset();
             DECO_LINE;
-            if (input == "quit" || input == "QUIT") break;
 
-            // SEND DATA
-            if (send(create_socket, input.c_str(), input.length(), 0) == -1)
+            if (input == "quit" || input == "QUIT")
             {
-                throw std::runtime_error("Send error");
+                break;
             }
 
-            // RECEIVE FEEDBACK
-            size = recv(create_socket, buffer, BUF - 1, 0);
-            if (size == -1)
-            {
-                throw std::runtime_error("Receive error");
-            }
-            else if (size == 0)
-            {
-                std::cout << "Server closed remote socket\n";
-                // break;
-            }
-            else
-            {
-                buffer[size] = '\0';
-                // std::cout << "<< " << buffer << "\n";
-                std::cout << buffer << "\n";
-
-            }
+            client->sendData(input);
+            std::cout << client->receiveData() << std::endl;
         }
     }
     catch (const std::exception &e)
@@ -140,16 +201,9 @@ int main(int argc, char **argv)
     }
 
     // CLOSES THE DESCRIPTOR
-    if (create_socket != -1)
+    if (client->getSocketId() != -1)
     {
-        if (shutdown(create_socket, SHUT_RDWR) == -1)
-        {
-            perror("shutdown create_socket");
-        }
-        if (close(create_socket) == -1)
-        {
-            perror("close create_socket");
-        }
+        client->closeConnection();
     }
 
     return EXIT_SUCCESS;

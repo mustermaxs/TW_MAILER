@@ -51,9 +51,9 @@ bool MessageHandler::saveMessage(const std::string &username, IMessage& message)
         }
     }
 
-    std::string newFileName = directoryName + std::to_string(highestID + 1);
+    std::string newFilePath = directoryName + std::to_string(highestID + 1);
 
-    return this->fileHandler->writeToFile(newFileName, message.toString());
+    return this->fileHandler->writeToFile(newFilePath, message.toString());
 };
 
 //////////////////////////////////////////////////////////////////////

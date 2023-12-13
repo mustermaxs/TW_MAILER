@@ -19,7 +19,7 @@ int create_socket = -1;
 int new_socket = -1;
 
 void signalHandler(int sig);
-
+bool sendWelcomeMessage(int socketId);
 
 
 int main(int argc, char **argv) {
@@ -54,22 +54,21 @@ int main(int argc, char **argv) {
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    // address.sin_port = htons(PORT);
 
-    if (argc == 3) {
-
-        std::string spoolDir = argv[2];
-        int port = atoi(argv[1]);
-
-        ConnectionConfig* config = ConnectionConfig::getInstance();
-        config->setPort(port);
-        config->setBaseDirectory(spoolDir);
-        address.sin_port = htons(config->getPort());
-        
-    } else {
+    if (argc != 3) {
         std::cout << "Usage: ./twmailer-server <port> <mail-spool-directoryname>\n";
         return EXIT_FAILURE;
     }
+
+    std::string spoolDir = argv[2];
+    int port = atoi(argv[1]);
+
+    ConnectionConfig* config = ConnectionConfig::getInstance();
+    config->setPort(port);
+    config->setBaseDirectory(spoolDir);
+    address.sin_port = htons(config->getPort());
+
+    
 
 
     // Assign an Address with Port to Socket
@@ -106,51 +105,8 @@ int main(int argc, char **argv) {
         int size;
 
         // Send welcome message
-        std::string welcomeMessage = "Welcome to the TW Mailer Server!\r\n";
-        
-        welcomeMessage +=  "Please enter your commands:\r\n";
-
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|------------ Commands: ----------|\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|---------Send a message:---------|\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|  SEND                           |\r\n";
-        welcomeMessage += "|  <Sender>                       |\r\n";
-        welcomeMessage += "|  <Receiver>                     |\r\n";
-        welcomeMessage += "|  <Subject>                      |\r\n";
-        welcomeMessage += "|  <Message>                      |\r\n";
-        welcomeMessage += "|  .                              |\r\n";
-        welcomeMessage += "|  (End the message with '.\\n')   |\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|--------List all messages:-------|\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|  LIST                           |\r\n";
-        welcomeMessage += "|  <Username>                     |\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|---------Read a message:---------|\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|  READ                           |\r\n";
-        welcomeMessage += "|  <Username>                     |\r\n";
-        welcomeMessage += "|  <Message-Number>               |\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|--------Delete a message:--------|\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|  DEL                            |\r\n";
-        welcomeMessage += "|  <Username>                     |\r\n";
-        welcomeMessage += "|  <Message-Number>               |\r\n";
-        welcomeMessage += "|---------------------------------|\r\n";
-        welcomeMessage += "|---------Quit the server:--------|\r\n";
-        welcomeMessage += "|  QUIT                           |\r\n";
-        welcomeMessage += "|---------------------------------|\r\n\r\n";
-        welcomeMessage += "| Enter your command:\r\n\r\n";
-
-    
-
-        if (send(new_socket, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1) {
-            perror("Send failed");
-            continue;
-        }
+        if(sendWelcomeMessage(new_socket) == false)
+        continue;
 
 
         do {
@@ -230,4 +186,52 @@ void signalHandler(int sig) {
     } else {
         exit(sig);
     }
+}
+
+bool sendWelcomeMessage(int socketId)
+{
+    std::string welcomeMessage = "Welcome to the TW Mailer Server!\r\n";
+    
+    welcomeMessage +=  "Please enter your commands:\r\n";
+
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|------------ Commands: ----------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|---------Send a message:---------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  SEND                           |\r\n";
+    welcomeMessage += "|  <Sender>                       |\r\n";
+    welcomeMessage += "|  <Receiver>                     |\r\n";
+    welcomeMessage += "|  <Subject>                      |\r\n";
+    welcomeMessage += "|  <Message>                      |\r\n";
+    welcomeMessage += "|  .                              |\r\n";
+    welcomeMessage += "|  (End the message with '.\\n')   |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|--------List all messages:-------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  LIST                           |\r\n";
+    welcomeMessage += "|  <Username>                     |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|---------Read a message:---------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  READ                           |\r\n";
+    welcomeMessage += "|  <Username>                     |\r\n";
+    welcomeMessage += "|  <Message-Number>               |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|--------Delete a message:--------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  DEL                            |\r\n";
+    welcomeMessage += "|  <Username>                     |\r\n";
+    welcomeMessage += "|  <Message-Number>               |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|---------Quit the server:--------|\r\n";
+    welcomeMessage += "|  QUIT                           |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n\r\n";
+    welcomeMessage += "| Enter your command:\r\n\r\n";
+
+    if (send(new_socket, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1) {
+        perror("Send failed");
+        return false;
+    }
+    return true;
 }
