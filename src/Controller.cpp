@@ -74,7 +74,7 @@ void Controller::listMessages(Request req)
         {
             for (const auto &message : *messages)
             {
-                resBody += "ID: " + std::to_string(message->getMessageNumber()) + " | Subject: " + message->getSubject() + "\n";
+                resBody += "[" + std::to_string(message->getMessageNumber()) + "] " + message->getSubject() + "\n";
             }
         }
 
