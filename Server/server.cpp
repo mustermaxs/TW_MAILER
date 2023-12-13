@@ -9,8 +9,9 @@
 #include <unistd.h>
 #include <string>
 #include "../src/headers/Router.h"
+#include "../src/headers/ConnectionConfig.h"
 
-#define BUF 1024
+#define BUF 4096
 #define PORT 6543
 
 int abortRequested = 0;
@@ -19,7 +20,9 @@ int new_socket = -1;
 
 void signalHandler(int sig);
 
-int main() {
+
+
+int main(int argc, char **argv) {
     socklen_t addrlen;
     struct sockaddr_in address, cliaddress;
     int reuseValue = 1;
@@ -51,7 +54,23 @@ int main() {
     memset(&address, 0, sizeof(address));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    // address.sin_port = htons(PORT);
+
+    if (argc == 3) {
+
+        std::string spoolDir = argv[2];
+        int port = atoi(argv[1]);
+
+        ConnectionConfig* config = ConnectionConfig::getInstance();
+        config->setPort(port);
+        config->setBaseDirectory(spoolDir);
+        address.sin_port = htons(config->getPort());
+        
+    } else {
+        std::cout << "Usage: ./twmailer-server <port> <mail-spool-directoryname>\n";
+        return EXIT_FAILURE;
+    }
+
 
     // Assign an Address with Port to Socket
     if (bind(create_socket, (struct sockaddr *)&address, sizeof(address)) == -1) {
@@ -79,7 +98,7 @@ int main() {
             break;
         }
 
-        // Start Client Communication
+        // Start Client Communication--
         std::cout << "Client connected from " << inet_ntoa(cliaddress.sin_addr) << ":" << ntohs(cliaddress.sin_port) << "...\n";
 
         // Client Communication
@@ -87,11 +106,52 @@ int main() {
         int size;
 
         // Send welcome message
-        std::string welcomeMessage = "Welcome to myserver!\r\nPlease enter your commands...\r\n";
+        std::string welcomeMessage = "Welcome to the TW Mailer Server!\r\n";
+        
+        welcomeMessage +=  "Please enter your commands:\r\n";
+
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|------------ Commands: ----------|\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|---------Send a message:---------|\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|  SEND                           |\r\n";
+        welcomeMessage += "|  <Sender>                       |\r\n";
+        welcomeMessage += "|  <Receiver>                     |\r\n";
+        welcomeMessage += "|  <Subject>                      |\r\n";
+        welcomeMessage += "|  <Message>                      |\r\n";
+        welcomeMessage += "|  .                              |\r\n";
+        welcomeMessage += "|  (End the message with '.\\n')   |\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|--------List all messages:-------|\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|  LIST                           |\r\n";
+        welcomeMessage += "|  <Username>                     |\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|---------Read a message:---------|\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|  READ                           |\r\n";
+        welcomeMessage += "|  <Username>                     |\r\n";
+        welcomeMessage += "|  <Message-Number>               |\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|--------Delete a message:--------|\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|  DEL                            |\r\n";
+        welcomeMessage += "|  <Username>                     |\r\n";
+        welcomeMessage += "|  <Message-Number>               |\r\n";
+        welcomeMessage += "|---------------------------------|\r\n";
+        welcomeMessage += "|---------Quit the server:--------|\r\n";
+        welcomeMessage += "|  QUIT                           |\r\n";
+        welcomeMessage += "|---------------------------------|\r\n\r\n";
+        welcomeMessage += "| Enter your command:\r\n\r\n";
+
+    
+
         if (send(new_socket, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1) {
             perror("Send failed");
             continue;
         }
+
 
         do {
             size = recv(new_socket, buffer, BUF - 1, 0);
@@ -112,17 +172,10 @@ int main() {
             router.mapRequestToController(new_socket, bufferStr);
             
 
-
-
             buffer[size] = '\0';
             std::cout << "Message received: " << "\n" << buffer << "\n";
 
 
-
-            // if (send(new_socket, "OK", 3, 0) == -1) {
-            //     perror("Send answer failed");
-            //     break;
-            // }
         } while (strcmp(buffer, "quit") != 0 && !abortRequested);
 
         // Close client socket

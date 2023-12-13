@@ -8,14 +8,14 @@
 /// @param socketId int - the socket id.
 /// @param message Message - a message object containing various informations about
 /// the request.
-Request::Request(Command method, int socketId, Message* message)
+Request::Request(Command method, int socketId, IMessage* message)
 {
     this->method = method;
     this->socketId = socketId;
     this->message = message;
 };
 
-Message* Request::getMessage()
+IMessage* Request::getMessage()
 {
     return this->message;
 };

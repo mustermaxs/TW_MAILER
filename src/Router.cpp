@@ -14,18 +14,14 @@ void Router::mapRequestToController(int socketId, std::string buffer)
     std::string line;
     std::istringstream iss(buffer);
 
-    
     while (std::getline(iss, line))
     {
         lines.push_back(line);
     }
 
-    Message*message = Message::fromLines(lines);
-
+    IMessage*message = Message::fromLines(lines);
     Command command = Utils::mapStringToCommand(commandStr);
-
     Request request = Request(command, socketId, message);
-
     Controller controller = Controller();
     
     switch (command)
@@ -42,8 +38,6 @@ void Router::mapRequestToController(int socketId, std::string buffer)
     case Command::DEL:
         controller.deleteMessage(request);
         break;
-
-
     default:
         break;
     }

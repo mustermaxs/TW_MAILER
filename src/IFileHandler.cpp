@@ -127,16 +127,16 @@ bool IFileHandler::createDirectoryIfNotExists(std::string dirName)
 //////////////////////////////////////////////////////////////////////
 
 /// @brief Write string to file.
-/// @param fileName String - path to file.
+/// @param newFilePath String - path to file.
 /// @param content String - file content.
 /// @return True if attempt to write to file succeded.
-bool IFileHandler::writeToFile(const std::string fileName, const std::string &content)
+bool IFileHandler::writeToFile(const std::string newFilePath, const std::string &content)
 {
     try
     {
         std::ofstream file;
 
-        file.open(fileName);
+        file.open(newFilePath);
         file << content;
         file.close();
 
@@ -144,7 +144,7 @@ bool IFileHandler::writeToFile(const std::string fileName, const std::string &co
     }
     catch (...)
     {
-        std::cout << "Failed to write to file " << fileName << std::endl;
+        std::cout << "Failed to write to file " << newFilePath << std::endl;
 
         return false;
     }

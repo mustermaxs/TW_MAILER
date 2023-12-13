@@ -11,6 +11,14 @@ Parser::Parser()
     this->mode = NOT_SET;
     this->continueReadline = true;
     this->lineNumber = 0;
+
+    this->headers =
+        {
+            {Command::LIST, {"RECEIVER"}},
+            {Command::READ, {"RECEIVER", "ID"}},
+            {Command::DEL, {"SENDER", "ID"}},
+            {Command::SEND, {"SENDER", "RECEIVER", "SUBJECT", "MESSAGE"}},
+        };
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -26,7 +34,7 @@ Parser::Parser()
  */
 Parser *Parser::parse(const std::string input)
 {
-    if (input == "quit")
+    if (input == "quit" || input == "QUIT")
     {
         this->continueReadline = false;
         this->messageStrings += input;
@@ -139,7 +147,6 @@ void Parser::printInvalidNumberProvided()
 Parser *Parser::parseReadCommand(std::string line)
 {
     std::string header = "";
-    std::vector<std::string> headers = {"SENDER", "ID"};
 
     this->continueReadline = lineNumber < 2;
 
@@ -151,7 +158,7 @@ Parser *Parser::parseReadCommand(std::string line)
         return this;
     }
 
-    this->buildCommandString(line, headers);
+    this->buildCommandString(line, this->headers[Command::READ]);
 
     return this;
 };
@@ -161,11 +168,10 @@ Parser *Parser::parseReadCommand(std::string line)
 
 Parser *Parser::parseListCommand(std::string line)
 {
-    std::vector<std::string> headers = {"SENDER"};
 
     this->continueReadline = lineNumber < 1;
 
-    this->buildCommandString(line, headers);
+    this->buildCommandString(line, this->headers[Command::LIST]);
 
     return this;
 };
@@ -175,8 +181,6 @@ Parser *Parser::parseListCommand(std::string line)
 
 Parser *Parser::parseDeleteCommand(std::string line)
 {
-    std::vector<std::string> headers = {"SENDER", "ID"};
-
     this->continueReadline = lineNumber < 2;
 
     if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
@@ -187,7 +191,7 @@ Parser *Parser::parseDeleteCommand(std::string line)
         return this;
     }
 
-    this->buildCommandString(line, headers);
+    this->buildCommandString(line, this->headers[Command::DEL]);
 
     return this;
 };
@@ -198,17 +202,16 @@ Parser *Parser::parseDeleteCommand(std::string line)
 Parser *Parser::parseSendCommand(std::string line)
 {
     std::string header = "";
-    std::vector<std::string> headers = {"SENDER", "RECEIVER", "SUBJECT", "MESSAGE"};
 
     if (line == ".")
     {
         this->continueReadline = false;
-        this->buildCommandString(line, headers);
+        // this->buildCommandString(line, this->headers[Command::SEND]);
 
         return this;
     }
 
-    this->buildCommandString(line, headers);
+    this->buildCommandString(line, this->headers[Command::SEND]);
 
     return this;
 };
@@ -225,10 +228,29 @@ void Parser::buildCommandString(std::string &line, const std::vector<std::string
     std::string header = "";
     int headerCount = headers.size();
 
-    header = (this->lineNumber > 0 && this->lineNumber < headers.size() + 1)
-                 ? headers[this->lineNumber - 1] + ":"
-                 : "";
+    header = this->getCurrentHeader();
+
+    if ((header == "SENDER:" || header == "RECEIVER:") && line.length() > 8)
+    {
+        this->reset();
+        std::cout << Color::Mod::getString(Color::FG_RED, "Username should be max. 8 characters long.") << std::endl;
+
+        return;
+    }
 
     this->lineNumber++;
     this->messageStrings = this->messageStrings + header + line + "\n";
+};
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+std::string Parser::getCurrentHeader()
+{
+    if (this->mode == Command::NOT_SET)
+        return "";
+
+    return (this->lineNumber > 0 && this->lineNumber < this->headers[this->mode].size() + 1)
+               ? this->headers[this->mode][this->lineNumber - 1] + ":"
+               : "";
 };

@@ -26,7 +26,7 @@ void Controller::receiveMessage(Request req)
 {
     try
     {
-        Message *requestMessage = req.getMessage();
+        IMessage *requestMessage = req.getMessage();
         std::string username = requestMessage->getReceiver();
 
         bool messageCreated = messageHandler->saveMessage(username, *requestMessage);
@@ -43,8 +43,6 @@ void Controller::receiveMessage(Request req)
         }
 
         sendResponse(req.getSocketId(), resBody);
-
-
     }
     catch (std::exception &ex)
     {
@@ -63,18 +61,18 @@ void Controller::listMessages(Request req)
 {
     try
     {
-        Message *requestMessage = req.getMessage();
-        std::string username = requestMessage->getSender();
-        std::vector<Message *> *messages = messageHandler->getMessagesByUsername(username);
+        IMessage *requestMessage = req.getMessage();
+        std::string username = requestMessage->getReceiver();
+        std::vector<IMessage *> *messages = messageHandler->getMessagesByUsername(username);
         int messagesCount = messages->size();
 
         std::string resBody = "";
         std::string messagesCountStr = std::to_string(messagesCount);
-        resBody += messagesCountStr + "\n";
+        resBody = resBody + "Number of messages: " + messagesCountStr + "\n";
 
         if (messagesCount)
         {
-            for (const Message *message : *messages)
+            for (const auto &message : *messages)
             {
                 resBody += "ID: " + std::to_string(message->getMessageNumber()) + " | Subject: " + message->getSubject() + "\n";
             }
@@ -94,6 +92,12 @@ void Controller::listMessages(Request req)
 
         sendResponse(req.getSocketId(), "ERR\n");
     }
+    catch (...)
+    {
+        std::cerr << "Error in listMessages: " << std::endl;
+
+        sendResponse(req.getSocketId(), "ERR\n");
+    }
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -106,12 +110,12 @@ void Controller::readMessage(Request req)
     try
     {
         std::string resBody = "";
-        Message *requestMessage = req.getMessage();
+        IMessage *requestMessage = req.getMessage();
 
-        std::string username = requestMessage->getSender();
+        std::string username = requestMessage->getReceiver();
         int messageNumber = requestMessage->getMessageNumber();
 
-        Message *message = messageHandler->getMessage(username, messageNumber);
+        IMessage *message = messageHandler->getMessage(username, messageNumber);
 
         if (message == NULL)
         {
@@ -145,7 +149,7 @@ void Controller::deleteMessage(Request req)
 
     try {
 
-        Message *requestMessage = req.getMessage();
+        IMessage *requestMessage = req.getMessage();
         std::string username = requestMessage->getSender();
         int messageNumber = requestMessage->getMessageNumber();
 
@@ -180,7 +184,7 @@ void Controller::deleteMessage(Request req)
 
 
 /// @brief Used to send response to client.
-/// @param socketId int - socket ID.
+/// @param socketId int - socket ID
 /// @param resBody string - the response body.
 void Controller::sendResponse(int socketId, std::string resBody)
 {

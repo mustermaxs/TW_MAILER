@@ -13,29 +13,29 @@
 #include "../../../src/headers/Commands.h"
 #include "../../../src/headers/Utils.h"
 
-
 class Parser
 {
     std::string messageStrings;
+    std::map<Command, std::vector<std::string>> headers;
     int lineNumber = 0;
     Command mode;
-    Parser *parseListCommand(std::string line);
-    Parser *parseReadCommand(std::string line);
-    Parser *parseDeleteCommand(std::string line);
-    Parser *parseSendCommand(std::string line);
+    Parser *parseListCommand(std::string);
+    Parser *parseReadCommand(std::string);
+    Parser *parseDeleteCommand(std::string);
+    Parser *parseSendCommand(std::string);
     void printInvalidNumberProvided();
-    void buildCommandString(std::string &line, const std::vector<std::string> &headers);
-    Parser* callDesignatedParser(std::string input);
+    void buildCommandString(std::string &, const std::vector<std::string> &);
+    Parser *callDesignatedParser(std::string);
 
 protected:
-
 public:
     bool continueReadline = true;
     Parser();
     void reset();
-    Parser *parse(const std::string line);
+    Parser *parse(const std::string);
     std::string getString();
-    void setMode(std::string mode);
+    void setMode(std::string);
+    std::string getCurrentHeader();
     // bool isModeSet() const;
 };
 

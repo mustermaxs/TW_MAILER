@@ -6,36 +6,18 @@
 #include <map>
 #include <vector>
 
-#include "IItem.h"
+#include "IMessage.h"
 
 
 
-class Message : IItem
+class Message : public IMessage
 {
-    private:
-        std::string sender;
-        std::string receiver;
-        std::string subject;
-        std::string content;
-        int messageNumber;
-
     public:
         Message();
-        ~Message() {};
-        std::string getSender() const;
-        std::string getReceiver() const;
-        std::string getSubject() const;
-        std::string getContent() const;
-        std::string toString() const override;
-        int getMessageNumber() const;
-
-        Message* setSender(std::string);
-        Message* setReceiver(std::string);
-        Message* setSubject(std::string);
-        Message* setContent(std::string);
-        Message* setMessageNumber(int);
+        ~Message() override {} ;
+        std::string toString() override;
         static Message* fromLines(const std::vector<std::string> msgLines);
-        // static Message* fromString(const std::string msgString);
+        Message* parse(const std::vector<std::string> msgLines) override;
 };
 
 #endif

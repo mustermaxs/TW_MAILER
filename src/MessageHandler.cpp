@@ -6,6 +6,7 @@
 MessageHandler::MessageHandler(IFileHandler* fileHandler)
 {
     this->fileHandler = fileHandler;
+    this->msgsRootDir = ConnectionConfig::getInstance()->getBaseDirectory();
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -24,7 +25,9 @@ MessageHandler::~MessageHandler()
 /// @param username name of receiver as defined in message header.
 /// @param message message content, including header (subject, receiver, sender, content).
 /// @return bool, indicating if saving message was successful or not.
-bool MessageHandler::saveMessage(const std::string &username, Message message)
+/// @note If directory for user doesn't exist, it will be created.
+
+bool MessageHandler::saveMessage(const std::string &username, IMessage& message)
 {
     std::string directoryName = this->msgsRootDir + username + "/";
 
@@ -60,7 +63,8 @@ bool MessageHandler::saveMessage(const std::string &username, Message message)
 /// @param username name of sender
 /// @param messageNumber index of message
 /// @return Deserialized message object
-Message* MessageHandler::getMessage(const std::string &username, int messageNumber)
+/// @note If message doesn't exist, an exception will be thrown.
+IMessage* MessageHandler::getMessage(const std::string &username, int messageNumber)
 {
     std::string directoryName = this->msgsRootDir + username + "/";
     std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
@@ -77,7 +81,7 @@ Message* MessageHandler::getMessage(const std::string &username, int messageNumb
 
     std::vector<std::string> fileContent = this->fileHandler->readFileLines(directoryName + msgId);
     
-    Message* msg = Message::fromLines(fileContent);
+    IMessage* msg = Message::fromLines(fileContent);
     msg->setMessageNumber(messageNumber);
 
     return msg; // return pointer, not by value, so that call method can free allocation
@@ -89,9 +93,10 @@ Message* MessageHandler::getMessage(const std::string &username, int messageNumb
 /// @brief Gets all deserialized message objects for a specific user.
 /// @param username message recipient.
 /// @return vector of deserialized message objects
-std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &username)
+/// @note If user doesn't exist, an exception will be thrown.
+std::vector<IMessage*>* MessageHandler::getMessagesByUsername(const std::string &username)
 {
-    std::vector<Message*>* messages = new std::vector<Message*>();
+    std::vector<IMessage*>* messages = new std::vector<IMessage*>();
     std::string directoryName = this->msgsRootDir + username + "/";
 
     std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
@@ -114,6 +119,7 @@ std::vector<Message*>* MessageHandler::getMessagesByUsername(const std::string &
 /// @param username name of receiver.
 /// @param messageID message id
 /// @return Returns true if attempt to delete message  succeded.
+/// @note If message doesn't exist, an exception will be thrown.
 bool MessageHandler::deleteMessage(const std::string &username, int messageID)
 {
     std::string directoryName = this->msgsRootDir + username + "/";

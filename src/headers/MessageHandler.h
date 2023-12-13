@@ -10,6 +10,7 @@
 
 #include "Message.h"
 #include "RecursiveFileHandler.h"
+#include "ConnectionConfig.h"
 
 namespace fs = std::filesystem;
 
@@ -19,15 +20,14 @@ namespace fs = std::filesystem;
 class MessageHandler
 {
     IFileHandler* fileHandler;
-    // TODO msgsRootDir /var/spool/<usermessageDir>
-    std::string msgsRootDir = "/home/mustermax/vscode_projects/TW_MAILER/messages/";
+    std::string msgsRootDir;
 
 public:
     MessageHandler(IFileHandler* handler);
     ~MessageHandler();
-    bool saveMessage(const std::string& username, Message message);
-    std::vector<Message*>* getMessagesByUsername(const std::string& username);
-    Message* getMessage(const std::string& username, int messageNumber);
+    bool saveMessage(const std::string& username, IMessage& message);
+    std::vector<IMessage*>* getMessagesByUsername(const std::string& username);
+    IMessage* getMessage(const std::string& username, int messageNumber);
     bool deleteMessage(const std::string& username, int messageID);
 
 };
