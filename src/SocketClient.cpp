@@ -1,10 +1,10 @@
-#include "SocketClient.h"
+#include "../src/headers/SocketClient.h"
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-SocketClient::SocketClient(std::string ip, int port)
-    : ip(ip), port(port), socketId(socketId){};
+SocketClient::SocketClient(std::string IP, int Port)
+    : ip(IP), port(Port){};
 
 
 //////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ bool SocketClient::createSocket()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-bool SocketClient::connectToServer()
+bool SocketClient::makeConnection()
 {
     try
     {
@@ -134,3 +134,5 @@ bool SocketClient::sendData(std::string data)
         return false;
     }
 };
+
+int SocketClient::getSocketId() { return this->socketId; };

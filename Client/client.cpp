@@ -9,7 +9,8 @@
 #include <unistd.h>
 #include "./Parser/headers/Parser.h"
 #include "../src/headers/ConnectionConfig.h"
-#include "../Client/SocketClient.h"
+#include "../src/headers/ISocketHandler.h"
+#include "../src/headers/SocketClient.h"
 
 #define DECO_LINE std::cout << "\n---------------------------------" << std::endl;
 #define PRINT_USAGE std::cerr << "Usage: ./twmailer-client <ip> <port>\n";
@@ -28,7 +29,7 @@ int main(int argc, char **argv)
     int port = std::stoi(argv[2]);
     SocketClient *client = new SocketClient(ip, port);
 
-    if (!client->createSocket() || !client->connectToServer())
+    if (!client->createSocket() || !client->makeConnection())
         return EXIT_FAILURE;
 
     std::cout << client->receiveData() << std::endl;
