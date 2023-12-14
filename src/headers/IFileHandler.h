@@ -35,6 +35,7 @@ public:
     bool writeToFile(const std::string fileName, const std::string& content);
     std::vector<std::string> getFileNamesInDir(const std::string dirName);
     bool deleteFile(const std::string pathName);
+    std::string readFile(const std::string filePath);
 };
 
 
