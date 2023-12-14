@@ -5,7 +5,7 @@
 
 Controller::Controller()
 {
-    this->messageHandler = new MessageHandler(new RecursiveFileHandler());
+    this->messageHandler = new MessageHandler(new FileHandler());
 };
 
 //////////////////////////////////////////////////////////////////////

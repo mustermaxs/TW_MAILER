@@ -7,7 +7,7 @@
 /// @param dirPath directory path where 
 /// @return Search result object, contains flag that indicates if file was found and
 /// filesystem-path object.
-SearchResult RecursiveFileHandler::searchFileInDir(const std::string fileName, const std::string dirPath) const
+SearchResult FileHandler::searchFileInDirRecursively(const std::string fileName, const std::string dirPath) const
 {
     SearchResult searchRes;
     searchRes.fileExists = false;

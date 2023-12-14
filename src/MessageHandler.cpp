@@ -70,7 +70,7 @@ IMessage* MessageHandler::getMessage(const std::string &username, int messageNum
     std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
     std::string msgId = std::to_string(messageNumber);
 
-    SearchResult res = this->fileHandler->searchFileInDir(msgId, directoryName);
+    SearchResult res = this->fileHandler->searchFileInDirRecursively(msgId, directoryName);
 
     if (!res.fileExists)
     {
@@ -125,7 +125,7 @@ bool MessageHandler::deleteMessage(const std::string &username, int messageID)
     std::string directoryName = this->msgsRootDir + username + "/";
     std::string msgId = std::to_string(messageID);
 
-    SearchResult res = this->fileHandler->searchFileInDir(msgId, directoryName);
+    SearchResult res = this->fileHandler->searchFileInDirRecursively(msgId, directoryName);
 
     if (!res.fileExists)
     {

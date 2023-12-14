@@ -4,10 +4,10 @@
 #include "IFileHandler.h"
 
 
-class RecursiveFileHandler : public IFileHandler
+class FileHandler : public IFileHandler
 {
 public:
-    SearchResult searchFileInDir(const std::string fileName, const std::string dirPath) const override;
+    SearchResult searchFileInDirRecursively(const std::string fileName, const std::string dirPath) const override;
     // std::vector<SearchResult> GetAllFilesInDirIfExists(const fs::path &dirPath) const override;
 };
 

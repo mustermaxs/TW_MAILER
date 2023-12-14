@@ -54,7 +54,7 @@ class Test
 public:
     std::string testFileContent = "eiweck nervt\nso sehr";
     std::string testFilePath = "testfile.txt";
-    IFileHandler *fileHandler = new RecursiveFileHandler();
+    IFileHandler *fileHandler = new FileHandler();
     MessageHandler *msgHandler;
     Message msg;
 
@@ -179,7 +179,7 @@ public:
 
         fileHandler->deleteFile("./messages/test/1");
 
-        customAssert<std::string>(fileHandler->searchFileInDir("1", "./messages/test/").fileExists == false, "Failed to delete message", __FUNCTION__);
+        customAssert<std::string>(fileHandler->searchFileInDirRecursively("1", "./messages/test/").fileExists == false, "Failed to delete message", __FUNCTION__);
 
         logTest(__FUNCTION__);
     };
@@ -197,7 +197,7 @@ public:
 
         customAssert<std::string>(fileHandler->dirExists(expectedPath) == true, " directory doesn't exist.", __FUNCTION__);
 
-        customAssert<std::string>(fileHandler->searchFileInDir("1", expectedPath).fileExists == true, "message file should exist", __FUNCTION__);
+        customAssert<std::string>(fileHandler->searchFileInDirRecursively("1", expectedPath).fileExists == true, "message file should exist", __FUNCTION__);
 
         logTest(__FUNCTION__);
     };
