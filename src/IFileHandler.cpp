@@ -180,6 +180,9 @@ std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirNa
     std::vector<std::string> fileNames;
     fs::path dirPathObj = fs::path(dirName);
 
+    if (!this->dirExists(dirPathObj))
+        throw new std::invalid_argument("Directory doesn't exist");
+
     for (const auto &entry : fs::directory_iterator(dirName))
     {
         fileNames.push_back(entry.path().filename().u8string());

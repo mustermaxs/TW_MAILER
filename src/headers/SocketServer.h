@@ -12,19 +12,22 @@
 
 #include "ISocketHandler.h"
 #include "IFileHandler.h"
+#include "FileHandler.h"
+#include "ConnectionConfig.h"
 
 class SocketServer : public ISocketHandler
 {
 private:
-    const std::string filePathUsageTxt = "./usage.txt";
-    const std::string filePathWelcomeTxt = "./welcomeMsg.txt";
-    const std::string filePathPortNbr = "./portConfig.txt";
-    const std::string filePathWaitForConnTxt = "waitForConn.txt";
+    const std::string filePathUsageTxt = "../configs/usage.txt";
+    const std::string filePathWelcomeTxt = "../configs/welcomeMsg.txt";
+    const std::string filePathPortNbr = "./configs/portConfig.txt";
+    const std::string filePathWaitForConnTxt = "../configs/waitForConn.txt";
 
     std::string usageText;
     std::string waitForConnTxt;
     std::string welcomeMsg;
 
+    std::string msgDirPath = "../../messages/";
     int nbrOfClientsBeforeQueued = 10;
     struct sockaddr_in serverAddress;
 
@@ -39,8 +42,9 @@ public:
     bool init();
     bool bindSocket();
     void setNbrClientsBeforeQueued(int);
-
+    void setSpoolDir(std::string);
     void setPort(int);
+    void setAbortRequested(bool);
     
     void sendHelpMessage(int socketId);
     bool initAddress();

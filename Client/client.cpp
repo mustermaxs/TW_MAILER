@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "./Parser/headers/Parser.h"
-#include "../src/headers/ConnectionConfig.h"
 #include "../src/headers/ISocketHandler.h"
 #include "../src/headers/SocketClient.h"
 
@@ -32,7 +31,7 @@ int main(int argc, char **argv)
     if (!client->createSocket() || !client->makeConnection())
         return EXIT_FAILURE;
 
-    std::cout << client->receiveData(client->getSocketId()) << std::endl;
+    // std::cout << client->receiveData(client->getSocketId()) << std::endl;
 
     try
     {
@@ -59,7 +58,7 @@ int main(int argc, char **argv)
                 break;
             }
 
-            client->sendData(input);
+            client->sendData(input); //? nach "quit", wird resetted empty string noch gesendet?
             std::cout << client->receiveData(client->getSocketId()) << std::endl;
         }
     }

@@ -9,7 +9,7 @@
 #include <exception>
 
 #include "Message.h"
-#include "RecursiveFileHandler.h"
+#include "FileHandler.h"
 #include "ConnectionConfig.h"
 
 namespace fs = std::filesystem;

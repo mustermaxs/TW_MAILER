@@ -18,7 +18,7 @@
 #include "MessageHandler.h"
 #include "Request.h"
 #include "Message.h"
-#include "RecursiveFileHandler.h"
+#include "FileHandler.h"
 
 namespace fs = std::filesystem;
 

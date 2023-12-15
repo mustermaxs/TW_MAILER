@@ -5,7 +5,20 @@
 
 SocketServer::SocketServer()
 {
-    this->port = std::stoi(IFileHandler::readFile(this->filePathPortNbr));
+    this->port = 6543;
+
+    // this->port = std::stoi(IFileHandler::readFile(this->filePathPortNbr));
+};
+
+void SocketServer::setSpoolDir(std::string spoolDir)
+{
+    FileHandler fileHandler = FileHandler();
+    this->msgDirPath = spoolDir[spoolDir.size() - 1] != '/' ? spoolDir += "/" : spoolDir;
+
+    if (!fileHandler.createDirectoryIfNotExists(this->msgDirPath))
+        throw new std::invalid_argument("Directory doesn't exist.");
+
+    ConnectionConfig::setBaseDirectory(this->msgDirPath);
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -45,6 +58,8 @@ bool SocketServer::init()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+void SocketServer::setAbortRequested(bool shouldAbort) { this->abortRequested = shouldAbort; };
+
 bool SocketServer::createSocket()
 {
     int reuseValue = 1;
@@ -78,11 +93,19 @@ bool SocketServer::createSocket()
 
 bool SocketServer::initAddress()
 {
-    memset(&this->serverAddress, 0, sizeof(this->serverAddress));
-    this->serverAddress.sin_family = AF_INET;
-    this->serverAddress.sin_addr.s_addr = INADDR_ANY;
+    try
+    {
+        memset(&this->serverAddress, 0, sizeof(this->serverAddress));
+        this->serverAddress.sin_family = AF_INET;
+        this->serverAddress.sin_addr.s_addr = INADDR_ANY;
+        this->serverAddress.sin_port = htons(this->port);
 
-    return false;
+        return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -130,7 +153,7 @@ void SocketServer::setPort(int _port)
 
 bool SocketServer::startListening()
 {
-    if (listen(this->socketId, this->nbrOfClientsBeforeQueued) == -1)
+    if (listen(this->socketId, 5) == -1)
     {
         perror("Listen error");
 
@@ -160,7 +183,7 @@ void SocketServer::stopServer()
         if (close(this->socketId) != -1)
             std::cerr << "Close new socket" << std::endl;
 
-        this->socketId = -1;
+        // this->socketId = -1;
     }
 };
 
@@ -176,11 +199,12 @@ void SocketServer::startServer(){
 
 int SocketServer::acceptConnectionAndGetSocketId()
 {
-    int newClientSocketId = -1;
+    int newClientSocketId;
     struct sockaddr_in newClientSocketAddr;
     socklen_t clientAddrLength = sizeof(struct sockaddr_in);
+    newClientSocketId = accept(this->socketId, (struct sockaddr *)&newClientSocketAddr, &clientAddrLength);
+    if ((newClientSocketId) == -1)
 
-    if ((newClientSocketId = accept(this->socketId, (struct sockaddr *)&newClientSocketAddr, &clientAddrLength)))
     {
         if (this->abortRequested)
         {
@@ -229,4 +253,3 @@ std::vector<int> SocketServer::getClientSocketIds() { return this->clientSocketI
 // {
 
 // };
-

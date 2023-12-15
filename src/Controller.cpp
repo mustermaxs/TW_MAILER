@@ -6,6 +6,7 @@
 Controller::Controller()
 {
     this->messageHandler = new MessageHandler(new FileHandler());
+
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -94,7 +95,7 @@ void Controller::listMessages(Request req)
     }
     catch (...)
     {
-        std::cerr << "Error in listMessages: " << std::endl;
+        std::cerr << "Error in listMessages" << std::endl;
 
         sendResponse(req.getSocketId(), "ERR\n");
     }

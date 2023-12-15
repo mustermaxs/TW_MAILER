@@ -7,7 +7,7 @@
 #include <cstdlib>
 
 #include "src/headers/IFileHandler.h"
-#include "src/headers/RecursiveFileHandler.h"
+#include "src/headers/FileHandler.h"
 #include "src/headers/Message.h"
 #include "src/headers/Color.h"
 #include "src/headers/MessageHandler.h"

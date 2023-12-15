@@ -3,15 +3,15 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-MessageHandler::MessageHandler(IFileHandler* fileHandler)
+MessageHandler::MessageHandler(IFileHandler *fileHandler)
 {
     this->fileHandler = fileHandler;
     this->msgsRootDir = ConnectionConfig::getInstance()->getBaseDirectory();
+    
 };
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-
 
 MessageHandler::~MessageHandler()
 {
@@ -27,7 +27,7 @@ MessageHandler::~MessageHandler()
 /// @return bool, indicating if saving message was successful or not.
 /// @note If directory for user doesn't exist, it will be created.
 
-bool MessageHandler::saveMessage(const std::string &username, IMessage& message)
+bool MessageHandler::saveMessage(const std::string &username, IMessage &message)
 {
     std::string directoryName = this->msgsRootDir + username + "/";
 
@@ -64,7 +64,7 @@ bool MessageHandler::saveMessage(const std::string &username, IMessage& message)
 /// @param messageNumber index of message
 /// @return Deserialized message object
 /// @note If message doesn't exist, an exception will be thrown.
-IMessage* MessageHandler::getMessage(const std::string &username, int messageNumber)
+IMessage *MessageHandler::getMessage(const std::string &username, int messageNumber)
 {
     std::string directoryName = this->msgsRootDir + username + "/";
     std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
@@ -75,13 +75,13 @@ IMessage* MessageHandler::getMessage(const std::string &username, int messageNum
     if (!res.fileExists)
     {
         return NULL;
-        
+
         throw new std::invalid_argument("Message doesn't exist");
     }
 
     std::vector<std::string> fileContent = this->fileHandler->readFileLines(directoryName + msgId);
-    
-    IMessage* msg = Message::fromLines(fileContent);
+
+    IMessage *msg = Message::fromLines(fileContent);
     msg->setMessageNumber(messageNumber);
 
     return msg; // return pointer, not by value, so that call method can free allocation
@@ -94,22 +94,30 @@ IMessage* MessageHandler::getMessage(const std::string &username, int messageNum
 /// @param username message recipient.
 /// @return vector of deserialized message objects
 /// @note If user doesn't exist, an exception will be thrown.
-std::vector<IMessage*>* MessageHandler::getMessagesByUsername(const std::string &username)
+std::vector<IMessage *> *MessageHandler::getMessagesByUsername(const std::string &username)
 {
-    std::vector<IMessage*>* messages = new std::vector<IMessage*>();
+    std::vector<IMessage *> *messages = new std::vector<IMessage *>();
     std::string directoryName = this->msgsRootDir + username + "/";
 
-    std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
-
-    for (auto &fileName : fileNames)
+    try
     {
-        std::vector<std::string> fileLines = this->fileHandler->readFileLines(directoryName + fileName);
-        Message* msg = Message::fromLines(fileLines);
-        msg->setMessageNumber(std::stoi(fileName));
-        messages->push_back(msg);
-    }
+        std::vector<std::string> fileNames = this->fileHandler->getFileNamesInDir(directoryName);
+        for (auto &fileName : fileNames)
+        {
+            std::vector<std::string> fileLines = this->fileHandler->readFileLines(directoryName + fileName);
+            Message *msg = Message::fromLines(fileLines);
+            msg->setMessageNumber(std::stoi(fileName));
+            messages->push_back(msg);
+        }
 
-    return messages;
+        return messages;
+    }
+    catch (...)
+    {
+        throw new std::runtime_error("Directory doesn't exist yet.");
+
+        return messages;
+    }
 };
 
 //////////////////////////////////////////////////////////////////////

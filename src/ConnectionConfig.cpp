@@ -1,12 +1,19 @@
 #include "headers/ConnectionConfig.h"
 
+
+int ConnectionConfig::port = -1;
+std::string ConnectionConfig::baseDirectoryPath = "";
+std::string ConnectionConfig::ip = "";
+bool ConnectionConfig::instanceExists = true;
+
+
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
 /// @brief Create/return a single instance of the config.
 /// @return ConnectionConfig*
 
-ConnectionConfig* ConnectionConfig::config = NULL;
+ConnectionConfig *ConnectionConfig::config = NULL;
 
 ConnectionConfig *ConnectionConfig::getInstance()
 {
@@ -38,15 +45,17 @@ int ConnectionConfig::getPort() { return this->port; };
 
 void ConnectionConfig::setBaseDirectory(std::string dirPath)
 {
-    if (this->baseDirectoryPath == "")
+    if (ConnectionConfig::baseDirectoryPath == "")
     {
-        this->baseDirectoryPath = dirPath;
+        ConnectionConfig::baseDirectoryPath = dirPath[dirPath.size() - 1] != '/' ? dirPath += "/" : dirPath;
+        IFileHandler* fileHandler = new FileHandler();
+        if (!fileHandler->createDirectoryIfNotExists(ConnectionConfig::baseDirectoryPath)) throw new std::invalid_argument("Directory doesn't exist.");
     }
 };
 std::string ConnectionConfig::getBaseDirectory()
 {
 
-    return this->baseDirectoryPath;
+    return ConnectionConfig::baseDirectoryPath;
 };
 
 //////////////////////////////////////////////////////////////////////

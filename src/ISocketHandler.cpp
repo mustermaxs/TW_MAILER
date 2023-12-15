@@ -4,11 +4,11 @@ ISocketHandler::~ISocketHandler(){};
 
 void ISocketHandler::closeConnection(int socketId)
 {
-    if (shutdown(this->socketId, SHUT_RDWR) == -1)
+    if (shutdown(socketId, SHUT_RDWR) == -1)
     {
         perror("shutdown create_socket");
     }
-    if (close(this->socketId) == -1)
+    if (close(socketId) == -1)
     {
         perror("close create_socket");
     }

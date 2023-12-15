@@ -10,7 +10,7 @@
 #include <string>
 #include "../src/headers/Router.h"
 #include "../src/headers/ConnectionConfig.h"
-#include "../src/headers/RecursiveFileHandler.h"
+#include "../src/headers/FileHandler.h"
 #include "../src/headers/SocketServer.h"
 
 #define BUF 4096
@@ -23,54 +23,81 @@ int new_socket = -1;
 void signalHandler(int sig);
 bool sendWelcomeMessage(int socketId);
 
-SocketServer* server = new SocketServer();
+    SocketServer *server = new SocketServer();
 
 int main(int argc, char **argv)
 {
-
-    if (signal(SIGINT, signalHandler) == SIG_ERR)
+    try
     {
-        std::cerr << "Signal can not be registered\n";
-        return EXIT_FAILURE;
-    }
-
-    if (argc != 3)
-    {
-        std::cout << "Usage: ./twmailer-server <port> <mail-spool-directoryname>\n";
-        return EXIT_FAILURE;
-    }
-
-    std::string spoolDir = argv[2];
-    int port = atoi(argv[1]);
-    server->setPort(port);
-
-    server->init();
-    Router router = Router();
-
-    while (!server->shouldAbortRequest())
-    {
-
-        int clientSocketId = server->acceptConnectionAndGetSocketId();
-        std::string buffer;
-        int size;
-
-        do
+        if (signal(SIGINT, signalHandler) == SIG_ERR)
         {
-            buffer = server->receiveData(clientSocketId);
-            router.mapRequestToController(new_socket, buffer);
-
-        } while (buffer != "quit" && !server->shouldAbortRequest());
-
-        if (clientSocketId == -1)
-        {
-            server->stopServer();
+            std::cerr << "Signal can not be registered\n";
+            return EXIT_FAILURE;
         }
+
+        if (argc != 3)
+        {
+            std::cout << "Usage: ./twmailer-server <port> <mail-spool-directoryname>\n";
+            return EXIT_FAILURE;
+        }
+
+        std::string spoolDir = argv[2];
+        int port = atoi(argv[1]);
+
+        if(!server->init())
+        {
+            std::cerr << "Server could not be initialized\n";
+            return EXIT_FAILURE;
+        }
+
+        server->setSpoolDir(spoolDir);
+
+        Router router = Router();
+
+        while (!server->shouldAbortRequest())
+        {
+
+            int clientSocketId = server->acceptConnectionAndGetSocketId();
+            if (clientSocketId == -1)
+                break;
+            std::string buffer;
+            int size;
+
+            while ((buffer != "quit" || buffer != "QUIT") && !server->shouldAbortRequest())
+            {
+                buffer = server->receiveData(clientSocketId);
+
+                if (buffer.size() == 0)
+                    break;
+
+                router.mapRequestToController(clientSocketId, buffer);
+            }
+
+            if (clientSocketId != -1)
+            {
+                server->closeConnection(clientSocketId);
+            }
+        }
+
+        return EXIT_SUCCESS;
+    }   
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
+    }catch (const std::invalid_argument &e)
+    {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
+    }catch (const std::runtime_error &e)
+    {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
     }
+};
 
-    server->stopServer();
-
-    return EXIT_SUCCESS;
-}
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 void signalHandler(int sig)
 {
@@ -78,11 +105,11 @@ void signalHandler(int sig)
     {
         int serverSocketId = server->getSocketId();
         std::cout << "Abort requested...\n";
-        abortRequested = 1;
+        server->setAbortRequested(true);
 
         // Shutdown and close sockets if necessary
         // TODO in eigene Servermethode auslagern
-        for (const int clientSocketId : server->getClientSocketIds())
+        for (int clientSocketId : server->getClientSocketIds())
         {
             if (clientSocketId != -1)
             {
@@ -95,12 +122,13 @@ void signalHandler(int sig)
                     perror("Close new_socket");
                 }
 
-                new_socket = -1;
+                clientSocketId = -1;
             }
         }
-
-        if (serverSocketId!= -1)
+        // server->stopServer();
+        if (serverSocketId != -1)
         {
+            std::cout << "ID:" << serverSocketId << std::endl;
             if (shutdown(serverSocketId, SHUT_RDWR) == -1)
             {
                 perror("Shutdown create_socket");
