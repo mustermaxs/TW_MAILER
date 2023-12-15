@@ -3,13 +3,17 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Server socket constructor. Sets default port
+/// and loads text files for console output (help/usage messages etc).
 SocketServer::SocketServer()
 {
     this->port = 6543;
-
-    // this->port = std::stoi(IFileHandler::readFile(this->filePathPortNbr));
+    this->loadMessageTxts();
 };
 
+/// @brief Sets the directory where the messages are stored. Also stores them in
+/// a static COnnectionsConfig object so different entities can access it easier.
+/// @param spoolDir String - Directory where messages will be stored.
 void SocketServer::setSpoolDir(std::string spoolDir)
 {
     FileHandler fileHandler = FileHandler();
@@ -24,6 +28,7 @@ void SocketServer::setSpoolDir(std::string spoolDir)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Loads the console texts that are going to be displayed.
 void SocketServer::loadMessageTxts()
 {
     this->usageText = IFileHandler::readFile(this->filePathUsageTxt);
@@ -39,6 +44,10 @@ bool SocketServer::makeConnection()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Wrapper method that initializes the server.
+/// Creates the server socket, initiliazes its address, binds the socket
+/// and sets the server socket to listening mode.
+/// @return bool - true if successfull.
 bool SocketServer::init()
 {
     this->printUsage();
@@ -58,8 +67,14 @@ bool SocketServer::init()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Sets a flag indicating that the current request should get aborted.
 void SocketServer::setAbortRequested(bool shouldAbort) { this->abortRequested = shouldAbort; };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Creates the server socket.
+/// @return bool - true if successful.
 bool SocketServer::createSocket()
 {
     int reuseValue = 1;
@@ -91,6 +106,8 @@ bool SocketServer::createSocket()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Initialized server socket address.
+/// @return bool - true if successful.
 bool SocketServer::initAddress()
 {
     try
@@ -111,6 +128,7 @@ bool SocketServer::initAddress()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Prints usage instructions to server console.
 void SocketServer::printUsage()
 {
     std::cout << "Usage: ./twmailer-server <port> <mail-spool-directoryname>\n";
@@ -119,6 +137,8 @@ void SocketServer::printUsage()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Sends message on how to use the application to the client.
+/// @param socketId int - socket id of client.
 void SocketServer::sendHelpMessage(int socketId)
 {
     this->sendData(this->welcomeMsg, socketId);
@@ -173,6 +193,7 @@ bool SocketServer::shouldAbortRequest() { return this->abortRequested; };
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Stops the socket server. Closes server socket.
 void SocketServer::stopServer()
 {
     if (this->socketId != -1)
@@ -187,14 +208,23 @@ void SocketServer::stopServer()
     }
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Checks if port number was set. Throws runtime_error otherwise.
 void SocketServer::checkIfSetupComplete()
 {
     if (!this->port > -1)
         throw new std::runtime_error("Server not set up correctly.");
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Starts the server.
+/// @deprecated
 void SocketServer::startServer(){
-    // #facade - multiple method calls here
+    // TODO wrapper methode für initialisierung
 };
 
 int SocketServer::acceptConnectionAndGetSocketId()
@@ -234,22 +264,21 @@ int SocketServer::acceptConnectionAndGetSocketId()
     return newClientSocketId;
 };
 
-// void SocketServer::handleRequest(int clientSocketId)
-// {
-
-//     int size = -1;
-// };
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Sets the max. number of possible clients in queue before
+/// additional clients get rejected by the server.
+/// @param nbr int - max. number of clients in queue.
 void SocketServer::setNbrClientsBeforeQueued(int nbr)
 {
     this->nbrOfClientsBeforeQueued = nbr;
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Returns all the socket ids of all connected clients.
+/// @return vector<int> - Vector of client socket ids.
 std::vector<int> SocketServer::getClientSocketIds() { return this->clientSocketIds; };
 
-// void SocketServer::closeConnection(int clientSocketId)
-// {
-
-// };
