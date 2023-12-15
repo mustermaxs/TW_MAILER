@@ -7,6 +7,8 @@
 #include "IFileHandler.h"
 #include "FileHandler.h"
 
+// serves as a lookup object for other entities that need
+// information about the server config (like IP address, socket id etc.)
 class ConnectionConfig
 {
 private:

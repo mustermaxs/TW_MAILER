@@ -1,4 +1,6 @@
 #include "./headers/IFileHandler.h"
+// TODO Write to file
+// TODO Create directory
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -63,6 +65,9 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Reads the content of a file and returns it as a string.
+/// @param filePath string - file path.
+/// @return string - file content.
 std::string IFileHandler::readFile(const std::string filePath)
 {
     std::ifstream file(filePath);
@@ -213,5 +218,3 @@ bool IFileHandler::deleteFile(const std::string pathName)
     }
 };
 
-// TODO Write to file
-// TODO Create directory

@@ -3,6 +3,10 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+// Facade that takes care (indirectly) of all the file handling
+// related to operations with messages.
+// e.g. reading/writing/deleting messages, creating userspecific dirs etc.
+/// @param fileHandler IFileHandler - performs all the filesystem operations.
 MessageHandler::MessageHandler(IFileHandler *fileHandler)
 {
     this->fileHandler = fileHandler;
@@ -13,6 +17,9 @@ MessageHandler::MessageHandler(IFileHandler *fileHandler)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+// Facade that takes care (indirectly) of all the file handling
+// related to operations with messages.
+// e.g. reading/writing/deleting messages, creating userspecific dirs etc.
 MessageHandler::~MessageHandler()
 {
     delete this->fileHandler;
@@ -26,7 +33,6 @@ MessageHandler::~MessageHandler()
 /// @param message message content, including header (subject, receiver, sender, content).
 /// @return bool, indicating if saving message was successful or not.
 /// @note If directory for user doesn't exist, it will be created.
-
 bool MessageHandler::saveMessage(const std::string &username, IMessage &message)
 {
     std::string directoryName = this->msgsRootDir + username + "/";

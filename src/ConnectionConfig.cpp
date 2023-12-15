@@ -43,13 +43,15 @@ int ConnectionConfig::getPort() { return this->port; };
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Directory where messages get stored.
+/// @param dirPath string - directory path.
 void ConnectionConfig::setBaseDirectory(std::string dirPath)
 {
     if (ConnectionConfig::baseDirectoryPath == "")
     {
         ConnectionConfig::baseDirectoryPath = dirPath[dirPath.size() - 1] != '/' ? dirPath += "/" : dirPath;
-        IFileHandler* fileHandler = new FileHandler();
-        if (!fileHandler->createDirectoryIfNotExists(ConnectionConfig::baseDirectoryPath)) throw new std::invalid_argument("Directory doesn't exist.");
+        FileHandler fileHandler = FileHandler();
+        if (!fileHandler.createDirectoryIfNotExists(ConnectionConfig::baseDirectoryPath)) throw new std::invalid_argument("Directory doesn't exist.");
     }
 };
 std::string ConnectionConfig::getBaseDirectory()
@@ -61,11 +63,16 @@ std::string ConnectionConfig::getBaseDirectory()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Returns IP address of server.
+/// @return string - IP adress.
 std::string ConnectionConfig::getIP()
 {
     return this->ip;
 };
 
+/// @brief Sets ip address (not in server! this just serves as a lookup object for other objects
+/// that need information about the server config).
+/// @param ip 
 void ConnectionConfig::setIP(std::string ip)
 {
     if (this->ip == "")

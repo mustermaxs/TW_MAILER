@@ -40,31 +40,29 @@ public:
     SocketServer();
 
     bool init();
-    bool bindSocket();
-    void setNbrClientsBeforeQueued(int);
-    void setSpoolDir(std::string);
-    void setPort(int);
-    void setAbortRequested(bool);
-    
-    void sendHelpMessage(int socketId);
-    bool initAddress();
-    bool createSocket() override;
-
-    std::vector<int> getClientSocketIds();
-
-    bool makeConnection() override;
     void startServer();
+    bool createSocket() override;
+    bool initAddress();
+    bool makeConnection() override;
+    bool bindSocket();
     bool startListening();
     void stopServer();
-
     int acceptConnectionAndGetSocketId();
+
+    void setNbrClientsBeforeQueued(int);
+    void setSpoolDir(std::string);
+    void setAbortRequested(bool);
+    void setPort(int);
+    bool shouldAbortRequest();
+
+    void sendHelpMessage(int socketId);
+    void printUsage();
+
+    std::vector<int> getClientSocketIds();
+    void checkIfSetupComplete();
 
     // TODO
     // void handleRequest(int);
-    void checkIfSetupComplete();
-
-    void printUsage();
-    bool shouldAbortRequest();
 };
 
 #endif

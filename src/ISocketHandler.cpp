@@ -2,6 +2,11 @@
 
 ISocketHandler::~ISocketHandler(){};
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Used to shutdown and close socket.
+/// @param socketId int - ID of socket thats supposed to be closed.
 void ISocketHandler::closeConnection(int socketId)
 {
     if (shutdown(socketId, SHUT_RDWR) == -1)
@@ -14,8 +19,19 @@ void ISocketHandler::closeConnection(int socketId)
     }
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Returns socket id.
+/// @return int - socket id.
 int ISocketHandler::getSocketId() { return this->socketId; };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Used to receive data from another socket.
+/// @param socketId int - socket id.
+/// @return string - Received data.
 std::string ISocketHandler::receiveData(int socketId)
 {
     try
@@ -51,6 +67,13 @@ std::string ISocketHandler::receiveData(int socketId)
     }
 };
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+/// @brief Sends data to socket with specified id.
+/// @param data string - data to be sent.
+/// @param socketId int - socket id.
+/// @return bool - true if successfull
 bool ISocketHandler::sendData(std::string data, int socketId)
 {
     try

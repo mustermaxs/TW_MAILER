@@ -13,6 +13,24 @@
 #include "../src/headers/FileHandler.h"
 #include "../src/headers/SocketServer.h"
 
+/*
+CLIENT:
+The client functionality is implemented using the SocketClient which inherits from and Parser classes.
+SocketClient manages the underlying TCP/IP socket operations, including socket creation, establishing connections with the server,
+and handling data transmission. The Parser class interprets and structures the user's input, supporting commands like SEND, LIST, READ, DEL, and QUIT
+
+
+SERVER:
+The server is responsible for handling incoming connections, managing client sessions, and routing requests to the appropriate controllers.
+The server uses a SocketServer class, which encapsulates the logic for creating a socket, initializing the address, binding the socket,
+and starting to listen for incoming connections.
+The router is responsible for routing it to the appropriate controller method (currently there is a single controller taking care of
+all the operations).
+The Controller itself is responsible for sending the response back to the client.
+The Controller class uses the MessageHandler (leveraging the FileHandler) class to handle all the filesystem operations relevant to
+
+*/
+
 #define BUF 4096
 #define PORT 6543
 
@@ -23,7 +41,7 @@ int new_socket = -1;
 void signalHandler(int sig);
 bool sendWelcomeMessage(int socketId);
 
-    SocketServer *server = new SocketServer();
+SocketServer *server = new SocketServer();
 
 int main(int argc, char **argv)
 {
@@ -41,10 +59,20 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
+        // check if argv[1] is int
+        for (int i = 0; i < strlen(argv[1]); i++)
+        {
+            if (!isdigit(argv[1][i]))
+            {
+                std::cerr << "Port must be an integer\n";
+                return EXIT_FAILURE;
+            }
+        }
+
         std::string spoolDir = argv[2];
         int port = atoi(argv[1]);
 
-        if(!server->init())
+        if (!server->init())
         {
             std::cerr << "Server could not be initialized\n";
             return EXIT_FAILURE;
@@ -80,16 +108,18 @@ int main(int argc, char **argv)
         }
 
         return EXIT_SUCCESS;
-    }   
+    }
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
-    }catch (const std::invalid_argument &e)
+    }
+    catch (const std::invalid_argument &e)
     {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
-    }catch (const std::runtime_error &e)
+    }
+    catch (const std::runtime_error &e)
     {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;

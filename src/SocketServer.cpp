@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////
 
 /// @brief Server socket constructor. Sets default port
-/// and loads text files for console output (help/usage messages etc).
+/// and loads text files for console output (help/usage messages )
 SocketServer::SocketServer()
 {
     this->port = 6543;
@@ -31,9 +31,17 @@ void SocketServer::setSpoolDir(std::string spoolDir)
 /// @brief Loads the console texts that are going to be displayed.
 void SocketServer::loadMessageTxts()
 {
-    this->usageText = IFileHandler::readFile(this->filePathUsageTxt);
-    this->waitForConnTxt = IFileHandler::readFile(this->filePathWaitForConnTxt);
-    this->welcomeMsg = IFileHandler::readFile(this->filePathWelcomeTxt);
+    try
+    {
+        this->usageText = IFileHandler::readFile(this->filePathUsageTxt);
+        this->waitForConnTxt = IFileHandler::readFile(this->filePathWaitForConnTxt);
+        this->welcomeMsg = IFileHandler::readFile(this->filePathWelcomeTxt);
+    }
+    catch (...)
+    {
+        std::cerr << "Error loading text files." << std::endl;
+    }
+
 };
 
 bool SocketServer::makeConnection()

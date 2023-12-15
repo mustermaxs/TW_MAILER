@@ -8,7 +8,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "./Parser/headers/Parser.h"
-#include "../src/headers/ISocketHandler.h"
 #include "../src/headers/SocketClient.h"
 
 #define DECO_LINE std::cout << "\n---------------------------------" << std::endl;
@@ -31,7 +30,7 @@ int main(int argc, char **argv)
     if (!client->createSocket() || !client->makeConnection())
         return EXIT_FAILURE;
 
-    // std::cout << client->receiveData(client->getSocketId()) << std::endl;
+    std::cout << client->receiveData(client->getSocketId()) << std::endl;
 
     try
     {
