@@ -18,6 +18,7 @@ void SocketServer::setSpoolDir(std::string spoolDir)
 {
     FileHandler fileHandler = FileHandler();
     this->msgDirPath = spoolDir[spoolDir.size() - 1] != '/' ? spoolDir += "/" : spoolDir;
+    this->msgDirPath = spoolDir[0] != '/' ? "/" + this->msgDirPath : this->msgDirPath;
 
     if (!fileHandler.createDirectoryIfNotExists(this->msgDirPath))
         throw new std::invalid_argument("Directory doesn't exist.");
@@ -37,11 +38,10 @@ void SocketServer::loadMessageTxts()
         this->waitForConnTxt = IFileHandler::readFile(this->filePathWaitForConnTxt);
         this->welcomeMsg = IFileHandler::readFile(this->filePathWelcomeTxt);
     }
-    catch (...)
+    catch (const std::runtime_error &e)
     {
-        std::cerr << "Error loading text files." << std::endl;
+        std::cerr << "Error loading text files. - " << e.what() << std::endl;
     }
-
 };
 
 bool SocketServer::makeConnection()
@@ -289,4 +289,3 @@ void SocketServer::setNbrClientsBeforeQueued(int nbr)
 /// @brief Returns all the socket ids of all connected clients.
 /// @return vector<int> - Vector of client socket ids.
 std::vector<int> SocketServer::getClientSocketIds() { return this->clientSocketIds; };
-

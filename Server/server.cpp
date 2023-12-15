@@ -27,7 +27,7 @@ and starting to listen for incoming connections.
 The router is responsible for routing it to the appropriate controller method (currently there is a single controller taking care of
 all the operations).
 The Controller itself is responsible for sending the response back to the client.
-The Controller class uses the MessageHandler (leveraging the FileHandler) class to handle all the filesystem operations relevant to
+The Controller class uses the MessageHandler (leveraging the FileHandler) class to handle all the filesystem operations relevant to Messages.
 
 */
 

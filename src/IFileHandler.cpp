@@ -73,8 +73,7 @@ std::string IFileHandler::readFile(const std::string filePath)
     std::ifstream file(filePath);
     
     if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
-        return "";
+        throw new std::runtime_error("Failed to read file " + filePath);
     }
 
     std::stringstream buffer;
