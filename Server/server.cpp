@@ -32,7 +32,6 @@ The Controller class uses the MessageHandler (leveraging the FileHandler) class 
 */
 
 #define BUF 4096
-#define PORT 6543
 
 int abortRequested = 0;
 int create_socket = -1;
@@ -53,9 +52,12 @@ int main(int argc, char **argv)
             return EXIT_FAILURE;
         }
 
+
+        
+        //check if port and spool directory are given
         if (argc != 3)
         {
-            std::cout << "Usage: ./twmailer-server <port> <mail-spool-directoryname>\n";
+            server->printUsage();
             return EXIT_FAILURE;
         }
 
@@ -65,12 +67,15 @@ int main(int argc, char **argv)
             if (!isdigit(argv[1][i]))
             {
                 std::cerr << "Port must be an integer\n";
+                server->printUsage();
                 return EXIT_FAILURE;
             }
         }
+        int port = atoi(argv[1]);
+        server->setPort(port);
 
         std::string spoolDir = argv[2];
-        int port = atoi(argv[1]);
+
 
         if (!server->init())
         {

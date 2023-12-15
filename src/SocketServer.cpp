@@ -7,7 +7,6 @@
 /// and loads text files for console output (help/usage messages )
 SocketServer::SocketServer()
 {
-    this->port = 6543;
     this->loadMessageTxts();
 };
 

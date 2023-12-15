@@ -132,9 +132,21 @@ void Controller::readMessage(Request req)
 
         sendResponse(req.getSocketId(), resBody);
     }
+    catch (const std::invalid_argument& ex)
+    {
+        std::cerr << "Error in readMessage: " << ex.what() << std::endl;
+
+        sendResponse(req.getSocketId(), "ERR\n");
+    }
     catch (const std::runtime_error& ex)
     {
         std::cerr << "Error in readMessage: " << ex.what() << std::endl;
+
+        sendResponse(req.getSocketId(), "ERR\n");
+    }
+    catch(...)
+    {
+        std::cerr << "Error in readMessage" << std::endl;
 
         sendResponse(req.getSocketId(), "ERR\n");
     }
