@@ -2,6 +2,7 @@
 #define SOCKETCLIENT_H
 
 #include "ISocketHandler.h"
+#include "IFileHandler.h"
 
 class SocketClient : public ISocketHandler
 {
@@ -12,12 +13,11 @@ protected:
     int port;
 
 public:
+    bool sendData(const std::string, int) override {};
+    bool sendData(const std::string);
     SocketClient(std::string, int);
     bool makeConnection() override;
-    void closeConnection() override;
-    bool sendData(const std::string) override;
     bool createSocket() override;
-    std::string receiveData() override;
     int getSocketId() override;
 };
 

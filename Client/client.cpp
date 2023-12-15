@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     if (!client->createSocket() || !client->makeConnection())
         return EXIT_FAILURE;
 
-    std::cout << client->receiveData() << std::endl;
+    std::cout << client->receiveData(client->getSocketId()) << std::endl;
 
     try
     {
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
             }
 
             client->sendData(input);
-            std::cout << client->receiveData() << std::endl;
+            std::cout << client->receiveData(client->getSocketId()) << std::endl;
         }
     }
     catch (const std::exception &e)
@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 
     if (client->getSocketId() != -1)
     {
-        client->closeConnection();
+        client->closeConnection(client->getSocketId());
     }
 
     return EXIT_SUCCESS;

@@ -11,53 +11,22 @@ SocketClient::SocketClient(std::string IP, int Port)
 //////////////////////////////////////////////////////////////////////
 
 
-void SocketClient::closeConnection()
-{
-    if (shutdown(this->socketId, SHUT_RDWR) == -1)
-    {
-        perror("shutdown create_socket");
-    }
-    if (close(this->socketId) == -1)
-    {
-        perror("close create_socket");
-    }
-};
+// void SocketClient::closeConnection(int socketId)
+// {
+//     if (shutdown(socketId, SHUT_RDWR) == -1)
+//     {
+//         perror("shutdown create_socket");
+//     }
+//     if (close(this->socketId) == -1)
+//     {
+//         perror("close create_socket");
+//     }
+// };
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-std::string SocketClient::receiveData()
-{
-    try
-    {
-        char buffer[BUF];
 
-        int size = recv(this->socketId, buffer, BUF - 1, 0);
-
-        if (size == -1)
-        {
-            throw new std::runtime_error("Failed to receive message.");
-        }
-        else if (size == 0)
-        {
-            std::cout << "Server closed remote socket\n";
-
-            return "";
-        }
-        else
-        {
-            buffer[size] = '\0';
-
-            return buffer;
-        }
-    }
-    catch (...)
-    {
-        std::cout << "Failed to receive message" << std::endl;
-
-        return "";
-    }
-};
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////

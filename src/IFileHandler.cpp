@@ -63,6 +63,25 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+std::string IFileHandler::readFile(const std::string filePath)
+{
+    std::ifstream file(filePath);
+    
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << filePath << std::endl;
+        return "";
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+
+    return buffer.str();
+};
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 /// @brief Converts filesystem path object to string
 /// @param path filesystem::path object
 /// @return String

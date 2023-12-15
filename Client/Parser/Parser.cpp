@@ -206,8 +206,7 @@ Parser *Parser::parseSendCommand(std::string line)
     if (line == ".")
     {
         this->continueReadline = false;
-        // this->buildCommandString(line, this->headers[Command::SEND]);
-
+        //TODO reset aufrufen?
         return this;
     }
 
