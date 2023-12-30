@@ -1,4 +1,5 @@
-#include <iostream>
+#include<iostream>
+#include <map>
 #include <cstring>
 #include <cstdlib>
 #include <csignal>
@@ -8,6 +9,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string>
+#include <ldap.h>
+#include <thread>
 #include "../src/headers/Router.h"
 #include "../src/headers/ConnectionConfig.h"
 #include "../src/headers/FileHandler.h"
@@ -33,28 +36,31 @@ The Controller class uses the MessageHandler (leveraging the FileHandler) class 
 
 #define BUF 4096
 
-int abortRequested = 0;
+    int abortRequested = 0;
 int create_socket = -1;
 int new_socket = -1;
+// int ldapVersion = LDAP_VERSION3;
 
 void signalHandler(int sig);
 bool sendWelcomeMessage(int socketId);
+void handleClient(int clientSocketId);
+// LDAP *initializeLDAP(const std::string &ldapUri, const std::string &userDN, const std::string &password);
 
 SocketServer *server = new SocketServer();
+std::map<int, std::thread> threads;
 
 int main(int argc, char **argv)
 {
     try
     {
+
         if (signal(SIGINT, signalHandler) == SIG_ERR)
         {
             std::cerr << "Signal can not be registered\n";
             return EXIT_FAILURE;
         }
 
-
-        
-        //check if port and spool directory are given
+        // check if port and spool directory are given
         if (argc != 3)
         {
             server->printUsage();
@@ -76,7 +82,6 @@ int main(int argc, char **argv)
 
         std::string spoolDir = argv[2];
 
-
         if (!server->init())
         {
             std::cerr << "Server could not be initialized\n";
@@ -85,31 +90,15 @@ int main(int argc, char **argv)
 
         server->setSpoolDir(spoolDir);
 
-        Router router = Router();
-
         while (!server->shouldAbortRequest())
         {
 
             int clientSocketId = server->acceptConnectionAndGetSocketId();
             if (clientSocketId == -1)
                 break;
-            std::string buffer;
-            int size;
 
-            while ((buffer != "quit" || buffer != "QUIT") && !server->shouldAbortRequest())
-            {
-                buffer = server->receiveData(clientSocketId);
-
-                if (buffer.size() == 0)
-                    break;
-
-                router.mapRequestToController(clientSocketId, buffer);
-            }
-
-            if (clientSocketId != -1)
-            {
-                server->closeConnection(clientSocketId);
-            }
+            // create new thread for each client
+            threads[clientSocketId] = std::thread(handleClient, clientSocketId);
         }
 
         return EXIT_SUCCESS;
@@ -134,6 +123,37 @@ int main(int argc, char **argv)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+void handleClient(int clientSocketId)
+{
+
+    Router router = Router();
+
+    std::string buffer;
+    int size;
+
+    while ((buffer != "quit" || buffer != "QUIT") && !server->shouldAbortRequest())
+    {
+        buffer = server->receiveData(clientSocketId);
+
+        if (buffer.size() == 0)
+            break;
+
+        router.mapRequestToController(clientSocketId, buffer);
+    }
+    
+    if (clientSocketId != -1)
+    {
+        server->closeConnection(clientSocketId);
+        close(clientSocketId);
+        // if (threads[clientSocketId].joinable()) {
+        //     threads[clientSocketId].join();
+        // }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 void signalHandler(int sig)
 {
     if (sig == SIGINT)
@@ -141,7 +161,10 @@ void signalHandler(int sig)
         int serverSocketId = server->getSocketId();
         std::cout << "Abort requested...\n";
         server->setAbortRequested(true);
-
+        for (const auto& thread : threads)
+        {
+            std::cout << "THREAD " << thread.first << ": "  << thread.second.joinable() << std::endl;
+        }
         // Shutdown and close sockets if necessary
         // TODO in eigene Servermethode auslagern
         for (int clientSocketId : server->getClientSocketIds())
@@ -157,8 +180,15 @@ void signalHandler(int sig)
                     perror("Close new_socket");
                 }
 
+                threads[clientSocketId].join();
+
                 clientSocketId = -1;
             }
+        }
+
+        for (const auto& thread : threads)
+        {
+            std::cout << "THREAD " << thread.first << ": "  << thread.second.joinable() << std::endl;
         }
         // server->stopServer();
         if (serverSocketId != -1)
@@ -194,3 +224,56 @@ bool sendWelcomeMessage(int socketId)
     }
     return true;
 }
+
+// LDAP *initializeLDAP(const std::string &ldapUri, const std::string &userDN, const std::string &password)
+// {
+//     LDAP *ldapHandle;
+//     int rc = ldap_initialize(&ldapHandle, ldapUri.c_str());
+//     if (rc != LDAP_SUCCESS)
+//     {
+//         std::cerr << "ldap_initialize failed: " << ldap_err2string(rc) << '\n';
+//         return nullptr;
+//     }
+
+//     // Set LDAP version
+//     rc = ldap_set_option(ldapHandle, LDAP_OPT_PROTOCOL_VERSION, &ldapVersion);
+//     if (rc != LDAP_SUCCESS)
+//     {
+//         std::cerr << "ldap_set_option(PROTOCOL_VERSION): " << ldap_err2string(rc) << '\n';
+//         ldap_unbind_ext_s(ldapHandle, NULL, NULL);
+//         return nullptr;
+//     }
+
+//     // Start TLS
+//     rc = ldap_start_tls_s(ldapHandle, NULL, NULL);
+//     if (rc != LDAP_SUCCESS)
+//     {
+//         std::cerr << "ldap_start_tls_s(): " << ldap_err2string(rc) << '\n';
+//         ldap_unbind_ext_s(ldapHandle, NULL, NULL);
+//         return nullptr;
+//     }
+
+//     // Bind credentials
+//     BerValue bindCredentials;
+//     bindCredentials.bv_val = const_cast<char *>(password.c_str());
+//     bindCredentials.bv_len = password.size();
+//     BerValue *servercredp;
+
+//     rc = ldap_sasl_bind_s(
+//         ldapHandle,
+//         userDN.c_str(),
+//         LDAP_SASL_SIMPLE,
+//         &bindCredentials,
+//         NULL,
+//         NULL,
+//         &servercredp);
+
+//     if (rc != LDAP_SUCCESS)
+//     {
+//         std::cerr << "LDAP bind error: " << ldap_err2string(rc) << '\n';
+//         ldap_unbind_ext_s(ldapHandle, NULL, NULL);
+//         return nullptr;
+//     }
+
+//     return ldapHandle;
+// }
