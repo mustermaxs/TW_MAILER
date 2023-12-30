@@ -6,7 +6,7 @@
 Controller::Controller()
 {
     this->messageHandler = new MessageHandler(new FileHandler());
-
+    this->ldapHandler = new LdapHandler();
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ void Controller::listMessages(Request req)
     try
     {
         IMessage *requestMessage = req.getMessage();
-        std::string username = requestMessage->getReceiver();
+        std::string username = this->username;
         std::vector<IMessage *> *messages = messageHandler->getMessagesByUsername(username);
         int messagesCount = messages->size();
 
@@ -113,7 +113,7 @@ void Controller::readMessage(Request req)
         std::string resBody = "";
         IMessage *requestMessage = req.getMessage();
 
-        std::string username = requestMessage->getReceiver();
+        std::string username = this->username;
         int messageNumber = requestMessage->getMessageNumber();
 
         IMessage *message = messageHandler->getMessage(username, messageNumber);
@@ -163,7 +163,7 @@ void Controller::deleteMessage(Request req)
     try {
 
         IMessage *requestMessage = req.getMessage();
-        std::string username = requestMessage->getSender();
+        std::string username = this->username;
         int messageNumber = requestMessage->getMessageNumber();
 
         bool messageDeleted = messageHandler->deleteMessage(username, messageNumber);
@@ -214,4 +214,30 @@ void Controller::sendResponse(int socketId, std::string resBody)
     {
         std::cout << "Exception while sending Response: " << ex.what() << std::endl;
     }
+};
+
+bool Controller::isLoggedIn(Request req)
+{
+    if(this->username != "")
+        return true;
+    else
+        return false;
+};
+
+bool Controller::loginUser(int socketId, LoginMessage* msg)
+{
+    std::string username = msg->getUsername();
+    std::string password = msg->getPassword();
+
+    if (!this->ldapHandler->tryLoginUser(username, password))
+        return false;
+
+    this->username = username;
+    
+    this->sendResponse(socketId, "OK");
+};
+
+void Controller::sendErrorResponse(Request req)
+{
+    this->sendResponse(req.getSocketId(), "Not authorized. Must log in first.");
 };

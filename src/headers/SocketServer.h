@@ -18,10 +18,10 @@
 class SocketServer : public ISocketHandler
 {
 private:
-    const std::string filePathUsageTxt = "../configs/usage.txt";
-    const std::string filePathWelcomeTxt = "../configs/welcomeMsg.txt";
-    const std::string filePathPortNbr = "./configs/portConfig.txt";
-    const std::string filePathWaitForConnTxt = "../configs/waitForConn.txt";
+    const std::string filePathUsageTxt = "/home/mustermax/vscode_projects/TW_MAILER/configs/usage.txt";
+    const std::string filePathWelcomeTxt = "/home/mustermax/vscode_projects/TW_MAILER/configs/welcomeMsg.txt";
+    const std::string filePathPortNbr = "/home/mustermax/vscode_projects/TW_MAILER/configs/portConfig.txt";
+    const std::string filePathWaitForConnTxt = "/home/mustermax/vscode_projects/TW_MAILER/configs/waitForConn.txt";
 
     std::string usageText;
     std::string waitForConnTxt;

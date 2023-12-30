@@ -20,6 +20,7 @@ std::string IMessage::getSender() const { return this->sender; };
 std::string IMessage::getReceiver() const { return this->receiver; };
 std::string IMessage::getSubject() const { return this->subject; };
 std::string IMessage::getContent() const { return this->content; };
+
 int IMessage::getMessageNumber() const { return this->messageNumber; };
 
 IMessage *IMessage::setSender(std::string sender)

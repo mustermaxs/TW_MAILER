@@ -17,10 +17,13 @@
 
 #include "MessageHandler.h"
 #include "Request.h"
-#include "Message.h"
+#include "LoginMessage.h"
 #include "FileHandler.h"
+#include "LdapHandler.h"
 
 namespace fs = std::filesystem;
+
+
 
 
 class Controller
@@ -28,15 +31,21 @@ class Controller
 private:
     MessageHandler* messageHandler;
     void sendResponse(int, std::string);
+    LdapHandler* ldapHandler;
+    std::string username;
 
 public:
     Controller();
     ~Controller();
+    bool loginUser(int, LoginMessage*); // username, pwd
     void receiveMessage(Request);
     void listMessages(Request);
     void readMessage(Request);
     void deleteMessage(Request);
     void quit();
+    bool isLoggedIn(Request);
+    void sendErrorResponse(Request req);
+
 };
 
 #endif

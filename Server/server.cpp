@@ -92,7 +92,6 @@ int main(int argc, char **argv)
 
         while (!server->shouldAbortRequest())
         {
-
             int clientSocketId = server->acceptConnectionAndGetSocketId();
             if (clientSocketId == -1)
                 break;
@@ -126,7 +125,8 @@ int main(int argc, char **argv)
 void handleClient(int clientSocketId)
 {
 
-    Router router = Router();
+    Controller* controller = new Controller();
+    Router router = Router(controller);
 
     std::string buffer;
     int size;

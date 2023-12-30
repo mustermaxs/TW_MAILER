@@ -19,7 +19,7 @@ public:
 
     IMessage* getMessage();
     int getSocketId();
-    void senResponse(int, std::string);
+    void sendResponse(int, std::string);
 };
 
 #endif
