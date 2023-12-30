@@ -11,7 +11,7 @@ Router::~Router() { delete this->controller; };
 /// @brief Executes the correct controlelr method to handle the client request.
 /// @param socketId int - to send response.
 /// @param buffer string - content of the request.
-void Router::mapRequestToController(int socketId, std::string buffer)
+void Router::mapRequestToController(int socketId, std::string buffer, std::string ip)
 {
     std::string commandStr = buffer.substr(0, buffer.find("\n"));
 
@@ -28,7 +28,7 @@ void Router::mapRequestToController(int socketId, std::string buffer)
     Command command = Utils::mapStringToCommand(commandStr);
     IMessage*message = Message::fromLines(lines);
     
-    Request request = Request(command, socketId, message);
+    Request request = Request(command, socketId, message, ip);
 
 
     if(command != Command::LOGIN && !controller->isLoggedIn(request))
@@ -36,11 +36,17 @@ void Router::mapRequestToController(int socketId, std::string buffer)
         controller->sendErrorResponse(request);
         return;
     }
+
+    if(controller->isBlacklisted(request.getIp()))
+    {
+        controller->sendBannedResponse(request);
+        return;
+    }
     
     switch (command)
     {
     case Command::LOGIN:
-        controller->loginUser(socketId, LoginMessage::fromLines(lines));
+        controller->loginUser(request, LoginMessage::fromLines(lines));
         break;
     case Command::SEND:
         controller->receiveMessage(request);

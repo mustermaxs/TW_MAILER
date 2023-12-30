@@ -20,7 +20,7 @@ public:
     Router(Controller *);
     ~Router();
     void init();
-    void mapRequestToController(int, std::string);
+    void mapRequestToController(int, std::string, std::string);
 };
 
 #endif

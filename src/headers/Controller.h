@@ -13,7 +13,9 @@
 #include <string>
 #include <vector>
 #include <filesystem>
-
+#include <chrono>
+#include <ctime>
+#include <mutex>
 
 #include "MessageHandler.h"
 #include "Request.h"
@@ -33,18 +35,26 @@ private:
     void sendResponse(int, std::string);
     LdapHandler* ldapHandler;
     std::string username;
+    int loginAttempts;
+    bool userIsBanned;
 
 public:
+    static std::mutex blacklistMutex;
     Controller();
     ~Controller();
-    bool loginUser(int, LoginMessage*); // username, pwd
+    bool loginUser(Request, LoginMessage*); // username, pwd
     void receiveMessage(Request);
     void listMessages(Request);
     void readMessage(Request);
     void deleteMessage(Request);
     void quit();
     bool isLoggedIn(Request);
-    void sendErrorResponse(Request req);
+    void sendErrorResponse(Request);
+    void sendBannedResponse(Request);
+    void banUser(Request);
+    void putIpOnBlacklist(std::string);
+    bool isBlacklisted(std::string);
+    void removeFromBlacklist(std::string);
 
 };
 

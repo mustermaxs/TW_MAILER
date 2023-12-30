@@ -9,6 +9,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <mutex>
+#include <thread>
+#include <map>
 
 #include "ISocketHandler.h"
 #include "IFileHandler.h"
@@ -31,8 +34,10 @@ private:
     int nbrOfClientsBeforeQueued = 10;
     struct sockaddr_in serverAddress;
 
-    std::vector<struct sockaddr_in> clientAddresses;
+    std::map<int, struct sockaddr_in> clientAddresses;
     std::vector<int> clientSocketIds;
+    std::mutex clientSocketsMutex;
+
     bool abortRequested = false;
     void loadMessageTxts();
 
@@ -60,6 +65,7 @@ public:
 
     std::vector<int> getClientSocketIds();
     void checkIfSetupComplete();
+    std::string getClientIpBySocketId(int socketId);
 
     // TODO
     // void handleRequest(int);

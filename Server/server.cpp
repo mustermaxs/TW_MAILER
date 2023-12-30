@@ -11,6 +11,8 @@
 #include <string>
 #include <ldap.h>
 #include <thread>
+#include <mutex>
+
 #include "../src/headers/Router.h"
 #include "../src/headers/ConnectionConfig.h"
 #include "../src/headers/FileHandler.h"
@@ -36,7 +38,7 @@ The Controller class uses the MessageHandler (leveraging the FileHandler) class 
 
 #define BUF 4096
 
-    int abortRequested = 0;
+int abortRequested = 0;
 int create_socket = -1;
 int new_socket = -1;
 // int ldapVersion = LDAP_VERSION3;
@@ -53,7 +55,6 @@ int main(int argc, char **argv)
 {
     try
     {
-
         if (signal(SIGINT, signalHandler) == SIG_ERR)
         {
             std::cerr << "Signal can not be registered\n";
@@ -138,7 +139,8 @@ void handleClient(int clientSocketId)
         if (buffer.size() == 0)
             break;
 
-        router.mapRequestToController(clientSocketId, buffer);
+
+        router.mapRequestToController(clientSocketId, buffer, server->getClientIpBySocketId(clientSocketId));
     }
     
     if (clientSocketId != -1)

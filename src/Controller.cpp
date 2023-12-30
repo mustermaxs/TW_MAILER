@@ -7,16 +7,18 @@ Controller::Controller()
 {
     this->messageHandler = new MessageHandler(new FileHandler());
     this->ldapHandler = new LdapHandler();
+    this->loginAttempts = 0;
 };
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-
 
 Controller::~Controller()
 {
     delete messageHandler;
 };
+
+std::mutex Controller::blacklistMutex;
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -132,19 +134,19 @@ void Controller::readMessage(Request req)
 
         sendResponse(req.getSocketId(), resBody);
     }
-    catch (const std::invalid_argument& ex)
+    catch (const std::invalid_argument &ex)
     {
         std::cerr << "Error in readMessage: " << ex.what() << std::endl;
 
         sendResponse(req.getSocketId(), "ERR\n");
     }
-    catch (const std::runtime_error& ex)
+    catch (const std::runtime_error &ex)
     {
         std::cerr << "Error in readMessage: " << ex.what() << std::endl;
 
         sendResponse(req.getSocketId(), "ERR\n");
     }
-    catch(...)
+    catch (...)
     {
         std::cerr << "Error in readMessage" << std::endl;
 
@@ -160,7 +162,8 @@ void Controller::readMessage(Request req)
 void Controller::deleteMessage(Request req)
 {
 
-    try {
+    try
+    {
 
         IMessage *requestMessage = req.getMessage();
         std::string username = this->username;
@@ -184,7 +187,7 @@ void Controller::deleteMessage(Request req)
 
         sendResponse(req.getSocketId(), resBody);
     }
-    catch (const std::runtime_error& ex)
+    catch (const std::runtime_error &ex)
     {
         std::cerr << "Error in deleteMessage: " << ex.what() << std::endl;
 
@@ -194,7 +197,6 @@ void Controller::deleteMessage(Request req)
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
-
 
 /// @brief Used to send response to client.
 /// @param socketId int - socket ID
@@ -218,26 +220,133 @@ void Controller::sendResponse(int socketId, std::string resBody)
 
 bool Controller::isLoggedIn(Request req)
 {
-    if(this->username != "")
+    if (this->username != "")
         return true;
     else
         return false;
 };
 
-bool Controller::loginUser(int socketId, LoginMessage* msg)
+bool Controller::loginUser(Request req, LoginMessage *msg)
 {
     std::string username = msg->getUsername();
     std::string password = msg->getPassword();
 
-    if (!this->ldapHandler->tryLoginUser(username, password))
+    if (this->isBlacklisted(req.getIp()))
+    {
+        this->sendBannedResponse(req);
+
         return false;
+    }
+    if (this->loginAttempts >= 3)
+    {
+        this->banUser(req);
+        this->sendResponse(req.getSocketId(), "ERR");
+
+        return false;
+    }
+
+    if (!this->ldapHandler->tryLoginUser(username, password))
+    {
+        this->sendResponse(req.getSocketId(), "ERR");
+        return false;
+    }
 
     this->username = username;
-    
-    this->sendResponse(socketId, "OK");
+
+    this->loginAttempts++;
+    this->sendResponse(req.getSocketId(), "OK");
+
+    return true;
+};
+
+void Controller::banUser(Request req)
+{
+    this->userIsBanned = true;
+    this->putIpOnBlacklist(req.getIp());
+    this->loginAttempts = 0;
+};
+
+void Controller::putIpOnBlacklist(std::string ip)
+{
+    Controller::blacklistMutex.lock();
+    FileHandler fh = FileHandler();
+
+    auto currentTimeStamp = std::chrono::system_clock::now();
+    std::time_t currentTime = std::chrono::system_clock::to_time_t(currentTimeStamp);
+
+    std::tm *localTime = std::localtime(&currentTime);
+    std::stringstream ss;
+    ss << std::put_time(localTime, "%Y-%m-%d %H:%M:%S");
+    std::string timeAndIp = ss.str() + "@" + ip;
+
+    fh.writeToFile("./blacklist.txt", timeAndIp);
+    Controller::blacklistMutex.unlock();
+};
+
+bool Controller::isBlacklisted(std::string ip)
+{
+    Controller::blacklistMutex.lock();
+
+    FileHandler fh = FileHandler();
+    std::vector<std::string> lines = fh.readFileLines("./blacklist.txt");
+
+    for (auto &line : lines)
+    {
+        if (line.find(ip) != std::string::npos)
+        {
+            std::string time = line.substr(0, 19);
+            std::tm tm = {};
+            std::istringstream ss(time);
+            ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+            auto timePoint = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+
+            auto currentTimeStamp = std::chrono::system_clock::now();
+
+            // check if time is older than 1 minute
+            if (std::chrono::duration_cast<std::chrono::minutes>(currentTimeStamp - timePoint).count() < 1)
+            {
+                this->removeFromBlacklist(ip);
+
+                return true;
+            }
+        }
+    }
+
+    Controller::blacklistMutex.unlock();
+
+    return false;
+};
+
+void Controller::removeFromBlacklist(std::string ip)
+{
+    Controller::blacklistMutex.lock();
+    FileHandler fh = FileHandler();
+    std::vector<std::string> lines = fh.readFileLines("./blacklist.txt");
+
+    for (int i = 0; i < lines.size(); i++)
+    {
+        if (lines[i].find(ip) != std::string::npos)
+        {
+            lines.erase(lines.begin() + i);
+        }
+    }
+
+    std::string linesStr = "";
+    for (auto &line : lines)
+    {
+        linesStr += line + "\n";
+    }
+
+    fh.writeToFile("./blacklist.txt", linesStr);
+    Controller::blacklistMutex.unlock();
 };
 
 void Controller::sendErrorResponse(Request req)
 {
     this->sendResponse(req.getSocketId(), "Not authorized. Must log in first.");
+};
+
+void Controller::sendBannedResponse(Request req)
+{
+    this->sendResponse(req.getSocketId(), "You are banned.");
 };
