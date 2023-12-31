@@ -47,3 +47,15 @@ bool Utils::isConvertibleToInt(const std::string &str)
         return false;
     }
 };
+
+std::string Utils::getCurrTimeAsString(std::string format)
+{
+    auto currentTimeStamp = std::chrono::system_clock::now();
+    std::time_t currentTime = std::chrono::system_clock::to_time_t(currentTimeStamp);
+
+    std::tm *localTime = std::localtime(&currentTime);
+    std::stringstream ss;
+    ss << std::put_time(localTime, format.c_str());
+
+    return ss.str();
+};

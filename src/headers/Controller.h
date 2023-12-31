@@ -22,6 +22,8 @@
 #include "LoginMessage.h"
 #include "FileHandler.h"
 #include "LdapHandler.h"
+#include "Response.h"
+#include "Utils.h"
 
 namespace fs = std::filesystem;
 

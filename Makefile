@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++17 -Wall -g
 SRV_TARGET = ./bin/twmailer-server
 CLIENT_TARGET = ./bin/twmailer-client
 
-SRV_SRCS = Server/server.cpp src/Router.cpp src/Message.cpp src/MessageHandler.cpp src/Utils.cpp src/Controller.cpp src/Request.cpp src/ConnectionConfig.cpp src/IMessage.cpp src/SocketServer.cpp src/ISocketHandler.cpp src/IFileHandler.cpp src/FileHandler.cpp src/LdapHandler.cpp src/LoginMessage.cpp
+SRV_SRCS = Server/server.cpp src/Router.cpp src/Message.cpp src/MessageHandler.cpp src/Utils.cpp src/Controller.cpp src/Request.cpp src/ConnectionConfig.cpp src/IMessage.cpp src/SocketServer.cpp src/ISocketHandler.cpp src/IFileHandler.cpp src/FileHandler.cpp src/LdapHandler.cpp src/LoginMessage.cpp src/Response.cpp
 CLIENT_SRC = Client/client.cpp Client/Parser/Parser.cpp src/Utils.cpp src/ConnectionConfig.cpp src/IMessage.cpp src/SocketClient.cpp src/ISocketHandler.cpp src/IFileHandler.cpp src/FileHandler.cpp
 
 SRV_OBJS = $(SRV_SRCS:.cpp=.o)

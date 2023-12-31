@@ -24,12 +24,10 @@ void Router::mapRequestToController(int socketId, std::string buffer, std::strin
         lines.push_back(line);
     }
     
-
     Command command = Utils::mapStringToCommand(commandStr);
     IMessage*message = Message::fromLines(lines);
     
     Request request = Request(command, socketId, message, ip);
-
 
     if(command != Command::LOGIN && !controller->isLoggedIn(request))
     {
@@ -39,7 +37,7 @@ void Router::mapRequestToController(int socketId, std::string buffer, std::strin
 
     if(controller->isBlacklisted(request.getIp()))
     {
-        controller->sendBannedResponse(request);
+        Response::normal(request.getSocketId(), "You're banned.");
         return;
     }
     
