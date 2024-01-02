@@ -11,6 +11,7 @@
 /// @brief Valid client commands.
 enum Command
 {
+    LOGIN,
     LIST,
     READ,
     DEL,
@@ -26,6 +27,7 @@ enum Command
 inline std::map<std::string, Command> &getCommandMap()
 {
     static std::map<std::string, Command> commandMap = {
+        {"LOGIN", Command::LOGIN},
         {"LIST", Command::LIST},
         {"READ", Command::READ},
         {"DEL", Command::DEL},

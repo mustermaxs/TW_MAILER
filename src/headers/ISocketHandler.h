@@ -17,21 +17,19 @@
 class ISocketHandler
 {
 protected:
-    int socketId;
-    std::string ip;
+    int socketId = -1;
+    std::string ip = "";
     struct sockaddr_in address;
-    int port;
+    int port = -1;
 
 public:
-    virtual ~ISocketHandler(){};
+    virtual ~ISocketHandler();
     virtual bool makeConnection() = 0;
-    virtual bool sendData(const std::string data) = 0;
-    virtual std::string receiveData() = 0;
-    virtual void closeConnection() = 0;
+    virtual bool sendData(const std::string, int);
+    std::string receiveData(int);
+    virtual void closeConnection(int);
     virtual bool createSocket() = 0;
-    virtual int getSocketId() = 0;
-
-    // virtual int getSocketId() { return this->socketId; };
+    virtual int getSocketId();
 };
 
 #endif

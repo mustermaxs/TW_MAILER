@@ -8,8 +8,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include "./Parser/headers/Parser.h"
-#include "../src/headers/ConnectionConfig.h"
-#include "../src/headers/ISocketHandler.h"
 #include "../src/headers/SocketClient.h"
 
 #define DECO_LINE std::cout << "\n---------------------------------" << std::endl;
@@ -18,7 +16,8 @@
 
 int main(int argc, char **argv)
 {
-    if (argc < 3 || argv[1] == "help")
+
+    if (argc < 3 || (std::string(argv[1]) == "help"))
     {
         PRINT_USAGE;
 
@@ -32,7 +31,7 @@ int main(int argc, char **argv)
     if (!client->createSocket() || !client->makeConnection())
         return EXIT_FAILURE;
 
-    std::cout << client->receiveData() << std::endl;
+    std::cout << client->receiveData(client->getSocketId()) << std::endl;
 
     try
     {
@@ -59,8 +58,8 @@ int main(int argc, char **argv)
                 break;
             }
 
-            client->sendData(input);
-            std::cout << client->receiveData() << std::endl;
+            client->sendData(input); //? nach "quit", wird resetted empty string noch gesendet?
+            std::cout << client->receiveData(client->getSocketId()) << std::endl;
         }
     }
     catch (const std::exception &e)
@@ -70,7 +69,7 @@ int main(int argc, char **argv)
 
     if (client->getSocketId() != -1)
     {
-        client->closeConnection();
+        client->closeConnection(client->getSocketId());
     }
 
     return EXIT_SUCCESS;

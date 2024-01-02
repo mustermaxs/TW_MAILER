@@ -14,10 +14,11 @@ Parser::Parser()
 
     this->headers =
         {
-            {Command::LIST, {"RECEIVER"}},
-            {Command::READ, {"RECEIVER", "ID"}},
-            {Command::DEL, {"SENDER", "ID"}},
-            {Command::SEND, {"SENDER", "RECEIVER", "SUBJECT", "MESSAGE"}},
+            {Command::LOGIN, {"USERNAME", "PASSWORD"}},
+            {Command::LIST, {}},
+            {Command::READ, {"ID"}},
+            {Command::DEL, {"ID"}},
+            {Command::SEND, {"RECEIVER", "SUBJECT", "MESSAGE"}},
         };
 };
 
@@ -42,7 +43,7 @@ Parser *Parser::parse(const std::string input)
         return this;
     }
 
-    if (input == "LIST" || input == "READ" || input == "DEL" || input == "SEND")
+    if (input == "LIST" || input == "READ" || input == "DEL" || input == "SEND" || input == "LOGIN")
     {
         this->setMode(input);
         this->reset();
@@ -72,6 +73,9 @@ Parser *Parser::callDesignatedParser(std::string input)
 {
     switch (this->mode)
     {
+    case Command::LOGIN:
+        return this->parseLoginCommand(input);
+        break;
     case Command::LIST:
         return this->parseListCommand(input);
         break;
@@ -144,11 +148,26 @@ void Parser::printInvalidNumberProvided()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-Parser *Parser::parseReadCommand(std::string line)
+Parser *Parser::parseLoginCommand(std::string line)
 {
     std::string header = "";
 
     this->continueReadline = lineNumber < 2;
+
+    this->buildCommandString(line, this->headers[Command::LOGIN]);
+
+    return this;
+};
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+
+Parser *Parser::parseReadCommand(std::string line)
+{
+    std::string header = "";
+
+    this->continueReadline = lineNumber < 1;
 
     if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
     {
@@ -169,7 +188,7 @@ Parser *Parser::parseReadCommand(std::string line)
 Parser *Parser::parseListCommand(std::string line)
 {
 
-    this->continueReadline = lineNumber < 1;
+    this->continueReadline = false;
 
     this->buildCommandString(line, this->headers[Command::LIST]);
 
@@ -181,9 +200,9 @@ Parser *Parser::parseListCommand(std::string line)
 
 Parser *Parser::parseDeleteCommand(std::string line)
 {
-    this->continueReadline = lineNumber < 2;
+    this->continueReadline = lineNumber < 1;
 
-    if (lineNumber == 2 && !Utils::isConvertibleToInt(line))
+    if (lineNumber == 1 && !Utils::isConvertibleToInt(line))
     {
         this->printInvalidNumberProvided();
         this->reset();
@@ -206,8 +225,7 @@ Parser *Parser::parseSendCommand(std::string line)
     if (line == ".")
     {
         this->continueReadline = false;
-        // this->buildCommandString(line, this->headers[Command::SEND]);
-
+        //TODO reset aufrufen?
         return this;
     }
 
@@ -226,7 +244,6 @@ Parser *Parser::parseSendCommand(std::string line)
 void Parser::buildCommandString(std::string &line, const std::vector<std::string> &headers)
 {
     std::string header = "";
-    int headerCount = headers.size();
 
     header = this->getCurrentHeader();
 
@@ -250,7 +267,7 @@ std::string Parser::getCurrentHeader()
     if (this->mode == Command::NOT_SET)
         return "";
 
-    return (this->lineNumber > 0 && this->lineNumber < this->headers[this->mode].size() + 1)
+    return (this->lineNumber > 0 && this->lineNumber < (int)this->headers[this->mode].size() + 1)
                ? this->headers[this->mode][this->lineNumber - 1] + ":"
                : "";
 };

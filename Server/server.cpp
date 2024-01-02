@@ -1,4 +1,5 @@
-#include <iostream>
+#include<iostream>
+#include <map>
 #include <cstring>
 #include <cstdlib>
 #include <csignal>
@@ -8,200 +9,243 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string>
+#include <thread>
+#include <mutex>
+
 #include "../src/headers/Router.h"
 #include "../src/headers/ConnectionConfig.h"
-#include "../src/headers/RecursiveFileHandler.h"
+#include "../src/headers/FileHandler.h"
+#include "../src/headers/SocketServer.h"
+
+/*
+CLIENT:
+The client functionality is implemented using the SocketClient which inherits from and Parser classes.
+SocketClient manages the underlying TCP/IP socket operations, including socket creation, establishing connections with the server,
+and handling data transmission. The Parser class interprets and structures the user's input, supporting commands like SEND, LIST, READ, DEL, and QUIT
+
+
+SERVER:
+The server is responsible for handling incoming connections, managing client sessions, and routing requests to the appropriate controllers.
+The server uses a SocketServer class, which encapsulates the logic for creating a socket, initializing the address, binding the socket,
+and starting to listen for incoming connections.
+The router is responsible for routing it to the appropriate controller method (currently there is a single controller taking care of
+all the operations).
+The Controller itself is responsible for sending the response back to the client.
+The Controller class uses the MessageHandler (leveraging the FileHandler) class to handle all the filesystem operations relevant to Messages.
+
+*/
 
 #define BUF 4096
-#define PORT 6543
 
 int abortRequested = 0;
 int create_socket = -1;
 int new_socket = -1;
+int ldapVersion = LDAP_VERSION3;
 
+bool LDAPauthenticate(std::string username, std::string password);
 void signalHandler(int sig);
 bool sendWelcomeMessage(int socketId);
 
 
+int main(int argc, char **argv)
+{
+    try
+    {
+        if (signal(SIGINT, signalHandler) == SIG_ERR)
+        {
+            std::cerr << "Signal can not be registered\n";
+            return EXIT_FAILURE;
+        }
 
+        // check if port and spool directory are given
+        if (argc != 3)
+        {
+            server->printUsage();
+            return EXIT_FAILURE;
+        }
 
-int main(int argc, char **argv) {
-    socklen_t addrlen;
-    struct sockaddr_in address, cliaddress;
-    int reuseValue = 1;
+        // check if argv[1] is int
+        for (size_t i = 0; i < strlen(argv[1]); i++)
+        {
+            if (!isdigit(argv[1][i]))
+            {
+                std::cerr << "Port must be an integer\n";
+                server->printUsage();
+                return EXIT_FAILURE;
+            }
+        }
 
-    // Signal Handler
-    if (signal(SIGINT, signalHandler) == SIG_ERR) {
-        std::cerr << "Signal can not be registered\n";
+        int port = atoi(argv[1]);
+        server->setPort(port);
+
+        std::string spoolDir = argv[2];
+
+        if (!server->init())
+        {
+            std::cerr << "Server could not be initialized\n";
+            return EXIT_FAILURE;
+        }
+
+        server->setSpoolDir(spoolDir);
+
+        while (!server->shouldAbortRequest())
+        {
+            int clientSocketId = server->acceptConnectionAndGetSocketId();
+            if (clientSocketId == -1)
+                break;
+
+            // create new thread for each client
+            threads[clientSocketId] = std::thread(handleClient, clientSocketId);
+        }
+
+        return EXIT_SUCCESS;
+    }
+    catch (const std::invalid_argument &e)
+    {
+        std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
     }
-
-    // Create a Socket
-    if ((create_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-        perror("Socket error");
+    catch (const std::runtime_error &e)
+    {
+        std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
     }
-
-    // Set Socket Options
-    if (setsockopt(create_socket, SOL_SOCKET, SO_REUSEADDR, &reuseValue, sizeof(reuseValue)) == -1) {
-        perror("Set socket options - reuseAddr");
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
     }
+};
 
-    if (setsockopt(create_socket, SOL_SOCKET, SO_REUSEPORT, &reuseValue, sizeof(reuseValue)) == -1) {
-        perror("Set socket options - reusePort");
-        return EXIT_FAILURE;
-    }
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
-    // Init Address
-    memset(&address, 0, sizeof(address));
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
+void handleClient(int clientSocketId)
+{
 
-    if (argc != 3) {
-        std::cout << "Usage: ./twmailer-server <port> <mail-spool-directoryname>\n";
-        return EXIT_FAILURE;
-    }
+    Controller* controller = new Controller();
+    Router router = Router(controller);
 
-    std::string spoolDir = argv[2];
-    int port = atoi(argv[1]);
-
-    ConnectionConfig* config = ConnectionConfig::getInstance();
-    config->setPort(port);
-    config->setBaseDirectory(spoolDir);
-    address.sin_port = htons(config->getPort());
-
+    std::string buffer;
     
+    while ((buffer != "quit" || buffer != "QUIT") && !server->shouldAbortRequest())
+    {
+        buffer = server->receiveData(clientSocketId);
 
-
-    // Assign an Address with Port to Socket
-    if (bind(create_socket, (struct sockaddr *)&address, sizeof(address)) == -1) {
-        perror("Bind error");
-        return EXIT_FAILURE;
-    }
-
-    // Allow Connection Establishing
-    if (listen(create_socket, 5) == -1) {
-        perror("Listen error");
-        return EXIT_FAILURE;
-    }
-
-    while (!abortRequested) {
-        std::cout << "Waiting for connections...\n";
-
-        // Accepts Connection Setup
-        addrlen = sizeof(struct sockaddr_in);
-        if ((new_socket = accept(create_socket, (struct sockaddr *)&cliaddress, &addrlen)) == -1) {
-            if (abortRequested) {
-                perror("Accept error after aborted");
-            } else {
-                perror("Accept error");
-            }
+        if (buffer.size() == 0)
             break;
-        }
 
-        // Start Client Communication--
-        std::cout << "Client connected from " << inet_ntoa(cliaddress.sin_addr) << ":" << ntohs(cliaddress.sin_port) << "...\n";
-
-        // Client Communication
-        char buffer[BUF];
-        int size;
-
-        // Send welcome message
-        if(sendWelcomeMessage(new_socket) == false)
-        continue;
-
-
-        do {
-            size = recv(new_socket, buffer, BUF - 1, 0);
-            if (size == -1) {
-                perror("Recv error");
-                break;
-            }
-
-            if (size == 0) {
-                std::cout << "Client closed remote socket\n";
-                break;
-            }
-
-
-            // init Request
-            std::string bufferStr(buffer);
-            Router router = Router();
-            router.mapRequestToController(new_socket, bufferStr);
-            
-
-            buffer[size] = '\0';
-            std::cout << "Message received: " << "\n" << buffer << "\n";
-
-
-        } while (strcmp(buffer, "quit") != 0 && !abortRequested);
-
-        // Close client socket
-        if (new_socket != -1) {
-            if (shutdown(new_socket, SHUT_RDWR) == -1) {
-                perror("Shutdown new_socket");
-            }
-            if (close(new_socket) == -1) {
-                perror("Close new_socket");
-            }
-            new_socket = -1;
-        }
+        router.mapRequestToController(clientSocketId, buffer, server->getClientIpBySocketId(clientSocketId));
     }
-
-    // Close the server socket
-    if (create_socket != -1) {
-        if (shutdown(create_socket, SHUT_RDWR) == -1) {
-            perror("Shutdown create_socket");
-        }
-        if (close(create_socket) == -1) {
-            perror("Close create_socket");
-        }
+    
+    if (clientSocketId != -1)
+    {
+        server->closeConnection(clientSocketId);
+        close(clientSocketId);
+        // if (threads[clientSocketId].joinable()) {
+        //     threads[clientSocketId].join();
+        // }
     }
-
-    return EXIT_SUCCESS;
 }
 
-void signalHandler(int sig) {
-    if (sig == SIGINT) {
-        std::cout << "Abort requested...\n";
-        abortRequested = 1;
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
+void signalHandler(int sig)
+{
+    if (sig == SIGINT)
+    {
+        int serverSocketId = server->getSocketId();
+        std::cout << "Abort requested...\n";
+        server->setAbortRequested(true);
         // Shutdown and close sockets if necessary
-        if (new_socket != -1) {
-            if (shutdown(new_socket, SHUT_RDWR) == -1) {
-                perror("Shutdown new_socket");
+        // TODO in eigene Servermethode auslagern
+        for (int clientSocketId : server->getClientSocketIds())
+        {
+            if (clientSocketId != -1)
+            {
+                if (shutdown(clientSocketId, SHUT_RDWR) == -1)
+                {
+                    perror("Shutdown new_socket");
+                }
+                if (close(clientSocketId) == -1)
+                {
+                    perror("Close new_socket");
+                }
+
+                threads[clientSocketId].join();
+
+                clientSocketId = -1;
             }
-            if (close(new_socket) == -1) {
-                perror("Close new_socket");
-            }
-            new_socket = -1;
         }
 
-        if (create_socket != -1) {
-            if (shutdown(create_socket, SHUT_RDWR) == -1) {
+        if (serverSocketId != -1)
+        {
+            std::cout << "ID:" << serverSocketId << std::endl;
+            if (shutdown(serverSocketId, SHUT_RDWR) == -1)
+            {
                 perror("Shutdown create_socket");
             }
-            if (close(create_socket) == -1) {
+            if (close(serverSocketId) == -1)
+            {
                 perror("Close create_socket");
             }
         }
-    } else {
+    }
+    else
+    {
         exit(sig);
     }
 }
 
 bool sendWelcomeMessage(int socketId)
 {
-    IFileHandler* fileHandler = new FileHandler();
-    std::string welcomeMessage = fileHandler->readFile("../Server/hellomsg.txt");
+    std::string welcomeMessage = "Welcome to the TW Mailer Server!\r\n";
     
-    delete fileHandler;
-    
+    welcomeMessage +=  "Please enter your commands:\r\n";
 
-    if (send(new_socket, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1) {
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|------------ Commands: ----------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|---------Send a message:---------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  SEND                           |\r\n";
+    welcomeMessage += "|  <Sender>                       |\r\n";
+    welcomeMessage += "|  <Receiver>                     |\r\n";
+    welcomeMessage += "|  <Subject>                      |\r\n";
+    welcomeMessage += "|  <Message>                      |\r\n";
+    welcomeMessage += "|  .                              |\r\n";
+    welcomeMessage += "|  (End the message with '.\\n')   |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|--------List all messages:-------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  LIST                           |\r\n";
+    welcomeMessage += "|  <Username>                     |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|---------Read a message:---------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  READ                           |\r\n";
+    welcomeMessage += "|  <Username>                     |\r\n";
+    welcomeMessage += "|  <Message-Number>               |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|--------Delete a message:--------|\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|  DEL                            |\r\n";
+    welcomeMessage += "|  <Username>                     |\r\n";
+    welcomeMessage += "|  <Message-Number>               |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n";
+    welcomeMessage += "|---------Quit the server:--------|\r\n";
+    welcomeMessage += "|  QUIT                           |\r\n";
+    welcomeMessage += "|---------------------------------|\r\n\r\n";
+    welcomeMessage += "| Enter your command:\r\n\r\n";
+
+    if (send(new_socket, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
+    {
         perror("Send failed");
         return false;
     }
     return true;
 }
+
+
+

@@ -1,5 +1,5 @@
-#ifndef RECURSIVEFILESCANNER_H
-#define RECURSIVEFILESCANNER_H
+#ifndef FILEHANDLER_H
+#define FILEHANDLER_H
 
 #include "IFileHandler.h"
 

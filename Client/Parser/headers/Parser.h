@@ -19,6 +19,7 @@ class Parser
     std::map<Command, std::vector<std::string>> headers;
     int lineNumber = 0;
     Command mode;
+    Parser *parseLoginCommand(std::string);
     Parser *parseListCommand(std::string);
     Parser *parseReadCommand(std::string);
     Parser *parseDeleteCommand(std::string);

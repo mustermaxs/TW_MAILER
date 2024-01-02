@@ -13,13 +13,15 @@ private:
     int socketId;
     IMessage* message;
     Command method;
+    std::string ip;
 
 public:
-    Request(Command, int, IMessage*);
+    Request(Command, int, IMessage*, std::string);
 
     IMessage* getMessage();
     int getSocketId();
-    void senResponse(int, std::string);
+    void sendResponse(int, std::string);
+    std::string getIp();
 };
 
 #endif

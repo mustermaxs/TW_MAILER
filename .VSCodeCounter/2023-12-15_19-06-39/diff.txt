@@ -1,0 +1,81 @@
+Date : 2023-12-15 19:06:39
+Directory : /home/mustermax/vscode_projects/TW_MAILER
+Total : 43 files,  2477 codes, 450 comments, 735 blanks, all 3662 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| C++                |         39 |      1,912 |        450 |        641 |      3,003 |
+| HTML               |          1 |        257 |          0 |         20 |        277 |
+| Markdown           |          1 |        230 |          0 |         68 |        298 |
+| JSON with Comments |          1 |         66 |          0 |          1 |         67 |
+| Makefile           |          1 |         12 |          0 |          5 |         17 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                     | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                        |         43 |      2,477 |        450 |        735 |      3,662 |
+| . (Files)                                                                |          7 |        820 |         39 |        223 |      1,082 |
+| Client                                                                   |          3 |        235 |         66 |         73 |        374 |
+| Client (Files)                                                           |          1 |         61 |          0 |         16 |         77 |
+| Client/Parser                                                            |          2 |        174 |         66 |         57 |        297 |
+| Client/Parser (Files)                                                    |          1 |        138 |         65 |         52 |        255 |
+| Client/Parser/headers                                                    |          1 |         36 |          1 |          5 |         42 |
+| Server                                                                   |          1 |        132 |          5 |         27 |        164 |
+| src                                                                      |         32 |      1,290 |        340 |        412 |      2,042 |
+| src (Files)                                                              |         14 |        858 |        318 |        304 |      1,480 |
+| src/headers                                                              |         18 |        432 |         22 |        108 |        562 |
++--------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                 | language           | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| /home/mustermax/vscode_projects/TW_MAILER/Client/Parser/Parser.cpp       | C++                |        138 |         65 |         52 |        255 |
+| /home/mustermax/vscode_projects/TW_MAILER/Client/Parser/headers/Parser.h | C++                |         36 |          1 |          5 |         42 |
+| /home/mustermax/vscode_projects/TW_MAILER/Client/client.cpp              | C++                |         61 |          0 |         16 |         77 |
+| /home/mustermax/vscode_projects/TW_MAILER/Makefile                       | Makefile           |         12 |          0 |          5 |         17 |
+| /home/mustermax/vscode_projects/TW_MAILER/SendRequest.h                  | C++                |         21 |          0 |          6 |         27 |
+| /home/mustermax/vscode_projects/TW_MAILER/Server/server.cpp              | C++                |        132 |          5 |         27 |        164 |
+| /home/mustermax/vscode_projects/TW_MAILER/TODO.html                      | HTML               |        257 |          0 |         20 |        277 |
+| /home/mustermax/vscode_projects/TW_MAILER/TODO.md                        | Markdown           |        230 |          0 |         68 |        298 |
+| /home/mustermax/vscode_projects/TW_MAILER/TW_MAILER.code-workspace       | JSON with Comments |         66 |          0 |          1 |         67 |
+| /home/mustermax/vscode_projects/TW_MAILER/main.cpp                       | C++                |        199 |         39 |        116 |        354 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/ConnectionConfig.cpp       | C++                |         46 |         18 |         19 |         83 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/Controller.cpp             | C++                |        136 |         57 |         46 |        239 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/FileHandler.cpp            | C++                |         20 |          5 |          7 |         32 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/IFileHandler.cpp           | C++                |        116 |         59 |         46 |        221 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/IMessage.cpp               | C++                |         31 |         13 |          5 |         49 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/ISocketHandler.cpp         | C++                |         60 |          0 |         14 |         74 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/List.cpp                   | C++                |         16 |          0 |          6 |         22 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/Message.cpp                | C++                |         66 |         14 |         18 |         98 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/MessageHandler.cpp         | C++                |         78 |         40 |         33 |        151 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/Request.cpp                | C++                |         15 |          7 |          4 |         26 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/Router.cpp                 | C++                |         33 |          5 |          6 |         44 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/SocketClient.cpp           | C++                |         59 |         23 |         25 |        107 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/SocketServer.cpp           | C++                |        155 |         64 |         66 |        285 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/Utils.cpp                  | C++                |         27 |         13 |          9 |         49 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/Color.h            | C++                |         35 |          0 |          5 |         40 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/Commands.h         | C++                |         23 |          7 |          6 |         36 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/ConnectionConfig.h | C++                |         26 |          2 |          6 |         34 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/Controller.h       | C++                |         34 |          0 |          9 |         43 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/FileHandler.h      | C++                |          9 |          1 |          4 |         14 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/IFileHandler.h     | C++                |         31 |          3 |          5 |         39 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/IItem.h            | C++                |         11 |          0 |          3 |         14 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/IMessage.h         | C++                |         32 |          0 |          8 |         40 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/IResponse.h        | C++                |         14 |          0 |          4 |         18 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/ISocketHandler.h   | C++                |         30 |          0 |          5 |         35 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/List.h             | C++                |         20 |          0 |          5 |         25 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/Message.h          | C++                |         17 |          0 |          6 |         23 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/MessageHandler.h   | C++                |         25 |          7 |          9 |         41 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/Request.h          | C++                |         19 |          0 |          6 |         25 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/Router.h           | C++                |         17 |          0 |          5 |         22 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/SocketClient.h     | C++                |         20 |          0 |          4 |         24 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/SocketServer.h     | C++                |         53 |          2 |         13 |         68 |
+| /home/mustermax/vscode_projects/TW_MAILER/src/headers/Utils.h            | C++                |         16 |          0 |          5 |         21 |
+| /home/mustermax/vscode_projects/TW_MAILER/tests.h                        | C++                |         35 |          0 |          7 |         42 |
+| Total                                                                    |                    |      2,477 |        450 |        735 |      3,662 |
++--------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

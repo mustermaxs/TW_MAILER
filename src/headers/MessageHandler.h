@@ -9,13 +9,19 @@
 #include <exception>
 
 #include "Message.h"
-#include "RecursiveFileHandler.h"
+#include "FileHandler.h"
 #include "ConnectionConfig.h"
 
 namespace fs = std::filesystem;
 
 // TODO constants in config file schreiben und von dort auslesen
 // z.B.: msgsRootDir etc.
+
+//////////////////////////////////////////////////////////////////////
+// Facade that takes care (indirectly) of all the file handling
+// related to operations with messages.
+// e.g. reading/writing/deleting messages, creating userspecific dirs etc.
+//////////////////////////////////////////////////////////////////////
 
 class MessageHandler
 {

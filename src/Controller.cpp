@@ -6,16 +6,23 @@
 Controller::Controller()
 {
     this->messageHandler = new MessageHandler(new FileHandler());
+    this->ldapHandler = new LdapHandler();
+    this->loginAttempts = 0;
+
+    fs::path currentPath = std::filesystem::current_path().parent_path();
+
+    this->blackListFilePath = FileHandler().pathObjToString(currentPath) + "/configs/blacklist.txt";
 };
 
+//////////////////////////////////////////////////////////////////////v
 //////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////
-
 
 Controller::~Controller()
 {
     delete messageHandler;
 };
+
+std::mutex Controller::blacklistMutex;
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -42,13 +49,13 @@ void Controller::receiveMessage(Request req)
             resBody = "OK\n";
         }
 
-        sendResponse(req.getSocketId(), resBody);
+        Response::normal(req.getSocketId(), resBody);
     }
     catch (std::exception &ex)
     {
         std::cerr << "Error in receiveMessage: " << ex.what() << std::endl;
 
-        sendResponse(req.getSocketId(), "ERR\n");
+        Response::normal(req.getSocketId(), "ERR\n");
     }
 };
 
@@ -61,8 +68,7 @@ void Controller::listMessages(Request req)
 {
     try
     {
-        IMessage *requestMessage = req.getMessage();
-        std::string username = requestMessage->getReceiver();
+        std::string username = this->username;
         std::vector<IMessage *> *messages = messageHandler->getMessagesByUsername(username);
         int messagesCount = messages->size();
 
@@ -84,19 +90,19 @@ void Controller::listMessages(Request req)
         }
         delete messages;
 
-        sendResponse(req.getSocketId(), resBody);
+        Response::normal(req.getSocketId(), resBody);
     }
     catch (const std::runtime_error &ex)
     {
         std::cerr << "Error in listMessages: " << ex.what() << std::endl;
 
-        sendResponse(req.getSocketId(), "ERR\n");
+        Response::normal(req.getSocketId(), "ERR\n");
     }
     catch (...)
     {
-        std::cerr << "Error in listMessages: " << std::endl;
+        std::cerr << "Error in listMessages" << std::endl;
 
-        sendResponse(req.getSocketId(), "ERR\n");
+        Response::normal(req.getSocketId(), "ERR\n");
     }
 };
 
@@ -112,7 +118,7 @@ void Controller::readMessage(Request req)
         std::string resBody = "";
         IMessage *requestMessage = req.getMessage();
 
-        std::string username = requestMessage->getReceiver();
+        std::string username = this->username;
         int messageNumber = requestMessage->getMessageNumber();
 
         IMessage *message = messageHandler->getMessage(username, messageNumber);
@@ -129,13 +135,25 @@ void Controller::readMessage(Request req)
 
         delete message;
 
-        sendResponse(req.getSocketId(), resBody);
+        Response::normal(req.getSocketId(), resBody);
     }
-    catch (const std::runtime_error& ex)
+    catch (const std::invalid_argument &ex)
     {
         std::cerr << "Error in readMessage: " << ex.what() << std::endl;
 
-        sendResponse(req.getSocketId(), "ERR\n");
+        Response::normal(req.getSocketId(), "ERR\n");
+    }
+    catch (const std::runtime_error &ex)
+    {
+        std::cerr << "Error in readMessage: " << ex.what() << std::endl;
+
+        Response::normal(req.getSocketId(), "ERR\n");
+    }
+    catch (...)
+    {
+        std::cerr << "Error in readMessage" << std::endl;
+
+        Response::normal(req.getSocketId(), "ERR\n");
     }
 };
 
@@ -147,10 +165,11 @@ void Controller::readMessage(Request req)
 void Controller::deleteMessage(Request req)
 {
 
-    try {
+    try
+    {
 
         IMessage *requestMessage = req.getMessage();
-        std::string username = requestMessage->getSender();
+        std::string username = this->username;
         int messageNumber = requestMessage->getMessageNumber();
 
         bool messageDeleted = messageHandler->deleteMessage(username, messageNumber);
@@ -169,23 +188,23 @@ void Controller::deleteMessage(Request req)
 
         delete requestMessage;
 
-        sendResponse(req.getSocketId(), resBody);
+        Response::normal(req.getSocketId(), resBody);
     }
-    catch (const std::runtime_error& ex)
+    catch (const std::runtime_error &ex)
     {
         std::cerr << "Error in deleteMessage: " << ex.what() << std::endl;
 
-        sendResponse(req.getSocketId(), "ERR\n");
+        Response::normal(req.getSocketId(), "ERR\n");
     }
 };
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-
 /// @brief Used to send response to client.
 /// @param socketId int - socket ID
 /// @param resBody string - the response body.
+// OBSOLETE
 void Controller::sendResponse(int socketId, std::string resBody)
 {
     try
@@ -201,4 +220,147 @@ void Controller::sendResponse(int socketId, std::string resBody)
     {
         std::cout << "Exception while sending Response: " << ex.what() << std::endl;
     }
+};
+
+bool Controller::isLoggedIn(Request req)
+{
+    if (this->username != "")
+        return true;
+    else
+        return false;
+};
+
+bool Controller::loginUser(Request req, LoginMessage *msg)
+{
+    std::string username = msg->getUsername();
+    std::string password = msg->getPassword();
+
+    if (this->isBlacklisted(req.getIp()))
+    {
+        this->sendBannedResponse(req);
+
+        return false;
+    }
+
+    this->loginAttempts++;
+
+    if (this->loginAttempts >= 3)
+    {
+        this->banUser(req);
+        Response::normal(req.getSocketId(), "ERR");
+
+        return false;
+    }
+
+    if (!this->ldapHandler->tryLoginUser(username, password))
+    {
+        Response::normal(req.getSocketId(), "ERR");
+        return false;
+    }
+
+    this->username = username;
+    FileHandler fileHandler = FileHandler();
+    std::string rootDirectory = ConnectionConfig::getBaseDirectory();
+    std::string directoryName = rootDirectory + username + "/";
+    fileHandler.createDirectoryIfNotExists(directoryName);
+
+    Response::normal(req.getSocketId(), "OK");
+
+    return true;
+};
+
+void Controller::banUser(Request req)
+{
+    this->userIsBanned = true;
+    this->putIpOnBlacklist(req.getIp());
+    this->loginAttempts = 0;
+};
+
+void Controller::putIpOnBlacklist(std::string ip)
+{
+    Controller::blacklistMutex.lock();
+    FileHandler fh = FileHandler();
+
+    std::string currTime = Utils::getCurrTimeAsString("%Y-%m-%d %H:%M:%S");
+    std::string timeAndIp = currTime + "@" + ip;
+
+    fh.writeToFile(this->blackListFilePath, timeAndIp);
+    Controller::blacklistMutex.unlock();
+};
+
+bool Controller::isBlacklisted(std::string ip)
+{
+    Controller::blacklistMutex.lock();
+
+    FileHandler fh = FileHandler();
+    std::vector<std::string> lines = fh.readFileLines(this->blackListFilePath);
+    std::cout << this->blackListFilePath << std::endl;
+
+    for (auto &line : lines)
+    {
+        if (line.find(ip) != std::string::npos)
+        {
+            std::string time = line.substr(0, line.find("@"));
+            std::tm tm = {};
+            std::istringstream ss(time);
+            ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S");
+            auto timePoint = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+
+            auto currentTimeStamp = std::chrono::system_clock::now();
+
+            // check if time is older than 1 minute
+            if (std::chrono::duration_cast<std::chrono::minutes>(currentTimeStamp - timePoint).count() > 1)
+            {
+                Controller::blacklistMutex.unlock();
+                this->removeFromBlacklist(ip);
+
+                return false;
+            }
+            else
+            {
+                Controller::blacklistMutex.unlock();
+                
+                return true;
+            }
+        }
+    }
+
+    Controller::blacklistMutex.unlock();
+
+    return false;
+};
+
+void Controller::removeFromBlacklist(std::string ip)
+{
+    Controller::blacklistMutex.lock();
+    FileHandler fh = FileHandler();
+
+    std::vector<std::string> lines = fh.readFileLines(this->blackListFilePath);
+
+    for (size_t i = 0; i < lines.size(); i++)
+    {
+        if (lines[i].find(ip) != std::string::npos)
+        {
+            lines.erase(lines.begin() + i);
+        }
+    }
+
+    std::string linesStr = "";
+    for (auto &line : lines)
+    {
+        linesStr += line + "\n";
+    }
+
+    fh.writeToFile(this->blackListFilePath, linesStr);
+    Controller::blacklistMutex.unlock();
+};
+
+void Controller::sendErrorResponse(Request req)
+{
+    Response::normal(req.getSocketId(), "Not authorized. Must log in first.");
+};
+
+void Controller::sendBannedResponse(Request req)
+{
+    Response::normal(req.getSocketId(), "You are banned.");
 };

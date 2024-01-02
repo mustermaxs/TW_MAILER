@@ -9,14 +9,18 @@
 #include "Request.h"
 #include "Utils.h"
 #include "Message.h"
+#include "Controller.h"
 
 class Router
 {
+private:
+    Controller *controller;
 
 public:
-    Router() {};
+    Router(Controller *);
+    ~Router();
     void init();
-    void mapRequestToController(int , std::string );
+    void mapRequestToController(int, std::string, std::string);
 };
 
 #endif

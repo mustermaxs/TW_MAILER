@@ -13,14 +13,21 @@
 #include <string>
 #include <vector>
 #include <filesystem>
-
+#include <chrono>
+#include <ctime>
+#include <mutex>
 
 #include "MessageHandler.h"
 #include "Request.h"
-#include "Message.h"
-#include "RecursiveFileHandler.h"
+#include "LoginMessage.h"
+#include "FileHandler.h"
+#include "LdapHandler.h"
+#include "Response.h"
+#include "Utils.h"
 
 namespace fs = std::filesystem;
+
+
 
 
 class Controller
@@ -28,15 +35,30 @@ class Controller
 private:
     MessageHandler* messageHandler;
     void sendResponse(int, std::string);
+    LdapHandler* ldapHandler;
+    std::string username;
+    int loginAttempts;
+    bool userIsBanned;
+    std::string blackListFilePath;
 
 public:
+    static std::mutex blacklistMutex;
     Controller();
     ~Controller();
+    bool loginUser(Request, LoginMessage*); // username, pwd
     void receiveMessage(Request);
     void listMessages(Request);
     void readMessage(Request);
     void deleteMessage(Request);
     void quit();
+    bool isLoggedIn(Request);
+    void sendErrorResponse(Request);
+    void sendBannedResponse(Request);
+    void banUser(Request);
+    void putIpOnBlacklist(std::string);
+    bool isBlacklisted(std::string);
+    void removeFromBlacklist(std::string);
+
 };
 
 #endif

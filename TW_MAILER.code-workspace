@@ -60,7 +60,14 @@
             "sstream": "cpp",
             "filesystem": "cpp",
             "fstream": "cpp",
-            "map": "cpp"
+            "map": "cpp",
+            "semaphore": "cpp",
+            "stop_token": "cpp",
+            "thread": "cpp",
+            "condition_variable": "cpp",
+            "mutex": "cpp",
+            "bitset": "cpp",
+            "regex": "cpp"
         }
     }
 }

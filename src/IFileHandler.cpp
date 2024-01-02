@@ -1,4 +1,6 @@
 #include "./headers/IFileHandler.h"
+// TODO Write to file
+// TODO Create directory
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
@@ -63,13 +65,15 @@ std::vector<std::string> IFileHandler::readFileLines(const std::string filePath)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
+/// @brief Reads the content of a file and returns it as a string.
+/// @param filePath string - file path.
+/// @return string - file content.
 std::string IFileHandler::readFile(const std::string filePath)
 {
     std::ifstream file(filePath);
     
     if (!file.is_open()) {
-        std::cerr << "Error opening file: " << filePath << std::endl;
-        return "";
+        throw new std::runtime_error("Failed to read file " + filePath);
     }
 
     std::stringstream buffer;
@@ -153,22 +157,34 @@ bool IFileHandler::writeToFile(const std::string newFilePath, const std::string 
 {
     try
     {
-        std::ofstream file;
+        std::ofstream file(newFilePath);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("File not opened: " + newFilePath);
+        }
+        if (!file)
+        {
+            throw std::runtime_error("Failed to open file for writing: " + newFilePath);
+        }
 
-        file.open(newFilePath);
         file << content;
+
+        if (!file)
+        {
+            throw std::runtime_error("Failed to write to file: " + newFilePath);
+        }
+
         file.close();
 
         return true;
     }
-    catch (...)
+    catch (const std::exception &ex)
     {
-        std::cout << "Failed to write to file " << newFilePath << std::endl;
+        std::cout << "Error: " << ex.what() << std::endl;
 
         return false;
     }
 };
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
@@ -179,6 +195,9 @@ std::vector<std::string> IFileHandler::getFileNamesInDir(const std::string dirNa
 {
     std::vector<std::string> fileNames;
     fs::path dirPathObj = fs::path(dirName);
+
+    if (!this->dirExists(dirPathObj))
+        throw new std::invalid_argument("Directory doesn't exist");
 
     for (const auto &entry : fs::directory_iterator(dirName))
     {
@@ -210,5 +229,3 @@ bool IFileHandler::deleteFile(const std::string pathName)
     }
 };
 
-// TODO Write to file
-// TODO Create directory

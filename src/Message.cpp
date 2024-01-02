@@ -87,11 +87,12 @@ Message *Message::parse(const std::vector<std::string> msgLines)
 
             if (line == msgLines.back())
             {
-                msg->setContent(msgBody);
+
                 readingMsgBody = false;
             }
         }
     }
-
+    msg->setContent(msgBody);
+    
     return msg;
 };
