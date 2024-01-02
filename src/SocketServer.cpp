@@ -255,13 +255,13 @@ int SocketServer::acceptConnectionAndGetSocketId()
     {
         if (this->abortRequested)
         {
-            perror("Accept error after aborted");
+            // perror("Accept error after aborted");
 
             return -1;
         }
         else
         {
-            perror("Accept error");
+            // perror("Accept error");
 
             return -1;
         }

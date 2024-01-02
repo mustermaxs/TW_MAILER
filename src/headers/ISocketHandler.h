@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #define BUF 4096
-#define IPADDRESS "127.0.0.1"
+#define IPADDRESS "asdasd"
 
 class ISocketHandler
 {

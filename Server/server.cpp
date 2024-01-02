@@ -1,4 +1,4 @@
-#include<iostream>
+#include <iostream>
 #include <map>
 #include <cstring>
 #include <cstdlib>
@@ -97,8 +97,11 @@ int main(int argc, char **argv)
             if (clientSocketId == -1)
                 break;
 
-            // create new thread for each client
-            threads[clientSocketId] = std::thread(handleClient, clientSocketId);
+            if (clientSocketId != -1)
+            {
+                threads[clientSocketId] = std::thread(handleClient, clientSocketId);
+                threads[clientSocketId].detach();
+            }
         }
 
         return EXIT_SUCCESS;
@@ -126,11 +129,11 @@ int main(int argc, char **argv)
 void handleClient(int clientSocketId)
 {
 
-    Controller* controller = new Controller();
+    Controller *controller = new Controller();
     Router router = Router(controller);
 
     std::string buffer;
-    
+
     while ((buffer != "quit" || buffer != "QUIT") && !server->shouldAbortRequest())
     {
         buffer = server->receiveData(clientSocketId);
@@ -140,14 +143,12 @@ void handleClient(int clientSocketId)
 
         router.mapRequestToController(clientSocketId, buffer, server->getClientIpBySocketId(clientSocketId));
     }
-    
+
     if (clientSocketId != -1)
     {
         server->closeConnection(clientSocketId);
         close(clientSocketId);
-        // if (threads[clientSocketId].joinable()) {
-        //     threads[clientSocketId].join();
-        // }
+        // threads.erase(clientSocketId);
     }
 }
 
@@ -159,7 +160,7 @@ void signalHandler(int sig)
     if (sig == SIGINT)
     {
         int serverSocketId = server->getSocketId();
-        std::cout << "Abort requested...\n";
+        std::cout << "Abort requested, closing server.\n";
         server->setAbortRequested(true);
         // Shutdown and close sockets if necessary
         // TODO in eigene Servermethode auslagern
@@ -169,11 +170,11 @@ void signalHandler(int sig)
             {
                 if (shutdown(clientSocketId, SHUT_RDWR) == -1)
                 {
-                    perror("Shutdown new_socket");
+                    // perror("Shutdown new_socket");
                 }
                 if (close(clientSocketId) == -1)
                 {
-                    perror("Close new_socket");
+                    // perror("Close new_socket");
                 }
 
                 threads[clientSocketId].join();
@@ -184,14 +185,13 @@ void signalHandler(int sig)
 
         if (serverSocketId != -1)
         {
-            std::cout << "ID:" << serverSocketId << std::endl;
             if (shutdown(serverSocketId, SHUT_RDWR) == -1)
             {
-                perror("Shutdown create_socket");
+                // perror("Shutdown create_socket");
             }
             if (close(serverSocketId) == -1)
             {
-                perror("Close create_socket");
+                // perror("Close create_socket");
             }
         }
     }
@@ -210,11 +210,9 @@ bool sendWelcomeMessage(int socketId)
 
     if (send(new_socket, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
     {
-        perror("Send failed");
+        // perror("Send failed");
+        
         return false;
     }
     return true;
 }
-
-
-

@@ -294,7 +294,6 @@ bool Controller::isBlacklisted(std::string ip)
 
     FileHandler fh = FileHandler();
     std::vector<std::string> lines = fh.readFileLines(this->blackListFilePath);
-    std::cout << this->blackListFilePath << std::endl;
 
     for (auto &line : lines)
     {

@@ -39,7 +39,7 @@ bool SocketClient::makeConnection()
         memset(&this->address, 0, sizeof(this->address));
         this->address.sin_family = AF_INET;
         this->address.sin_port = htons(port);
-        inet_aton(IPADDRESS, &address.sin_addr);
+        inet_aton(this->ip.c_str(), &address.sin_addr);
 
         if (connect(socketId, (struct sockaddr *)&address, sizeof(address)) == -1)
         {
