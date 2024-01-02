@@ -9,7 +9,7 @@
             // "program": "${cwd}/bin/twmailer-client",
             // "args": [ "127.0.0.1", "6543"],
             "program": "${cwd}/bin/twmailer-server",
-            "args": ["6543", "/home/mustermax/vscode_projects/TW_MAILER/messages/"],
+            "args": ["6543", "/home/mustermax/Desktop/messages/"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

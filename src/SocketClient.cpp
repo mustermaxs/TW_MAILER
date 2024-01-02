@@ -65,10 +65,9 @@ bool SocketClient::sendData(std::string data)
 {
     try
     {
-        char buffer[BUF];
         int size = 0;
 
-        if (size = send(this->socketId, data.c_str(), data.length(), 0) == -1)
+        if ((size = send(this->socketId, data.c_str(), data.length(), 0)) == -1)
         {
             throw std::runtime_error("Send error.");
 

@@ -13,7 +13,7 @@ protected:
     int port;
 
 public:
-    bool sendData(const std::string, int) override {};
+    bool sendData(const std::string, int) override { return true; };
     bool sendData(const std::string);
     SocketClient(std::string, int);
     bool makeConnection() override;

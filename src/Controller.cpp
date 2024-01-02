@@ -8,9 +8,13 @@ Controller::Controller()
     this->messageHandler = new MessageHandler(new FileHandler());
     this->ldapHandler = new LdapHandler();
     this->loginAttempts = 0;
+
+    fs::path currentPath = std::filesystem::current_path().parent_path();
+
+    this->blackListFilePath = FileHandler().pathObjToString(currentPath) + "/configs/blacklist.txt";
 };
 
-//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////v
 //////////////////////////////////////////////////////////////////////
 
 Controller::~Controller()
@@ -64,7 +68,6 @@ void Controller::listMessages(Request req)
 {
     try
     {
-        IMessage *requestMessage = req.getMessage();
         std::string username = this->username;
         std::vector<IMessage *> *messages = messageHandler->getMessagesByUsername(username);
         int messagesCount = messages->size();
@@ -238,6 +241,9 @@ bool Controller::loginUser(Request req, LoginMessage *msg)
 
         return false;
     }
+
+    this->loginAttempts++;
+
     if (this->loginAttempts >= 3)
     {
         this->banUser(req);
@@ -253,8 +259,11 @@ bool Controller::loginUser(Request req, LoginMessage *msg)
     }
 
     this->username = username;
+    FileHandler fileHandler = FileHandler();
+    std::string rootDirectory = ConnectionConfig::getBaseDirectory();
+    std::string directoryName = rootDirectory + username + "/";
+    fileHandler.createDirectoryIfNotExists(directoryName);
 
-    this->loginAttempts++;
     Response::normal(req.getSocketId(), "OK");
 
     return true;
@@ -275,7 +284,7 @@ void Controller::putIpOnBlacklist(std::string ip)
     std::string currTime = Utils::getCurrTimeAsString("%Y-%m-%d %H:%M:%S");
     std::string timeAndIp = currTime + "@" + ip;
 
-    fh.writeToFile("./blacklist.txt", timeAndIp);
+    fh.writeToFile(this->blackListFilePath, timeAndIp);
     Controller::blacklistMutex.unlock();
 };
 
@@ -284,7 +293,8 @@ bool Controller::isBlacklisted(std::string ip)
     Controller::blacklistMutex.lock();
 
     FileHandler fh = FileHandler();
-    std::vector<std::string> lines = fh.readFileLines("./blacklist.txt");
+    std::vector<std::string> lines = fh.readFileLines(this->blackListFilePath);
+    std::cout << this->blackListFilePath << std::endl;
 
     for (auto &line : lines)
     {
@@ -299,11 +309,17 @@ bool Controller::isBlacklisted(std::string ip)
             auto currentTimeStamp = std::chrono::system_clock::now();
 
             // check if time is older than 1 minute
-            if (std::chrono::duration_cast<std::chrono::minutes>(currentTimeStamp - timePoint).count() < 1)
+            if (std::chrono::duration_cast<std::chrono::minutes>(currentTimeStamp - timePoint).count() > 1)
             {
                 Controller::blacklistMutex.unlock();
                 this->removeFromBlacklist(ip);
 
+                return false;
+            }
+            else
+            {
+                Controller::blacklistMutex.unlock();
+                
                 return true;
             }
         }
@@ -318,9 +334,10 @@ void Controller::removeFromBlacklist(std::string ip)
 {
     Controller::blacklistMutex.lock();
     FileHandler fh = FileHandler();
-    std::vector<std::string> lines = fh.readFileLines("./blacklist.txt");
 
-    for (int i = 0; i < lines.size(); i++)
+    std::vector<std::string> lines = fh.readFileLines(this->blackListFilePath);
+
+    for (size_t i = 0; i < lines.size(); i++)
     {
         if (lines[i].find(ip) != std::string::npos)
         {
@@ -334,7 +351,7 @@ void Controller::removeFromBlacklist(std::string ip)
         linesStr += line + "\n";
     }
 
-    fh.writeToFile("./blacklist.txt", linesStr);
+    fh.writeToFile(this->blackListFilePath, linesStr);
     Controller::blacklistMutex.unlock();
 };
 

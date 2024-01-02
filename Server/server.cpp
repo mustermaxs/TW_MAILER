@@ -9,7 +9,6 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string>
-#include <ldap.h>
 #include <thread>
 #include <mutex>
 
@@ -41,12 +40,12 @@ The Controller class uses the MessageHandler (leveraging the FileHandler) class 
 int abortRequested = 0;
 int create_socket = -1;
 int new_socket = -1;
-// int ldapVersion = LDAP_VERSION3;
+int ldapVersion = LDAP_VERSION3;
 
+bool LDAPauthenticate(std::string username, std::string password);
 void signalHandler(int sig);
 bool sendWelcomeMessage(int socketId);
 void handleClient(int clientSocketId);
-// LDAP *initializeLDAP(const std::string &ldapUri, const std::string &userDN, const std::string &password);
 
 SocketServer *server = new SocketServer();
 std::map<int, std::thread> threads;
@@ -69,7 +68,7 @@ int main(int argc, char **argv)
         }
 
         // check if argv[1] is int
-        for (int i = 0; i < strlen(argv[1]); i++)
+        for (size_t i = 0; i < strlen(argv[1]); i++)
         {
             if (!isdigit(argv[1][i]))
             {
@@ -78,6 +77,7 @@ int main(int argc, char **argv)
                 return EXIT_FAILURE;
             }
         }
+
         int port = atoi(argv[1]);
         server->setPort(port);
 
@@ -103,17 +103,17 @@ int main(int argc, char **argv)
 
         return EXIT_SUCCESS;
     }
-    catch (const std::exception &e)
-    {
-        std::cerr << e.what() << '\n';
-        return EXIT_FAILURE;
-    }
     catch (const std::invalid_argument &e)
     {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
     }
     catch (const std::runtime_error &e)
+    {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
+    }
+    catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
@@ -130,15 +130,13 @@ void handleClient(int clientSocketId)
     Router router = Router(controller);
 
     std::string buffer;
-    int size;
-
+    
     while ((buffer != "quit" || buffer != "QUIT") && !server->shouldAbortRequest())
     {
         buffer = server->receiveData(clientSocketId);
 
         if (buffer.size() == 0)
             break;
-
 
         router.mapRequestToController(clientSocketId, buffer, server->getClientIpBySocketId(clientSocketId));
     }
@@ -163,10 +161,6 @@ void signalHandler(int sig)
         int serverSocketId = server->getSocketId();
         std::cout << "Abort requested...\n";
         server->setAbortRequested(true);
-        for (const auto& thread : threads)
-        {
-            std::cout << "THREAD " << thread.first << ": "  << thread.second.joinable() << std::endl;
-        }
         // Shutdown and close sockets if necessary
         // TODO in eigene Servermethode auslagern
         for (int clientSocketId : server->getClientSocketIds())
@@ -188,11 +182,6 @@ void signalHandler(int sig)
             }
         }
 
-        for (const auto& thread : threads)
-        {
-            std::cout << "THREAD " << thread.first << ": "  << thread.second.joinable() << std::endl;
-        }
-        // server->stopServer();
         if (serverSocketId != -1)
         {
             std::cout << "ID:" << serverSocketId << std::endl;
@@ -227,55 +216,5 @@ bool sendWelcomeMessage(int socketId)
     return true;
 }
 
-// LDAP *initializeLDAP(const std::string &ldapUri, const std::string &userDN, const std::string &password)
-// {
-//     LDAP *ldapHandle;
-//     int rc = ldap_initialize(&ldapHandle, ldapUri.c_str());
-//     if (rc != LDAP_SUCCESS)
-//     {
-//         std::cerr << "ldap_initialize failed: " << ldap_err2string(rc) << '\n';
-//         return nullptr;
-//     }
 
-//     // Set LDAP version
-//     rc = ldap_set_option(ldapHandle, LDAP_OPT_PROTOCOL_VERSION, &ldapVersion);
-//     if (rc != LDAP_SUCCESS)
-//     {
-//         std::cerr << "ldap_set_option(PROTOCOL_VERSION): " << ldap_err2string(rc) << '\n';
-//         ldap_unbind_ext_s(ldapHandle, NULL, NULL);
-//         return nullptr;
-//     }
 
-//     // Start TLS
-//     rc = ldap_start_tls_s(ldapHandle, NULL, NULL);
-//     if (rc != LDAP_SUCCESS)
-//     {
-//         std::cerr << "ldap_start_tls_s(): " << ldap_err2string(rc) << '\n';
-//         ldap_unbind_ext_s(ldapHandle, NULL, NULL);
-//         return nullptr;
-//     }
-
-//     // Bind credentials
-//     BerValue bindCredentials;
-//     bindCredentials.bv_val = const_cast<char *>(password.c_str());
-//     bindCredentials.bv_len = password.size();
-//     BerValue *servercredp;
-
-//     rc = ldap_sasl_bind_s(
-//         ldapHandle,
-//         userDN.c_str(),
-//         LDAP_SASL_SIMPLE,
-//         &bindCredentials,
-//         NULL,
-//         NULL,
-//         &servercredp);
-
-//     if (rc != LDAP_SUCCESS)
-//     {
-//         std::cerr << "LDAP bind error: " << ldap_err2string(rc) << '\n';
-//         ldap_unbind_ext_s(ldapHandle, NULL, NULL);
-//         return nullptr;
-//     }
-
-//     return ldapHandle;
-// }

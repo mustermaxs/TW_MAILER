@@ -1,6 +1,7 @@
 #ifndef LDAPHANDLER_H
 #define LDAPHANDLER_H
 
+#include <ldap.h>
 #include <string>
 
 

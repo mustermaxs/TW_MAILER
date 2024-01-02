@@ -231,7 +231,7 @@ void SocketServer::stopServer()
 /// @brief Checks if port number was set. Throws runtime_error otherwise.
 void SocketServer::checkIfSetupComplete()
 {
-    if (!this->port > -1)
+    if (this->port < 0)
         throw new std::runtime_error("Server not set up correctly.");
 };
 

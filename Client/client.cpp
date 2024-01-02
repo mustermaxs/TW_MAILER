@@ -16,7 +16,8 @@
 
 int main(int argc, char **argv)
 {
-    if (argc < 3 || argv[1] == "help")
+
+    if (argc < 3 || (std::string(argv[1]) == "help"))
     {
         PRINT_USAGE;
 

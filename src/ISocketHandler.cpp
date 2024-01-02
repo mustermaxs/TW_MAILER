@@ -78,10 +78,9 @@ bool ISocketHandler::sendData(std::string data, int socketId)
 {
     try
     {
-        char buffer[BUF];
         int size = 0;
 
-        if (size = send(socketId, data.c_str(), data.length(), 0) == -1)
+        if ((size = send(socketId, data.c_str(), data.length(), 0)) == -1)
         {
             throw std::runtime_error("Send error.");
 

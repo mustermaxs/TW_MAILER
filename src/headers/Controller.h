@@ -39,6 +39,7 @@ private:
     std::string username;
     int loginAttempts;
     bool userIsBanned;
+    std::string blackListFilePath;
 
 public:
     static std::mutex blacklistMutex;

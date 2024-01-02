@@ -157,22 +157,34 @@ bool IFileHandler::writeToFile(const std::string newFilePath, const std::string 
 {
     try
     {
-        std::ofstream file;
+        std::ofstream file(newFilePath);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("File not opened: " + newFilePath);
+        }
+        if (!file)
+        {
+            throw std::runtime_error("Failed to open file for writing: " + newFilePath);
+        }
 
-        file.open(newFilePath);
         file << content;
+
+        if (!file)
+        {
+            throw std::runtime_error("Failed to write to file: " + newFilePath);
+        }
+
         file.close();
 
         return true;
     }
-    catch (...)
+    catch (const std::exception &ex)
     {
-        std::cout << "Failed to write to file " << newFilePath << std::endl;
+        std::cout << "Error: " << ex.what() << std::endl;
 
         return false;
     }
 };
-
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 

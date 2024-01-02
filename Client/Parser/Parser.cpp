@@ -244,7 +244,6 @@ Parser *Parser::parseSendCommand(std::string line)
 void Parser::buildCommandString(std::string &line, const std::vector<std::string> &headers)
 {
     std::string header = "";
-    int headerCount = headers.size();
 
     header = this->getCurrentHeader();
 
@@ -268,7 +267,7 @@ std::string Parser::getCurrentHeader()
     if (this->mode == Command::NOT_SET)
         return "";
 
-    return (this->lineNumber > 0 && this->lineNumber < this->headers[this->mode].size() + 1)
+    return (this->lineNumber > 0 && this->lineNumber < (int)this->headers[this->mode].size() + 1)
                ? this->headers[this->mode][this->lineNumber - 1] + ":"
                : "";
 };
