@@ -14,6 +14,9 @@
 
 #include "../src/headers/Router.h"
 #include "../src/headers/ConnectionConfig.h"
+<<<<<<< HEAD
+#include "../src/headers/RecursiveFileHandler.h"
+=======
 #include "../src/headers/FileHandler.h"
 #include "../src/headers/SocketServer.h"
 
@@ -34,6 +37,7 @@ The Controller itself is responsible for sending the response back to the client
 The Controller class uses the MessageHandler (leveraging the FileHandler) class to handle all the filesystem operations relevant to Messages.
 
 */
+>>>>>>> refactor-server-file
 
 #define BUF 4096
 
@@ -45,7 +49,10 @@ int ldapVersion = LDAP_VERSION3;
 bool LDAPauthenticate(std::string username, std::string password);
 void signalHandler(int sig);
 bool sendWelcomeMessage(int socketId);
+void handleClient(int clientSocketId);
 
+SocketServer *server = new SocketServer();
+std::map<int, std::thread> threads;
 
 int main(int argc, char **argv)
 {
@@ -200,44 +207,10 @@ void signalHandler(int sig)
 
 bool sendWelcomeMessage(int socketId)
 {
-    std::string welcomeMessage = "Welcome to the TW Mailer Server!\r\n";
-    
-    welcomeMessage +=  "Please enter your commands:\r\n";
+    IFileHandler *fileHandler = new FileHandler();
+    std::string welcomeMessage = fileHandler->readFile("../Server/hellomsg.txt");
 
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|------------ Commands: ----------|\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|---------Send a message:---------|\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|  SEND                           |\r\n";
-    welcomeMessage += "|  <Sender>                       |\r\n";
-    welcomeMessage += "|  <Receiver>                     |\r\n";
-    welcomeMessage += "|  <Subject>                      |\r\n";
-    welcomeMessage += "|  <Message>                      |\r\n";
-    welcomeMessage += "|  .                              |\r\n";
-    welcomeMessage += "|  (End the message with '.\\n')   |\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|--------List all messages:-------|\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|  LIST                           |\r\n";
-    welcomeMessage += "|  <Username>                     |\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|---------Read a message:---------|\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|  READ                           |\r\n";
-    welcomeMessage += "|  <Username>                     |\r\n";
-    welcomeMessage += "|  <Message-Number>               |\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|--------Delete a message:--------|\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|  DEL                            |\r\n";
-    welcomeMessage += "|  <Username>                     |\r\n";
-    welcomeMessage += "|  <Message-Number>               |\r\n";
-    welcomeMessage += "|---------------------------------|\r\n";
-    welcomeMessage += "|---------Quit the server:--------|\r\n";
-    welcomeMessage += "|  QUIT                           |\r\n";
-    welcomeMessage += "|---------------------------------|\r\n\r\n";
-    welcomeMessage += "| Enter your command:\r\n\r\n";
+    delete fileHandler;
 
     if (send(new_socket, welcomeMessage.c_str(), welcomeMessage.length(), 0) == -1)
     {
