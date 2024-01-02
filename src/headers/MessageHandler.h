@@ -14,9 +14,6 @@
 
 namespace fs = std::filesystem;
 
-// TODO constants in config file schreiben und von dort auslesen
-// z.B.: msgsRootDir etc.
-
 //////////////////////////////////////////////////////////////////////
 // Facade that takes care (indirectly) of all the file handling
 // related to operations with messages.

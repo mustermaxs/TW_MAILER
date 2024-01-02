@@ -45,7 +45,6 @@ public:
     SocketServer();
 
     bool init();
-    void startServer();
     bool createSocket() override;
     bool initAddress();
     bool makeConnection() override;
@@ -67,8 +66,6 @@ public:
     void checkIfSetupComplete();
     std::string getClientIpBySocketId(int socketId);
 
-    // TODO
-    // void handleRequest(int);
 };
 
 #endif

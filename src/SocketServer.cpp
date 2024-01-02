@@ -238,11 +238,6 @@ void SocketServer::checkIfSetupComplete()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-/// @brief Starts the server.
-/// @deprecated
-void SocketServer::startServer(){
-    // TODO wrapper methode für initialisierung
-};
 
 int SocketServer::acceptConnectionAndGetSocketId()
 {

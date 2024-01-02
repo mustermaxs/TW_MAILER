@@ -163,7 +163,7 @@ void signalHandler(int sig)
         std::cout << "Abort requested, closing server.\n";
         server->setAbortRequested(true);
         // Shutdown and close sockets if necessary
-        // TODO in eigene Servermethode auslagern
+
         for (int clientSocketId : server->getClientSocketIds())
         {
             if (clientSocketId != -1)

@@ -51,7 +51,6 @@ Parser *Parser::parse(const std::string input)
 
     if (this->mode == NOT_SET)
     {
-        // TODO print usage
         std::cout << Color::Mod::getString(Color::FG_RED, "Invalid command.\n") << std::endl;
 
         return this;
@@ -225,7 +224,6 @@ Parser *Parser::parseSendCommand(std::string line)
     if (line == ".")
     {
         this->continueReadline = false;
-        //TODO reset aufrufen?
         return this;
     }
 
