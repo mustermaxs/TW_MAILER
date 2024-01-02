@@ -14,9 +14,6 @@
 
 #include "../src/headers/Router.h"
 #include "../src/headers/ConnectionConfig.h"
-<<<<<<< HEAD
-#include "../src/headers/RecursiveFileHandler.h"
-=======
 #include "../src/headers/FileHandler.h"
 #include "../src/headers/SocketServer.h"
 
@@ -37,7 +34,6 @@ The Controller itself is responsible for sending the response back to the client
 The Controller class uses the MessageHandler (leveraging the FileHandler) class to handle all the filesystem operations relevant to Messages.
 
 */
->>>>>>> refactor-server-file
 
 #define BUF 4096
 
