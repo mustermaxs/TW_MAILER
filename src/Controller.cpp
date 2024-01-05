@@ -7,7 +7,7 @@ Controller::Controller()
 {
     this->messageHandler = new MessageHandler(new FileHandler());
     this->ldapHandler = new LdapHandler();
-    this->loginAttempts = 0;
+    this->loginAttempts = 1;
 
     fs::path currentPath = std::filesystem::current_path().parent_path();
 
@@ -230,43 +230,65 @@ bool Controller::isLoggedIn(Request req)
         return false;
 };
 
+///@brief Handles the login of a user.
+///@param req Request.
+///@param msg LoginMessage.
+///@return true if login was successful, false otherwise.
 bool Controller::loginUser(Request req, LoginMessage *msg)
 {
-    std::string username = msg->getUsername();
-    std::string password = msg->getPassword();
-
-    if (this->isBlacklisted(req.getIp()))
+    try
     {
-        this->sendBannedResponse(req);
+
+        std::string username = msg->getUsername();
+        std::string password = msg->getPassword();
+
+        if (this->isBlacklisted(req.getIp()))
+        {
+            this->sendBannedResponse(req);
+
+            return false;
+        }
+
+        if (this->isLoggedIn(req))
+        {
+            Response::normal(req.getSocketId(), "You are already logged in.");
+            return true;
+        }
+
+        this->loginAttempts++;
+
+        if (this->loginAttempts >= 3)
+        {
+            this->banUser(req);
+            Response::normal(req.getSocketId(), "ERR");
+
+            return false;
+        }
+
+        if (!this->ldapHandler->tryLoginUser(username, password))
+        {
+            Response::normal(req.getSocketId(), "ERR");
+            return false;
+        }
+
+        this->username = username;
+        FileHandler fileHandler = FileHandler();
+        std::string rootDirectory = ConnectionConfig::getBaseDirectory();
+        std::string directoryName = rootDirectory + username + "/";
+        fileHandler.createDirectoryIfNotExists(directoryName);
+
+        Response::normal(req.getSocketId(), "OK");
+
+        return true;
+    }
+    catch (const std::exception &ex)
+    {
+        std::cerr << "Error in loginUser: " << ex.what() << std::endl;
+
+        Response::normal(req.getSocketId(), "ERR\n");
 
         return false;
     }
-
-    this->loginAttempts++;
-
-    if (this->loginAttempts >= 3)
-    {
-        this->banUser(req);
-        Response::normal(req.getSocketId(), "ERR");
-
-        return false;
-    }
-
-    if (!this->ldapHandler->tryLoginUser(username, password))
-    {
-        Response::normal(req.getSocketId(), "ERR");
-        return false;
-    }
-
-    this->username = username;
-    FileHandler fileHandler = FileHandler();
-    std::string rootDirectory = ConnectionConfig::getBaseDirectory();
-    std::string directoryName = rootDirectory + username + "/";
-    fileHandler.createDirectoryIfNotExists(directoryName);
-
-    Response::normal(req.getSocketId(), "OK");
-
-    return true;
 };
 
 void Controller::banUser(Request req)
@@ -278,18 +300,28 @@ void Controller::banUser(Request req)
 
 void Controller::putIpOnBlacklist(std::string ip)
 {
-    Controller::blacklistMutex.lock();
-    FileHandler fh = FileHandler();
+    try
+    {
 
-    std::string currTime = Utils::getCurrTimeAsString("%Y-%m-%d %H:%M:%S");
-    std::string timeAndIp = currTime + "@" + ip;
+        Controller::blacklistMutex.lock();
+        FileHandler fh = FileHandler();
 
-    fh.writeToFile(this->blackListFilePath, timeAndIp);
-    Controller::blacklistMutex.unlock();
+        std::string currTime = Utils::getCurrTimeAsString("%Y-%m-%d %H:%M:%S");
+        std::string timeAndIp = currTime + "@" + ip;
+
+        fh.writeToFile(this->blackListFilePath, timeAndIp);
+        Controller::blacklistMutex.unlock();
+    }
+    catch (const std::exception &ex)
+    {
+        std::cerr << "Error in putIpOnBlacklist: " << ex.what() << std::endl;
+    }
 };
 
 bool Controller::isBlacklisted(std::string ip)
 {
+    try {
+
     Controller::blacklistMutex.lock();
 
     FileHandler fh = FileHandler();
@@ -318,7 +350,7 @@ bool Controller::isBlacklisted(std::string ip)
             else
             {
                 Controller::blacklistMutex.unlock();
-                
+
                 return true;
             }
         }
@@ -327,10 +359,18 @@ bool Controller::isBlacklisted(std::string ip)
     Controller::blacklistMutex.unlock();
 
     return false;
+    
+    } catch (const std::exception &ex) {
+        Controller::blacklistMutex.unlock();
+        std::cerr << "Error in isBlacklisted: " << ex.what() << std::endl;
+        return false;
+    }
 };
 
 void Controller::removeFromBlacklist(std::string ip)
 {
+    try {
+
     Controller::blacklistMutex.lock();
     FileHandler fh = FileHandler();
 
@@ -352,6 +392,12 @@ void Controller::removeFromBlacklist(std::string ip)
 
     fh.writeToFile(this->blackListFilePath, linesStr);
     Controller::blacklistMutex.unlock();
+    
+    }
+    catch (const std::exception &ex) {
+        Controller::blacklistMutex.unlock();
+        std::cerr << "Error in removeFromBlacklist: " << ex.what() << std::endl;
+    }
 };
 
 void Controller::sendErrorResponse(Request req)

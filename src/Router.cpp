@@ -11,6 +11,7 @@ Router::~Router() { delete this->controller; };
 /// @brief Executes the correct controlelr method to handle the client request.
 /// @param socketId int - to send response.
 /// @param buffer string - content of the request.
+/// @param ip string - ip of the client.
 void Router::mapRequestToController(int socketId, std::string buffer, std::string ip)
 {
     std::string commandStr = buffer.substr(0, buffer.find("\n"));
@@ -29,17 +30,18 @@ void Router::mapRequestToController(int socketId, std::string buffer, std::strin
     
     Request request = Request(command, socketId, message, ip);
 
+    if(controller->isBlacklisted(request.getIp()))
+    {
+        Response::normal(request.getSocketId(), "You're banned.");
+        return;
+    }
+    
     if(command != Command::LOGIN && !controller->isLoggedIn(request))
     {
         controller->sendErrorResponse(request);
         return;
     }
 
-    if(controller->isBlacklisted(request.getIp()))
-    {
-        Response::normal(request.getSocketId(), "You're banned.");
-        return;
-    }
     
     switch (command)
     {

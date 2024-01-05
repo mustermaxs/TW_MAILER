@@ -238,26 +238,32 @@ void SocketServer::checkIfSetupComplete()
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-
 int SocketServer::acceptConnectionAndGetSocketId()
 {
     int newClientSocketId;
     struct sockaddr_in newClientSocketAddr;
     socklen_t clientAddrLength = sizeof(struct sockaddr_in);
-    newClientSocketId = accept(this->socketId, (struct sockaddr *)&newClientSocketAddr, &clientAddrLength);
+
+    try
+    {
+        newClientSocketId = accept(this->socketId, (struct sockaddr *)&newClientSocketAddr, &clientAddrLength);
+    }
+    catch (...)
+    {
+        std::cout << "Will be going to be stopping to doing accepting connections." << std::endl;
+
+        return -1;
+    }
+
     if ((newClientSocketId) == -1)
 
     {
         if (this->abortRequested)
         {
-            // perror("Accept error after aborted");
-
             return -1;
         }
         else
         {
-            // perror("Accept error");
-
             return -1;
         }
     }

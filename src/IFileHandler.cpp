@@ -125,7 +125,6 @@ bool IFileHandler::dirExists(const std::string path)
 /// @return True if directory exists.
 bool IFileHandler::createDirectoryIfNotExists(std::string dirName)
 {
-    // ? wo root directory deklarieren
     try
     {
         if (this->dirExists(dirName))
@@ -227,4 +226,3 @@ bool IFileHandler::deleteFile(const std::string pathName)
         return false;
     }
 };
-

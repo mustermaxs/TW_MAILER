@@ -3,6 +3,7 @@
 
 #include <ldap.h>
 #include <string>
+#include <iostream>
 
 
 class LdapHandler

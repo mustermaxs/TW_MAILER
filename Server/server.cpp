@@ -160,7 +160,7 @@ void signalHandler(int sig)
     if (sig == SIGINT)
     {
         int serverSocketId = server->getSocketId();
-        std::cout << "Abort requested, closing server.\n";
+        std::cout << "Abortion requested, closing servant.\n";
         server->setAbortRequested(true);
         // Shutdown and close sockets if necessary
 

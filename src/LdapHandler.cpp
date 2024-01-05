@@ -6,7 +6,8 @@ LdapHandler::~LdapHandler(){};
 
 bool LdapHandler::tryLoginUser(std::string username, std::string password)
 {
-
+    try
+    {
     const char *ldapUri = "ldap://ldap.technikum-wien.at:389";
     const int ldapVersion = LDAP_VERSION3;
     LDAP *ldapHandle;
@@ -57,4 +58,12 @@ bool LdapHandler::tryLoginUser(std::string username, std::string password)
 
     ldap_unbind_ext_s(ldapHandle, NULL, NULL);
     return true;
+    }
+    catch (...)
+    {
+        std::cerr << "Failed to authenticate with LdapHandler" << std::endl;
+
+        return false;
+    }
 };
+
