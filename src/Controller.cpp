@@ -7,12 +7,13 @@ Controller::Controller()
 {
     this->messageHandler = new MessageHandler(new FileHandler());
     this->ldapHandler = new LdapHandler();
-    this->loginAttempts = 1;
+    this->loginAttempts = 0;
 
     fs::path currentPath = std::filesystem::current_path().parent_path();
 
     this->blackListFilePath = FileHandler().pathObjToString(currentPath) + "/configs/blacklist.txt";
 };
+
 
 //////////////////////////////////////////////////////////////////////v
 //////////////////////////////////////////////////////////////////////
