@@ -16,8 +16,8 @@ SocketServer::SocketServer()
 void SocketServer::setSpoolDir(std::string spoolDir)
 {
     FileHandler fileHandler = FileHandler();
-    this->msgDirPath = spoolDir[spoolDir.size() - 1] != '/' ? spoolDir += "/" : spoolDir;
-    this->msgDirPath = spoolDir[0] != '/' ? "/" + this->msgDirPath : this->msgDirPath;
+    
+    this->msgDirPath = spoolDir;
 
     if (!fileHandler.createDirectoryIfNotExists(this->msgDirPath))
         throw new std::invalid_argument("Directory doesn't exist.");
